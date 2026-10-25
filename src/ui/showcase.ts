@@ -79,22 +79,26 @@ export class Showcase {
     c.translate(W / 2, baseY);
 
     // brilho de fundo
-    const g = c.createRadialGradient(0, -60 * scale, 4, 0, -60 * scale, 95 * scale);
+    const g = c.createRadialGradient(0, -60 * scale, 4, 0, -60 * scale, Math.min(95 * scale, Math.min(W, H) * 0.55));
     g.addColorStop(0, rgba(this.rarityColor, 0.55));
     g.addColorStop(1, rgba(this.rarityColor, 0));
     c.fillStyle = g;
     c.fillRect(-W, -H, W * 2, H * 2);
 
     if (this.mode === 'pedestal' || this.mode === 'victory' || this.mode === 'defeat') {
-      // raios girando
+      // raios girando (desbotam até a borda — nada de retângulo visível)
       c.save();
       c.globalCompositeOperation = 'lighter';
+      const R = Math.min(W, H) * 0.62;
       for (let i = 0; i < 10; i++) {
         const a = t * 0.25 + (i / 10) * Math.PI * 2;
-        c.fillStyle = rgba(this.rarityColor, 0.06);
+        const rg = c.createRadialGradient(0, -55 * scale, 0, 0, -55 * scale, R);
+        rg.addColorStop(0, rgba(this.rarityColor, 0.1));
+        rg.addColorStop(1, rgba(this.rarityColor, 0));
+        c.fillStyle = rg;
         c.beginPath();
         c.moveTo(0, -55 * scale);
-        c.arc(0, -55 * scale, 140 * scale, a, a + 0.18);
+        c.arc(0, -55 * scale, R, a, a + 0.18);
         c.fill();
       }
       c.restore();

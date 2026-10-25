@@ -191,7 +191,7 @@ export function gameScreen(app: App, params: Record<string, unknown>): Screen {
     const k = Math.max(0, player.hp / player.maxHp);
     hpFill.style.width = `${(k * 100).toFixed(1)}%`;
     hpText.textContent = player.alive ? `${Math.ceil(player.hp)}` : player.respawnT > 0 ? `Renascendo ${Math.ceil(player.respawnT)}` : 'Derrubado';
-    soulsEl.textContent = mode.souls ? `◆ ${player.souls} almas (+${Math.round(player.souls * content.control.souls.damageBonus * 100)}% dano)` : '';
+    soulsEl.textContent = mode.souls ? `◆ ${player.souls} alma${player.souls === 1 ? '' : 's'}${player.souls ? ` · +${Math.round(player.souls * content.control.souls.damageBonus * 100)}%` : ''}` : '';
 
     const charge = player.specialMax > 0 ? 1 - player.specialCd / player.specialMax : 1;
     specialBtn.style.setProperty('--charge', String(Math.max(0, Math.min(1, charge))));

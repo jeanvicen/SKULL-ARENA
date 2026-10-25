@@ -44,12 +44,13 @@ export function topbar(app: App, opts: { back?: ScreenName; title?: string } = {
           h('div', { class: 'pname stroke' }, s.player.name),
           h('div', { class: 'ptitle', style: `color:${title?.color ?? '#ccc'}` }, title?.name ?? ''),
           h('div', { class: 'bar xp' }, h('i', { style: `width:${(xpk * 100).toFixed(1)}%` })),
+          h('span', { class: 'trophy-mini' }, svg(ICON.trophy), fmt(s.trophies)),
         ),
       ),
     );
   }
   bar.append(h('div', { class: 'spacer' }));
-  bar.append(h('div', { class: 'pill', title: 'Troféus' }, svg(ICON.trophy), h('span', { style: 'padding-right:8px' }, fmt(s.trophies))));
+  bar.append(h('div', { class: 'pill trophy', title: 'Troféus' }, svg(ICON.trophy), h('span', { style: 'padding-right:8px' }, fmt(s.trophies))));
   bar.append(currencyPill(app, 'coins'), currencyPill(app, 'gems'));
   return bar;
 }

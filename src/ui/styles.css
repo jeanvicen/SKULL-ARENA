@@ -273,6 +273,7 @@ h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 400; }
   animation: slideup 500ms ease both;
 }
 .event-banner .em { font-size: 26px; }
+.event-banner svg { width: 18px; height: 18px; flex: none; }
 .event-banner small { display: block; font: 700 11px var(--font-body); opacity: 0.9; }
 .play-zone { padding: 8px 12px 6px; display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: stretch; }
 .mode-card {
@@ -322,7 +323,7 @@ h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 400; }
 .kit .k .kt { font: 14px var(--font-display); }
 .kit .k .kd { font-size: 12px; font-weight: 700; color: var(--ink2); line-height: 1.35; }
 .voice-bubble {
-  position: absolute; left: 8px; right: 8px; top: 8px; padding: 6px 10px; border-radius: 12px; font-size: 12px; font-weight: 800;
+  position: absolute; left: 6px; right: 6px; top: 6px; padding: 5px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; line-height: 1.25;
   background: #fff; color: #1a0d33; box-shadow: 0 3px 0 rgba(0,0,0,0.35); animation: popin 350ms ease both; text-align: center;
 }
 .lore { margin: 10px 12px 0; padding: 10px 12px; border-radius: 14px; font-size: 13px; line-height: 1.5; font-weight: 600; color: var(--ink2); background: rgba(10,4,24,0.35); border-left: 4px solid var(--rc); }
@@ -373,7 +374,8 @@ h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 400; }
 @keyframes announce { 0% { transform: scale(0.4); opacity: 0; } 15% { transform: scale(1.15); opacity: 1; } 25% { transform: scale(1); } 80% { opacity: 1; } 100% { transform: translateY(-20px); opacity: 0; } }
 @keyframes count { 0% { transform: scale(1.8); opacity: 0; } 25% { transform: scale(1); opacity: 1; } 85% { opacity: 1; } 100% { transform: scale(0.8); opacity: 0; } }
 .bot-banner { position: absolute; left: 50%; top: calc(48px + var(--safe-top)); transform: translateX(-50%); z-index: 4; pointer-events: none; animation: slideup 400ms ease both; transition: opacity 600ms; max-width: 92%; }
-.bot-banner .notice { font-size: 12px; background: rgba(40, 20, 4, 0.85); }
+.bot-banner .notice { font-size: 11px; padding: 6px 10px; background: rgba(40, 20, 4, 0.85); }
+.bot-banner { width: max-content; max-width: min(92%, 420px); }
 
 .controls {
   position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: 1fr 1.25fr 1fr; align-items: center;
@@ -575,11 +577,28 @@ h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 400; }
   .rotate-hint.show { display: grid; }
 }
 
+/* Celular estreito: topbar compacta */
+@media (max-width: 480px) {
+  .topbar { gap: 6px; padding: 8px 8px 4px; }
+  .topbar .pill { height: 32px; font-size: 14px; gap: 4px; }
+  .topbar .pill svg { width: 22px; height: 22px; }
+  .topbar .pill .plus { width: 20px; height: 20px; font-size: 15px; }
+  .topbar .pill.trophy { display: none; }
+  .topbar h2 { font-size: 20px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .avatar { width: 42px; height: 42px; }
+  .player-meta .pname { max-width: 96px; font-size: 15px; }
+  .player-meta .ptitle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 96px; }
+  .player-meta .bar { width: 84px; }
+  .player-meta .trophy-mini { display: inline-flex !important; }
+}
+.player-meta .trophy-mini { display: none; align-items: center; gap: 3px; font: 11px var(--font-display); color: var(--gold); }
+.player-meta .trophy-mini svg { width: 14px; height: 14px; }
+
 /* ───────── Desktop: menus mais largos ───────── */
 @media (min-width: 1000px) and (min-height: 600px) {
   .desk-center { max-width: 1180px; width: 100%; margin: 0 auto; }
   .menu-main.desk { display: grid; grid-template-columns: 1.2fr 1fr; grid-template-rows: 1fr auto; gap: 0 20px; }
-  .menu-main.desk .hero { grid-row: 1 / span 2; }
+  .menu-main.desk .hero { grid-row: 1 / span 2; max-height: 640px; align-self: center; height: 100%; }
   .menu-main.desk .right-col { display: flex; flex-direction: column; justify-content: center; gap: 14px; padding-right: 24px; }
   .bottom-nav.desk { max-width: 760px; margin: 0 auto; width: 100%; background: none; }
   .grid.chars { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); }

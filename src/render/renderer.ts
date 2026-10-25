@@ -317,15 +317,15 @@ export class GameRenderer {
     c.save();
     const g = c.createRadialGradient(x, y, f.radius, x, y, range);
     const col = target ? '#ffe14d' : '#ffffff';
-    g.addColorStop(0, rgba(col, target ? 0.28 : 0.1));
-    g.addColorStop(1, rgba(col, target ? 0.12 : 0.03));
+    g.addColorStop(0, rgba(col, target ? 0.3 : 0.16));
+    g.addColorStop(1, rgba(col, target ? 0.14 : 0.05));
     c.fillStyle = g;
     c.beginPath();
     c.moveTo(x, y);
     c.arc(x, y, range, f.facing - half, f.facing + half);
     c.closePath();
     c.fill();
-    c.strokeStyle = rgba(col, target ? 0.8 : ready ? 0.35 : 0.18);
+    c.strokeStyle = rgba(col, target ? 0.85 : ready ? 0.5 : 0.25);
     c.lineWidth = 2;
     c.beginPath();
     c.arc(x, y, range, f.facing - half, f.facing + half);

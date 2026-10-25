@@ -29,10 +29,12 @@ class InputProfileManager {
     this.current = pref === 'auto' ? detectProfile() : pref;
     window.addEventListener('touchstart', () => this.hint('touch'), { passive: true, capture: true });
     window.addEventListener('keydown', (e) => {
-      if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) this.hint('desktop');
+      const typing = e.target instanceof HTMLInputElement;
+      if (!typing && ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) this.hint('desktop');
     }, { capture: true });
     window.addEventListener('pointermove', (e) => {
-      if (e.pointerType === 'mouse' && (Math.abs(e.movementX) + Math.abs(e.movementY) > 6)) this.hint('desktop');
+      const mouseCapable = typeof matchMedia === 'function' && matchMedia('(hover: hover) and (pointer: fine)').matches;
+      if (e.pointerType === 'mouse' && mouseCapable && (Math.abs(e.movementX) + Math.abs(e.movementY) > 6)) this.hint('desktop');
     }, { passive: true, capture: true });
   }
 

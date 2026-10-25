@@ -43,8 +43,11 @@ function skullServiceWorker(): Plugin {
   };
 }
 
+const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf8')) as { version: string };
+
 export default defineConfig({
   plugins: [skullServiceWorker()],
+  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   resolve: {
     alias: { '@data': resolve(__dirname, 'data') },
   },

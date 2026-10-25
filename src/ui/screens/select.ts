@@ -14,7 +14,7 @@ const ROLE_NAME: Record<string, string> = {
 export function describeProjectile(p: ProjectileDef): string {
   const parts: string[] = [];
   const kind = p.type === 'melee' ? `Golpe corpo a corpo em arco de ${p.meleeArcDeg ?? 90}°` : p.type === 'lob' ? 'Arremesso em arco que passa POR CIMA de paredes' : 'Tiro direto';
-  parts.push(kind);
+  parts.push(p.type === 'melee' ? kind : `${kind} · alcance ${p.range}`);
   if (p.count && p.count > 1) parts.push(`leque de ${p.count}`);
   if (p.burst) parts.push(`rajada de ${p.burst.count}`);
   if (p.bounces) parts.push(p.bounceOnEnemies ? `ricocheteia entre inimigos ${p.bounces}x` : `quica na parede ${p.bounces}x`);
@@ -87,10 +87,14 @@ export function selectScreen(app: App, params: Record<string, unknown>): Screen 
 
     const lines = def.voiceLines.select;
     const bubble = h('div', { class: 'voice-bubble' }, `“${lines[Math.floor(Math.random() * lines.length)]}”`);
+    setTimeout(() => (bubble.style.opacity = '0'), 2800);
+    bubble.style.transition = 'opacity 400ms';
     const portrait = h('div', { class: 'portrait', style: `--rc:${r.color}` }, showCanvas, bubble);
     portrait.onclick = () => {
       show.poke();
       bubble.textContent = `“${lines[Math.floor(Math.random() * lines.length)]}”`;
+      bubble.style.opacity = '1';
+      setTimeout(() => (bubble.style.opacity = '0'), 2800);
     };
     body.append(
       h('div', { class: 'detail', style: `--rc:${r.color}` },
