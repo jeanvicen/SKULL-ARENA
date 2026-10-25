@@ -154,6 +154,7 @@ export function creditsScreen(app: App): Screen {
         h('br'), 'Inspiração de game feel: brawlers de arena mobile. Nenhum asset de terceiros copiado.'),
       h('div', { style: 'width:46px;height:46px' }, svg(ICON.skull)),
       h('div', { class: 'small muted', style: 'font-weight:800' }, 'Obrigado por jogar. A caveira encara, não foge. 💀'),
+      h('a', { href: '/privacidade.html', target: '_blank', rel: 'noopener', class: 'small', style: 'color:var(--ink3);font-weight:800' }, 'Política de privacidade'),
     ));
   return { el, back: 'settings' };
 }
