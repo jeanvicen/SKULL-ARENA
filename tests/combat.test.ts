@@ -96,7 +96,7 @@ describe('projéteis data-driven', () => {
     w.step(1 / 60);
     w.fighters[0].input = { moveX: 0, moveY: 0, attackHeld: false, special: false };
     run(w, 0.6);
-    expect(e.hp).toBe(e.maxHp - 360);
+    expect(e.hp).toBe(e.maxHp - w.fighters[0].basic.damage);
   });
 
   it('lob passa por cima de paredes', () => {
