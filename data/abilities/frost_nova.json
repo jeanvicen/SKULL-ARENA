@@ -1,0 +1,23 @@
+{
+  "id": "frost_nova",
+  "name": "Nova Congelante",
+  "type": "aoe_burst",
+  "cooldown": 11,
+  "chargePerHit": 0.7,
+  "ai": "enemies_near",
+  "description": "Explode em gelo à sua volta: congela inimigos próximos por 1,2s.",
+  "params": {
+    "radius": 170,
+    "damage": 450,
+    "status": {
+      "effect": "freeze",
+      "duration": 1.2
+    }
+  },
+  "vfx": {
+    "color": "#bff4ff",
+    "color2": "#3aa8ff",
+    "kind": "nova"
+  },
+  "sfx": "freeze"
+}

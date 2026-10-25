@@ -1,0 +1,74 @@
+{
+  "id": "ossinho",
+  "name": "Ossinho",
+  "title": "O Recruta Incansável",
+  "rarity": "comum",
+  "role": "lutador",
+  "lore": "Ossinho acordou na cripta sem lembrar quem foi em vida — só lembrava de uma coisa: ninguém escolhia ele pro time. Treinou arremessando os próprios ossos contra as paredes por cem anos. Hoje é o primeiro a entrar na arena e o último a reclamar.",
+  "voiceLines": {
+    "select": [
+      "Bora! Ninguém me escolhe, então eu me escolho!",
+      "Osso duro de roer, irmão."
+    ],
+    "victory": [
+      "Viu? Cem anos de treino!",
+      "Recruta? Agora sou titular!"
+    ],
+    "defeat": [
+      "Ai, meu fêmur...",
+      "Eu volto. Sempre volto."
+    ],
+    "kill": [
+      "Pega esse osso!",
+      "Ponto pro recruta!"
+    ],
+    "audio": {
+      "select": "vo/ossinho_select.mp3"
+    }
+  },
+  "stats": {
+    "hp": 6500,
+    "moveSpeed": 255,
+    "attackInterval": 0.55
+  },
+  "basicAttack": {
+    "projectile": "bone_toss"
+  },
+  "special": {
+    "ability": "bone_orbit_ring"
+  },
+  "animations": [
+    "idle",
+    "move",
+    "attack",
+    "hurt",
+    "death",
+    "special",
+    "victory"
+  ],
+  "portrait": "procedural",
+  "sprite": "procedural",
+  "palette": [
+    "#ff9d3c",
+    "#7a3a0e",
+    "#fff3d6"
+  ],
+  "art": {
+    "skull": "round",
+    "headwear": "cap",
+    "eyes": "glow",
+    "eyeColor": "#ffd84a",
+    "jaw": "grin",
+    "body": "hoodie",
+    "weapon": "fist"
+  },
+  "skins": [
+    "default",
+    "golden",
+    "void",
+    "neon"
+  ],
+  "obtain": [
+    "starter"
+  ]
+}

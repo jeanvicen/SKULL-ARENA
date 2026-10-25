@@ -1,0 +1,25 @@
+{
+  "id": "grave_grip",
+  "name": "Abraço da Cova",
+  "type": "pull",
+  "cooldown": 10,
+  "chargePerHit": 0.8,
+  "ai": "in_range",
+  "description": "Mãos de osso brotam do chão e puxam todos os inimigos próximos para o soco do Rachada.",
+  "params": {
+    "radius": 230,
+    "pullStrength": 700,
+    "damage": 300,
+    "status": {
+      "effect": "slow",
+      "duration": 1.5,
+      "amount": 0.4
+    }
+  },
+  "vfx": {
+    "color": "#9fc3ff",
+    "color2": "#24304a",
+    "kind": "pull"
+  },
+  "sfx": "quake"
+}

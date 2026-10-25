@@ -1,0 +1,20 @@
+{
+  "id": "bone_note",
+  "type": "direct",
+  "range": 320,
+  "speed": 560,
+  "damage": 400,
+  "radius": 11,
+  "pierce": 1,
+  "vfx": {
+    "shape": "note",
+    "color": "#ff7ad9",
+    "color2": "#53f3ff",
+    "trail": "neon",
+    "impact": "burst"
+  },
+  "sfx": {
+    "fire": "note",
+    "hit": "note_hit"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "frost_shard",
+  "type": "direct",
+  "range": 370,
+  "speed": 760,
+  "damage": 470,
+  "radius": 9,
+  "pierce": 2,
+  "onHit": {
+    "effect": "slow",
+    "duration": 1.4,
+    "amount": 0.35
+  },
+  "vfx": {
+    "shape": "shard",
+    "color": "#bff4ff",
+    "color2": "#3aa8ff",
+    "trail": "ice",
+    "impact": "shatter"
+  },
+  "sfx": {
+    "fire": "ice",
+    "hit": "ice_hit"
+  }
+}

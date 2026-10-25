@@ -1,0 +1,30 @@
+{
+  "id": "poison_cloud",
+  "name": "Nuvem Pútrida",
+  "type": "zone",
+  "cooldown": 11,
+  "chargePerHit": 0.7,
+  "ai": "in_range",
+  "description": "Arremessa um caldeirão que vira uma nuvem tóxica por 5s: dano contínuo e lentidão.",
+  "params": {
+    "castRange": 260,
+    "zone": {
+      "radius": 110,
+      "duration": 5,
+      "dps": 260,
+      "status": {
+        "effect": "slow",
+        "duration": 0.6,
+        "amount": 0.25
+      },
+      "color": "#7dff4f",
+      "look": "poison"
+    }
+  },
+  "vfx": {
+    "color": "#7dff4f",
+    "color2": "#1f6b12",
+    "kind": "zone"
+  },
+  "sfx": "splash_big"
+}

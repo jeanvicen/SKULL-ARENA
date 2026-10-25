@@ -1,0 +1,20 @@
+{
+  "id": "pet_spark",
+  "type": "direct",
+  "range": 330,
+  "speed": 700,
+  "damage": 90,
+  "radius": 6,
+  "vfx": {
+    "shape": "orb",
+    "color": "#c9ffef",
+    "color2": "#40e0d0",
+    "trail": "spark",
+    "impact": "burst",
+    "scale": 0.7
+  },
+  "sfx": {
+    "fire": "pet_shot",
+    "hit": "pet_hit"
+  }
+}

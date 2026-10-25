@@ -1,0 +1,21 @@
+{
+  "id": "shadow_dagger",
+  "type": "direct",
+  "range": 270,
+  "speed": 980,
+  "damage": 260,
+  "radius": 8,
+  "count": 2,
+  "spreadDeg": 14,
+  "vfx": {
+    "shape": "dagger",
+    "color": "#c9a0ff",
+    "color2": "#6b2fb5",
+    "trail": "void",
+    "impact": "void"
+  },
+  "sfx": {
+    "fire": "throw_fast",
+    "hit": "slash_hit"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "id": "ricochete",
+  "name": "Ricochete",
+  "title": "O Punk de Borracha",
+  "rarity": "incomum",
+  "role": "atirador",
+  "lore": "Ricochete foi expulso de três bandas e de dois cemitérios por barulho. Os crânios que ele dispara quicam nas paredes como se tivessem vontade própria. Quando a adrenalina sobe, ele vira uma metralhadora de caos.",
+  "voiceLines": {
+    "select": [
+      "Parede é só um amplificador!",
+      "Volume no máximo!"
+    ],
+    "victory": [
+      "Quicou e acertou, clássico.",
+      "Isso é punk rock, baby!"
+    ],
+    "defeat": [
+      "Desplugaram o amplificador...",
+      "Encore? Não?"
+    ],
+    "kill": [
+      "Toma o rebote!",
+      "Quicou na sua cara."
+    ],
+    "audio": {
+      "select": "vo/ricochete_select.mp3"
+    }
+  },
+  "stats": {
+    "hp": 5500,
+    "moveSpeed": 265,
+    "attackInterval": 0.58
+  },
+  "basicAttack": {
+    "projectile": "ricochet_skull"
+  },
+  "special": {
+    "ability": "punk_adrenaline"
+  },
+  "animations": [
+    "idle",
+    "move",
+    "attack",
+    "hurt",
+    "death",
+    "special",
+    "victory"
+  ],
+  "portrait": "procedural",
+  "sprite": "procedural",
+  "palette": [
+    "#f4ff52",
+    "#2b0a3d",
+    "#b84dff"
+  ],
+  "art": {
+    "skull": "round",
+    "headwear": "mohawk",
+    "eyes": "x",
+    "eyeColor": "#f4ff52",
+    "jaw": "fangs",
+    "body": "jacket",
+    "weapon": "cannon"
+  },
+  "skins": [
+    "default",
+    "golden",
+    "void",
+    "neon"
+  ],
+  "obtain": [
+    "chest",
+    "shop"
+  ]
+}

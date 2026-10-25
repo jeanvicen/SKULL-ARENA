@@ -1,0 +1,23 @@
+{
+  "id": "skull_bomb",
+  "type": "lob",
+  "range": 360,
+  "speed": 420,
+  "damage": 680,
+  "radius": 14,
+  "arcHeight": 140,
+  "aoeRadius": 78,
+  "knockback": 120,
+  "vfx": {
+    "shape": "skull",
+    "color": "#2a2a2a",
+    "color2": "#ff5a1f",
+    "trail": "smoke",
+    "impact": "ember",
+    "scale": 1.3
+  },
+  "sfx": {
+    "fire": "lob",
+    "hit": "explosion"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "id": "coveiro",
+  "name": "Coveiro",
+  "title": "O Guardião das Covas",
+  "rarity": "incomum",
+  "role": "controlador",
+  "lore": "Cavou a cova de meio cemitério — inclusive a própria, por engano. O Coveiro conhece cada palmo de terra da arena e transforma o chão em armadilha. A pá dele é pesada, lenta e muito, muito convincente.",
+  "voiceLines": {
+    "select": [
+      "Tem cova pra todo mundo hoje.",
+      "Cuidado onde pisa."
+    ],
+    "victory": [
+      "Mais um pro meu cemitério.",
+      "Terra fofa, vitória firme."
+    ],
+    "defeat": [
+      "Cavei fundo demais...",
+      "Me enterrem com a pá."
+    ],
+    "kill": [
+      "Descanse em paz.",
+      "Pisou, ficou."
+    ],
+    "audio": {
+      "select": "vo/coveiro_select.mp3"
+    }
+  },
+  "stats": {
+    "hp": 8100,
+    "moveSpeed": 240,
+    "attackInterval": 0.8,
+    "radius": 24
+  },
+  "basicAttack": {
+    "projectile": "shovel_swing"
+  },
+  "special": {
+    "ability": "grave_traps"
+  },
+  "animations": [
+    "idle",
+    "move",
+    "attack",
+    "hurt",
+    "death",
+    "special",
+    "victory"
+  ],
+  "portrait": "procedural",
+  "sprite": "procedural",
+  "palette": [
+    "#a07a45",
+    "#2e2112",
+    "#d6b37a"
+  ],
+  "art": {
+    "skull": "square",
+    "headwear": "tophat",
+    "eyes": "hollow",
+    "eyeColor": "#ffb347",
+    "jaw": "beard",
+    "body": "cloak",
+    "weapon": "shovel",
+    "scale": 1.05
+  },
+  "skins": [
+    "default",
+    "golden",
+    "void",
+    "neon"
+  ],
+  "obtain": [
+    "chest",
+    "shop"
+  ]
+}

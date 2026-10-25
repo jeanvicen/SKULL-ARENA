@@ -1,0 +1,20 @@
+{
+  "id": "shovel_swing",
+  "type": "melee",
+  "range": 78,
+  "speed": 0,
+  "damage": 520,
+  "radius": 22,
+  "meleeArcDeg": 150,
+  "knockback": 140,
+  "vfx": {
+    "shape": "wave",
+    "color": "#d6b37a",
+    "color2": "#ffffff",
+    "impact": "burst"
+  },
+  "sfx": {
+    "fire": "swing",
+    "hit": "punch"
+  }
+}

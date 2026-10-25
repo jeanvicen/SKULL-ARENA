@@ -1,0 +1,75 @@
+{
+  "id": "arqueira",
+  "name": "Lúgubre",
+  "title": "A Arqueira da Névoa",
+  "rarity": "incomum",
+  "role": "atirador",
+  "lore": "Lúgubre caçava lobos na floresta enevoada até que a névoa a caçou de volta. Agora ela é parte da névoa: espera, mira e só solta a corda quando tem certeza. A flecha dela fica mais forte quanto mais longe voa — paciência é a arma.",
+  "voiceLines": {
+    "select": [
+      "Respira. Mira. Solta.",
+      "A névoa me mostra tudo."
+    ],
+    "victory": [
+      "Uma flecha, uma história.",
+      "Paciência sempre vence."
+    ],
+    "defeat": [
+      "A névoa me traiu...",
+      "Errei a distância."
+    ],
+    "kill": [
+      "Lá do outro lado do mapa.",
+      "Nem viu de onde veio."
+    ],
+    "audio": {
+      "select": "vo/arqueira_select.mp3"
+    }
+  },
+  "stats": {
+    "hp": 5000,
+    "moveSpeed": 245,
+    "attackInterval": 0.9
+  },
+  "basicAttack": {
+    "projectile": "ghost_arrow"
+  },
+  "special": {
+    "ability": "owl_mark"
+  },
+  "animations": [
+    "idle",
+    "move",
+    "attack",
+    "hurt",
+    "death",
+    "special",
+    "victory"
+  ],
+  "portrait": "procedural",
+  "sprite": "procedural",
+  "palette": [
+    "#2fb8a5",
+    "#0b3d38",
+    "#7ff7e4"
+  ],
+  "art": {
+    "skull": "long",
+    "headwear": "hood",
+    "eyes": "glow",
+    "eyeColor": "#7ff7e4",
+    "jaw": "stitched",
+    "body": "cloak",
+    "weapon": "bow"
+  },
+  "skins": [
+    "default",
+    "golden",
+    "void",
+    "neon"
+  ],
+  "obtain": [
+    "chest",
+    "shop"
+  ]
+}

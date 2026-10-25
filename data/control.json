@@ -1,0 +1,24 @@
+{
+  "attackConeHalfDeg": 24,
+  "aimAssist": 0.9,
+  "requireLineOfSight": true,
+  "joystick": {
+    "deadZone": 0.16,
+    "radius": 64,
+    "smoothing": 0.35
+  },
+  "regen": {
+    "delay": 3.2,
+    "percentPerSec": 0.13
+  },
+  "spawnInvuln": 1.5,
+  "brush": {
+    "revealDistance": 105,
+    "revealOnAttack": 1.2
+  },
+  "souls": {
+    "hpBonus": 0.08,
+    "damageBonus": 0.07,
+    "max": 10
+  }
+}

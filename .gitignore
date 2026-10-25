@@ -1,0 +1,15 @@
+node_modules
+dist
+.DS_Store
+*.log
+.vite
+coverage
+test-results
+/screenshots
+.env*
+!.env.example
+# Android/TWA build outputs (keystore NUNCA vai pro git)
+android/*.keystore
+android/*.jks
+android/app-release*.aab
+android/app-release*.apk

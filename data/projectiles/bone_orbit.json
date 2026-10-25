@@ -1,0 +1,25 @@
+{
+  "id": "bone_orbit",
+  "type": "direct",
+  "range": 9999,
+  "speed": 1,
+  "damage": 260,
+  "radius": 14,
+  "orbit": {
+    "radius": 58,
+    "angularSpeed": 300
+  },
+  "lifetime": 4.5,
+  "vfx": {
+    "shape": "bone",
+    "color": "#fff3d6",
+    "color2": "#ffb347",
+    "trail": "bone",
+    "impact": "shatter",
+    "scale": 1.3
+  },
+  "sfx": {
+    "fire": "whoosh",
+    "hit": "bone_hit"
+  }
+}

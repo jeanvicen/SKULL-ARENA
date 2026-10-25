@@ -1,0 +1,26 @@
+{
+  "id": "grave_traps",
+  "name": "Covas Rasas",
+  "type": "trap",
+  "cooldown": 9,
+  "chargePerHit": 0.6,
+  "ai": "engage",
+  "description": "Cava três covas à frente. Quem pisar fica preso por 1,4s e toma dano.",
+  "params": {
+    "count": 3,
+    "castRange": 110,
+    "radius": 34,
+    "damage": 380,
+    "delay": 0.5,
+    "status": {
+      "effect": "root",
+      "duration": 1.4
+    }
+  },
+  "vfx": {
+    "color": "#d6b37a",
+    "color2": "#3b2a14",
+    "kind": "trap"
+  },
+  "sfx": "dig"
+}

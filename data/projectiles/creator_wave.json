@@ -1,0 +1,23 @@
+{
+  "id": "creator_wave",
+  "type": "direct",
+  "range": 330,
+  "speed": 700,
+  "damage": 360,
+  "radius": 14,
+  "count": 3,
+  "spreadDeg": 30,
+  "pierce": 3,
+  "vfx": {
+    "shape": "wave",
+    "color": "#ff2d95",
+    "color2": "#3df2ff",
+    "trail": "neon",
+    "impact": "electric",
+    "scale": 1.4
+  },
+  "sfx": {
+    "fire": "zap",
+    "hit": "zap_hit"
+  }
+}

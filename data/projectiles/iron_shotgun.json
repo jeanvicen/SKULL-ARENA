@@ -1,0 +1,22 @@
+{
+  "id": "iron_shotgun",
+  "type": "direct",
+  "range": 230,
+  "speed": 820,
+  "damage": 150,
+  "radius": 8,
+  "count": 5,
+  "spreadDeg": 40,
+  "knockback": 60,
+  "vfx": {
+    "shape": "bolt",
+    "color": "#ffb347",
+    "color2": "#ff5a1f",
+    "trail": "spark",
+    "impact": "ember"
+  },
+  "sfx": {
+    "fire": "shotgun",
+    "hit": "bullet_hit"
+  }
+}

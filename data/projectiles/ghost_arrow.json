@@ -1,0 +1,20 @@
+{
+  "id": "ghost_arrow",
+  "type": "direct",
+  "range": 440,
+  "speed": 1050,
+  "damage": 640,
+  "radius": 7,
+  "falloffMul": 1.45,
+  "vfx": {
+    "shape": "arrow",
+    "color": "#7ff7e4",
+    "color2": "#1aa190",
+    "trail": "ghost",
+    "impact": "shatter"
+  },
+  "sfx": {
+    "fire": "bow",
+    "hit": "arrow_hit"
+  }
+}
