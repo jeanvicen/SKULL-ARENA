@@ -52,6 +52,24 @@ export interface EmitOpts {
   arc?: number;
 }
 
+/** Cache de sprites de brilho por cor: evita criar um gradiente por partícula por frame (Android fraco agradece). */
+const glowCache = new Map<string, HTMLCanvasElement>();
+function glowSprite(color: string): HTMLCanvasElement {
+  let cv = glowCache.get(color);
+  if (!cv) {
+    cv = document.createElement('canvas');
+    cv.width = cv.height = 64;
+    const c = cv.getContext('2d')!;
+    const g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, color);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, 64, 64);
+    glowCache.set(color, cv);
+  }
+  return cv;
+}
+
 export class ParticleSystem {
   readonly pool = new Pool<Particle>(() => new Particle(), 512);
   max = 900;
@@ -137,11 +155,7 @@ export class ParticleSystem {
         case 'glow': {
           c.globalAlpha = t * 0.9;
           const r = p.size * (1.2 - t * 0.2);
-          const g = c.createRadialGradient(p.x, y, 0, p.x, y, r);
-          g.addColorStop(0, p.color);
-          g.addColorStop(1, 'rgba(0,0,0,0)');
-          c.fillStyle = g;
-          c.fillRect(p.x - r, y - r, r * 2, r * 2);
+          c.drawImage(glowSprite(p.color), p.x - r, y - r, r * 2, r * 2);
           break;
         }
         case 'spark': {

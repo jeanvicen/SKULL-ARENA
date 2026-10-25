@@ -64,7 +64,7 @@ export class Camera {
   }
 
   clampTo(mapW: number, mapH: number): void {
-    const margin = 60;
+    const margin = 120; // folga para ver barra de vida/nome de quem está colado na borda
     const hw = this.viewW / 2, hh = this.viewH / 2;
     if (this.viewW >= mapW + margin * 2) this.x = mapW / 2;
     else this.x = clamp(this.x, hw - margin, mapW - hw + margin);
