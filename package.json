@@ -1,0 +1,27 @@
+{
+  "name": "skull-arena",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SKULL ARENA — arena brawler mobile top-down (Klipza Studio · jeanvicen @0neajx)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "validate:data": "vitest run tests/content.test.ts",
+    "icons": "node scripts/gen-icons.mjs",
+    "e2e": "node scripts/e2e-smoke.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vite": "6.4.5",
+    "vitest": "3.2.7"
+  },
+  "dependencies": {
+    "@fontsource/lilita-one": "5.2.8",
+    "@fontsource/nunito": "5.2.7"
+  }
+}
