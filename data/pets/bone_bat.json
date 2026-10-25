@@ -3,9 +3,9 @@
   "name": "Morcego Ósseo",
   "rarity": "comum",
   "ability": "aura_heal",
-  "description": "Bate as asinhas de osso e cura você aos poucos (26 de vida/s) enquanto estiver ferido.",
+  "description": "Bate as asinhas de osso e cura você aos poucos (36 de vida/s) enquanto estiver ferido.",
   "params": {
-    "hps": 26,
+    "hps": 36,
     "radius": 120
   },
   "sprite": "procedural",

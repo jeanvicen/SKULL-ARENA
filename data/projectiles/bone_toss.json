@@ -1,9 +1,9 @@
 {
   "id": "bone_toss",
   "type": "direct",
-  "range": 300,
+  "range": 320,
   "speed": 640,
-  "damage": 360,
+  "damage": 420,
   "radius": 9,
   "vfx": {
     "shape": "bone",

@@ -3,7 +3,7 @@
   "type": "direct",
   "range": 380,
   "speed": 760,
-  "damage": 440,
+  "damage": 380,
   "radius": 10,
   "bounces": 1,
   "bounceOnEnemies": true,

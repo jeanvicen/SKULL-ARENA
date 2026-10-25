@@ -3,9 +3,9 @@
   "name": "Corvo Guardião",
   "rarity": "extrema_rara",
   "ability": "shield_pulse",
-  "description": "A cada 9s, abre as asas e te dá um escudo de 380 por 4s.",
+  "description": "A cada 9s, abre as asas e te dá um escudo de 550 por 4s.",
   "params": {
-    "shield": 380,
+    "shield": 550,
     "interval": 9
   },
   "sprite": "procedural",

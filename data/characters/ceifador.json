@@ -27,7 +27,7 @@
     }
   },
   "stats": {
-    "hp": 3000,
+    "hp": 5800,
     "moveSpeed": 290,
     "attackInterval": 0.6
   },

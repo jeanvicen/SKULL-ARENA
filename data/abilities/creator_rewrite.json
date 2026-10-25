@@ -5,10 +5,10 @@
   "cooldown": 16,
   "chargePerHit": 0.7,
   "ai": "engage",
-  "description": "O Criador edita o próprio código: por 6s fica gigante, +35% de vida e dispara ondas neon perfurantes.",
+  "description": "O Criador edita o próprio código: por 6s fica gigante, +25% de vida e dispara ondas neon perfurantes.",
   "params": {
     "duration": 6,
-    "hpMul": 1.35,
+    "hpMul": 1.25,
     "radiusMul": 1.35,
     "speedMul": 0.95,
     "damageMul": 1.0,

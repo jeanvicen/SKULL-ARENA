@@ -27,9 +27,9 @@
     }
   },
   "stats": {
-    "hp": 2900,
+    "hp": 5700,
     "moveSpeed": 245,
-    "attackInterval": 0.78
+    "attackInterval": 0.72
   },
   "basicAttack": {
     "projectile": "frost_shard"

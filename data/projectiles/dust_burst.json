@@ -1,9 +1,9 @@
 {
   "id": "dust_burst",
   "type": "direct",
-  "range": 350,
+  "range": 370,
   "speed": 900,
-  "damage": 150,
+  "damage": 185,
   "radius": 6,
   "burst": {
     "count": 3,
