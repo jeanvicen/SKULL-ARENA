@@ -1,0 +1,20 @@
+{
+  "id": "scythe_slash",
+  "type": "melee",
+  "range": 84,
+  "speed": 0,
+  "damage": 600,
+  "radius": 24,
+  "meleeArcDeg": 140,
+  "lifesteal": 0.2,
+  "vfx": {
+    "shape": "scythe",
+    "color": "#ff3355",
+    "color2": "#2b0010",
+    "impact": "void"
+  },
+  "sfx": {
+    "fire": "slash",
+    "hit": "slash_hit"
+  }
+}

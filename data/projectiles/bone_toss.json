@@ -1,0 +1,19 @@
+{
+  "id": "bone_toss",
+  "type": "direct",
+  "range": 300,
+  "speed": 640,
+  "damage": 360,
+  "radius": 9,
+  "vfx": {
+    "shape": "bone",
+    "color": "#fff3d6",
+    "color2": "#ffb347",
+    "trail": "bone",
+    "impact": "shatter"
+  },
+  "sfx": {
+    "fire": "throw",
+    "hit": "bone_hit"
+  }
+}

@@ -199,7 +199,7 @@ export type JawStyle = 'grin' | 'fangs' | 'stitched' | 'open' | 'gold_tooth' | '
 export type BodyStyle = 'robe' | 'armor' | 'jacket' | 'ribs' | 'cloak' | 'suit' | 'tunic' | 'bandages' | 'kimono' | 'hoodie';
 export type WeaponStyle =
   | 'scythe' | 'pistols' | 'staff' | 'bow' | 'hammer' | 'daggers' | 'cannon' | 'lute'
-  | 'chain' | 'book' | 'claws' | 'fist' | 'katana' | 'lantern' | 'trident' | 'guitar' | 'flask' | 'shield';
+  | 'chain' | 'book' | 'claws' | 'fist' | 'katana' | 'lantern' | 'trident' | 'guitar' | 'flask' | 'shield' | 'shovel';
 export type AuraStyle = 'none' | 'flame' | 'void' | 'gold' | 'creator' | 'frost' | 'toxic' | 'electric';
 
 export interface CharacterArt {
@@ -422,7 +422,7 @@ export interface EventDef {
   name: string;
   kind: 'daily' | 'weekly' | 'seasonal';
   description: string;
-  quests: Array<{ id: Id; text: string; stat: StatKey; target: number; reward: { coins?: number; gems?: number; chest?: Id; xp?: number } }>;
+  quests: Array<{ id: Id; text: string; stat: StatKey; target: number; reward: { coins?: number; gems?: number; chest?: Id; xp?: number; title?: Id } }>;
   /** Para sazonais: janela ISO. */
   start?: string;
   end?: string;

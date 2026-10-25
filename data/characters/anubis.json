@@ -1,0 +1,76 @@
+{
+  "id": "anubis",
+  "name": "Anúbis Eterno",
+  "title": "O Juiz do Sol Poente",
+  "rarity": "god",
+  "role": "artilheiro",
+  "lore": "Antes das pirâmides, antes dos faraós, ele já pesava corações. Anúbis Eterno desceu à arena para julgar os mortos que se recusam a descansar. Seus discos solares perseguem os culpados e queimam devagar; seu Julgamento Solar não deixa nada de pé na linha do horizonte.",
+  "voiceLines": {
+    "select": [
+      "O julgamento começa agora.",
+      "Seu coração pesa mais que uma pena."
+    ],
+    "victory": [
+      "Sentença cumprida.",
+      "O sol sempre se põe para os culpados."
+    ],
+    "defeat": [
+      "Até os deuses descansam...",
+      "O sol voltará a nascer."
+    ],
+    "kill": [
+      "Condenado.",
+      "Pesado e julgado."
+    ],
+    "audio": {
+      "select": "vo/anubis_select.mp3"
+    }
+  },
+  "stats": {
+    "hp": 3100,
+    "moveSpeed": 245,
+    "attackInterval": 0.72
+  },
+  "basicAttack": {
+    "projectile": "sun_disk"
+  },
+  "special": {
+    "ability": "judgment_beam"
+  },
+  "animations": [
+    "idle",
+    "move",
+    "attack",
+    "hurt",
+    "death",
+    "special",
+    "victory"
+  ],
+  "portrait": "procedural",
+  "sprite": "procedural",
+  "palette": [
+    "#ffcf3a",
+    "#16255e",
+    "#4fb3ff"
+  ],
+  "art": {
+    "skull": "long",
+    "headwear": "pharaoh",
+    "eyes": "glow",
+    "eyeColor": "#ffe14d",
+    "jaw": "gold_tooth",
+    "body": "tunic",
+    "weapon": "staff",
+    "aura": "gold",
+    "boneColor": "#fff2c9"
+  },
+  "skins": [
+    "default",
+    "golden",
+    "void",
+    "neon"
+  ],
+  "obtain": [
+    "chest"
+  ]
+}

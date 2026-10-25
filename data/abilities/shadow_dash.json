@@ -1,0 +1,21 @@
+{
+  "id": "shadow_dash",
+  "name": "Investida Sombria",
+  "type": "dash",
+  "cooldown": 6,
+  "chargePerHit": 0.4,
+  "ai": "engage",
+  "description": "Atravessa os inimigos virando sombra: intocável e cortando quem estiver no caminho.",
+  "params": {
+    "distance": 220,
+    "duration": 0.18,
+    "invuln": 0.25,
+    "damageOnPass": 420
+  },
+  "vfx": {
+    "color": "#c9a0ff",
+    "color2": "#2a0a4a",
+    "kind": "dash"
+  },
+  "sfx": "dash"
+}

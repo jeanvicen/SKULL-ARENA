@@ -1,0 +1,74 @@
+{
+  "id": "tambor",
+  "name": "Tambor",
+  "title": "O Batuqueiro do Além",
+  "rarity": "comum",
+  "role": "suporte",
+  "lore": "Tambor tocava em todas as festas do Dia dos Mortos e simplesmente se recusou a parar quando a festa acabou — há duzentos anos. A música dele cura os amigos e atravessa os inimigos. Se ouvir um batuque na cripta, corra pra perto, não pra longe.",
+  "voiceLines": {
+    "select": [
+      "Solta o som que eu seguro a vida!",
+      "Um, dois, três... ARENA!"
+    ],
+    "victory": [
+      "Essa foi pra galera!",
+      "Bis! Bis!"
+    ],
+    "defeat": [
+      "Acabou a corda...",
+      "Fica pro próximo show."
+    ],
+    "kill": [
+      "Desafinou, hein?",
+      "Fim da música pra você."
+    ],
+    "audio": {
+      "select": "vo/tambor_select.mp3"
+    }
+  },
+  "stats": {
+    "hp": 2900,
+    "moveSpeed": 250,
+    "attackInterval": 0.6
+  },
+  "basicAttack": {
+    "projectile": "bone_note"
+  },
+  "special": {
+    "ability": "healing_beat"
+  },
+  "animations": [
+    "idle",
+    "move",
+    "attack",
+    "hurt",
+    "death",
+    "special",
+    "victory"
+  ],
+  "portrait": "procedural",
+  "sprite": "procedural",
+  "palette": [
+    "#ff5fc8",
+    "#3a0d4a",
+    "#53f3ff"
+  ],
+  "art": {
+    "skull": "wide",
+    "headwear": "beanie",
+    "eyes": "star",
+    "eyeColor": "#53f3ff",
+    "jaw": "grin",
+    "body": "tunic",
+    "weapon": "guitar"
+  },
+  "skins": [
+    "default",
+    "golden",
+    "void",
+    "neon"
+  ],
+  "obtain": [
+    "starter"
+  ]
+}

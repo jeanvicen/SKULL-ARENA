@@ -1,0 +1,31 @@
+{
+  "featuredSlots": 4,
+  "dailyFreeGems": 5,
+  "dailyFreeCoins": 40,
+  "chests": [
+    "bau_ossos",
+    "bau_sombrio",
+    "bau_lendario"
+  ],
+  "gemPacks": [
+    {
+      "id": "gems_s",
+      "gems": 80,
+      "label": "Punhado de Diamantes",
+      "realPrice": "R$ 4,90"
+    },
+    {
+      "id": "gems_m",
+      "gems": 450,
+      "label": "Saco de Diamantes",
+      "realPrice": "R$ 24,90"
+    },
+    {
+      "id": "gems_l",
+      "gems": 1000,
+      "label": "Cofre de Diamantes",
+      "realPrice": "R$ 49,90"
+    }
+  ],
+  "realPaymentsEnabled": false
+}

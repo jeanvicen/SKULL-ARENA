@@ -1,0 +1,21 @@
+{
+  "id": "punk_adrenaline",
+  "name": "Adrenalina Punk",
+  "type": "buff",
+  "cooldown": 11,
+  "chargePerHit": 0.6,
+  "ai": "engage",
+  "description": "Por 4s: atira o dobro mais rápido, corre 20% mais e cada acerto rouba um pouco de vida.",
+  "params": {
+    "duration": 4,
+    "attackSpeedMul": 2.0,
+    "speedMul": 1.2,
+    "lifesteal": 0.12
+  },
+  "vfx": {
+    "color": "#f4ff52",
+    "color2": "#b84dff",
+    "kind": "buff"
+  },
+  "sfx": "powerup"
+}

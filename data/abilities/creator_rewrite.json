@@ -1,0 +1,23 @@
+{
+  "id": "creator_rewrite",
+  "name": "Reescrever a Arena",
+  "type": "transform",
+  "cooldown": 16,
+  "chargePerHit": 0.7,
+  "ai": "engage",
+  "description": "O Criador edita o próprio código: por 6s fica gigante, +35% de vida e dispara ondas neon perfurantes.",
+  "params": {
+    "duration": 6,
+    "hpMul": 1.35,
+    "radiusMul": 1.35,
+    "speedMul": 0.95,
+    "damageMul": 1.0,
+    "basicProjectile": "creator_wave"
+  },
+  "vfx": {
+    "color": "#ff2d95",
+    "color2": "#3df2ff",
+    "kind": "transform"
+  },
+  "sfx": "transform"
+}

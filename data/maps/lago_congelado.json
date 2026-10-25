@@ -1,0 +1,126 @@
+{
+  "id": "lago_congelado",
+  "name": "Lago Congelado",
+  "theme": "ice",
+  "symmetry": "quad",
+  "description": "Cristais de gelo como cobertura e buracos no lago que forçam rotas. Silêncio... e estalos.",
+  "size": {
+    "w": 720,
+    "h": 1280
+  },
+  "palette": [
+    "#14304d",
+    "#2a5c85",
+    "#bff4ff"
+  ],
+  "bg": "procedural:ice",
+  "decorSeed": 41,
+  "modes": [
+    "cacada",
+    "equipe",
+    "duelo"
+  ],
+  "spawns": [
+    {
+      "x": 90,
+      "y": 90
+    },
+    {
+      "x": 630,
+      "y": 90
+    },
+    {
+      "x": 630,
+      "y": 1190
+    },
+    {
+      "x": 90,
+      "y": 1190
+    },
+    {
+      "x": 360,
+      "y": 120
+    },
+    {
+      "x": 360,
+      "y": 1160
+    },
+    {
+      "x": 360,
+      "y": 640
+    },
+    {
+      "x": 200,
+      "y": 400
+    }
+  ],
+  "teamSpawns": {
+    "a": [
+      {
+        "x": 220,
+        "y": 1180
+      },
+      {
+        "x": 360,
+        "y": 1210
+      },
+      {
+        "x": 500,
+        "y": 1180
+      }
+    ],
+    "b": [
+      {
+        "x": 220,
+        "y": 100
+      },
+      {
+        "x": 360,
+        "y": 70
+      },
+      {
+        "x": 500,
+        "y": 100
+      }
+    ]
+  },
+  "obstacles": [
+    {
+      "type": "crystal",
+      "x": 140,
+      "y": 260,
+      "w": 60,
+      "h": 60
+    },
+    {
+      "type": "crystal",
+      "x": 250,
+      "y": 470,
+      "w": 50,
+      "h": 90
+    },
+    {
+      "type": "water",
+      "x": 40,
+      "y": 560,
+      "w": 130,
+      "h": 160
+    }
+  ],
+  "brush": [
+    {
+      "x": 200,
+      "y": 150,
+      "w": 90,
+      "h": 70
+    }
+  ],
+  "destructibles": [
+    {
+      "type": "crate",
+      "x": 360,
+      "y": 420,
+      "hp": 1100
+    }
+  ]
+}

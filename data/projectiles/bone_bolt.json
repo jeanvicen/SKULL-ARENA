@@ -1,0 +1,19 @@
+{
+  "id": "bone_bolt",
+  "type": "direct",
+  "range": 330,
+  "speed": 600,
+  "damage": 380,
+  "radius": 9,
+  "vfx": {
+    "shape": "shard",
+    "color": "#a6ff4d",
+    "color2": "#2f5c0a",
+    "trail": "ghost",
+    "impact": "poison"
+  },
+  "sfx": {
+    "fire": "magic",
+    "hit": "magic_hit"
+  }
+}

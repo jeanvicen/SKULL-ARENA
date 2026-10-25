@@ -1,0 +1,21 @@
+{
+  "id": "bone_orbit_ring",
+  "name": "Ciranda de Ossos",
+  "type": "multi_shot",
+  "cooldown": 9,
+  "chargePerHit": 0.6,
+  "ai": "enemies_near",
+  "description": "Quatro ossos giram em volta do Ossinho por 4,5s machucando quem chegar perto.",
+  "params": {
+    "projectile": "bone_orbit",
+    "waves": 4,
+    "interval": 0,
+    "spreadDeg": 270
+  },
+  "vfx": {
+    "color": "#ffb347",
+    "color2": "#fff3d6",
+    "kind": "ring"
+  },
+  "sfx": "orbit"
+}

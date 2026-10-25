@@ -1,0 +1,146 @@
+{
+  "id": "templo_dourado",
+  "name": "Templo do Sol Poente",
+  "theme": "temple",
+  "symmetry": "point",
+  "description": "Estátuas de deuses antigos e colunas douradas. Feito para batalhas de equipe.",
+  "size": {
+    "w": 720,
+    "h": 1280
+  },
+  "palette": [
+    "#3a2a12",
+    "#6b4e1f",
+    "#ffd84a"
+  ],
+  "bg": "procedural:temple",
+  "decorSeed": 67,
+  "modes": [
+    "equipe",
+    "duelo"
+  ],
+  "spawns": [
+    {
+      "x": 220,
+      "y": 1180
+    },
+    {
+      "x": 500,
+      "y": 100
+    },
+    {
+      "x": 360,
+      "y": 1200
+    },
+    {
+      "x": 360,
+      "y": 80
+    },
+    {
+      "x": 80,
+      "y": 640
+    },
+    {
+      "x": 640,
+      "y": 640
+    },
+    {
+      "x": 500,
+      "y": 1180
+    },
+    {
+      "x": 220,
+      "y": 100
+    }
+  ],
+  "teamSpawns": {
+    "a": [
+      {
+        "x": 220,
+        "y": 1180
+      },
+      {
+        "x": 360,
+        "y": 1210
+      },
+      {
+        "x": 500,
+        "y": 1180
+      }
+    ],
+    "b": [
+      {
+        "x": 220,
+        "y": 100
+      },
+      {
+        "x": 360,
+        "y": 70
+      },
+      {
+        "x": 500,
+        "y": 100
+      }
+    ]
+  },
+  "obstacles": [
+    {
+      "type": "statue",
+      "x": 110,
+      "y": 260,
+      "w": 70,
+      "h": 70
+    },
+    {
+      "type": "statue",
+      "x": 540,
+      "y": 260,
+      "w": 70,
+      "h": 70
+    },
+    {
+      "type": "pillar",
+      "x": 260,
+      "y": 420,
+      "w": 46,
+      "h": 46
+    },
+    {
+      "type": "pillar",
+      "x": 414,
+      "y": 420,
+      "w": 46,
+      "h": 46
+    },
+    {
+      "type": "wall",
+      "x": 300,
+      "y": 600,
+      "w": 120,
+      "h": 34
+    },
+    {
+      "type": "wall",
+      "x": 60,
+      "y": 560,
+      "w": 120,
+      "h": 34
+    }
+  ],
+  "brush": [
+    {
+      "x": 40,
+      "y": 380,
+      "w": 110,
+      "h": 110
+    }
+  ],
+  "destructibles": [
+    {
+      "type": "urn",
+      "x": 360,
+      "y": 300,
+      "hp": 1000
+    }
+  ]
+}

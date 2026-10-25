@@ -1,0 +1,21 @@
+{
+  "id": "iron_bastion",
+  "name": "Bastião de Ferro",
+  "type": "shield",
+  "cooldown": 11,
+  "chargePerHit": 0.6,
+  "ai": "low_hp",
+  "description": "Ergue um escudo de 1600 por 3,5s que REFLETE tiros e acelera o avanço.",
+  "params": {
+    "absorb": 1600,
+    "duration": 3.5,
+    "reflect": true,
+    "speedMul": 1.25
+  },
+  "vfx": {
+    "color": "#9ff3ff",
+    "color2": "#ff9a2e",
+    "kind": "shield"
+  },
+  "sfx": "shield"
+}

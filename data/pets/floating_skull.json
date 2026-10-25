@@ -1,0 +1,21 @@
+{
+  "id": "floating_skull",
+  "name": "Crânio Flutuante",
+  "rarity": "raro",
+  "ability": "mirror_shot",
+  "description": "Atira junto com você: cada ataque básico seu dispara uma faísca extra no mesmo alvo.",
+  "params": {
+    "projectile": "pet_spark",
+    "damageMul": 1
+  },
+  "sprite": "procedural",
+  "price": {
+    "gems": 60
+  },
+  "look": {
+    "kind": "skull",
+    "color": "#fff3d6",
+    "color2": "#40e0d0",
+    "eyeColor": "#40e0d0"
+  }
+}

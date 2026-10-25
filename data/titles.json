@@ -1,0 +1,62 @@
+[
+  {
+    "id": "novato",
+    "name": "Novato da Cripta",
+    "color": "#c9c3d6",
+    "unlock": "Começo da jornada"
+  },
+  {
+    "id": "cacador",
+    "name": "Caçador de Crânios",
+    "color": "#5ee08a",
+    "unlock": "90 troféus"
+  },
+  {
+    "id": "lenda_da_cripta",
+    "name": "Lenda da Cripta",
+    "color": "#4fb3ff",
+    "unlock": "380 troféus"
+  },
+  {
+    "id": "imortal",
+    "name": "Imortal",
+    "color": "#ffd84a",
+    "unlock": "700 troféus"
+  },
+  {
+    "id": "ceifador_serial",
+    "name": "Ceifador em Série",
+    "color": "#ff4d6d",
+    "unlock": "100 abates"
+  },
+  {
+    "id": "colecionador",
+    "name": "Colecionador de Ossos",
+    "color": "#c06bff",
+    "unlock": "10 personagens"
+  },
+  {
+    "id": "curandeiro",
+    "name": "Médico do Além",
+    "color": "#7fffd4",
+    "unlock": "Curar 20.000 de vida"
+  },
+  {
+    "id": "sobrevivente",
+    "name": "Último de Pé",
+    "color": "#ff9a2e",
+    "unlock": "25 vitórias"
+  },
+  {
+    "id": "duelista",
+    "name": "Duelista",
+    "color": "#ff7ab6",
+    "unlock": "10 vitórias no 1v1"
+  },
+  {
+    "id": "klipza",
+    "name": "Klipza Crew",
+    "color": "#ff2d95",
+    "unlock": "Evento Noite das Caveiras"
+  }
+]

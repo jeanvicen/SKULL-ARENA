@@ -1,0 +1,25 @@
+{
+  "id": "owl_mark",
+  "name": "Olho da Coruja",
+  "type": "debuff",
+  "cooldown": 10,
+  "chargePerHit": 0.7,
+  "ai": "in_range",
+  "description": "Marca uma área distante: inimigos ali ficam revelados, lentos e recebem +25% de dano.",
+  "params": {
+    "castRange": 300,
+    "radius": 120,
+    "damage": 200,
+    "status": {
+      "effect": "mark",
+      "duration": 4,
+      "amount": 0.25
+    }
+  },
+  "vfx": {
+    "color": "#7ff7e4",
+    "color2": "#0b3d38",
+    "kind": "mark"
+  },
+  "sfx": "mark"
+}

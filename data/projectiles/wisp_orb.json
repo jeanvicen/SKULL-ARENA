@@ -1,0 +1,20 @@
+{
+  "id": "wisp_orb",
+  "type": "direct",
+  "range": 360,
+  "speed": 420,
+  "damage": 420,
+  "radius": 11,
+  "homing": 150,
+  "vfx": {
+    "shape": "orb",
+    "color": "#ffe27a",
+    "color2": "#ff9d2e",
+    "trail": "fire",
+    "impact": "ember"
+  },
+  "sfx": {
+    "fire": "wisp",
+    "hit": "magic_hit"
+  }
+}

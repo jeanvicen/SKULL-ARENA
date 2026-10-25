@@ -1,0 +1,78 @@
+{
+  "id": "tita_blindado",
+  "name": "Titã Blindado",
+  "title": "O Bastião Mecânico",
+  "rarity": "max",
+  "role": "tanque",
+  "lore": "Um esqueleto de cavaleiro que um ferreiro maluco reforçou com placas de uma locomotiva. O Titã Blindado anda devagar, mas nada passa por ele — nem as balas, que voltam pra quem atirou. De perto, a escopeta dele resolve qualquer discussão.",
+  "voiceLines": {
+    "select": [
+      "Sistema blindado: ONLINE.",
+      "Pode atirar. Eu devolvo."
+    ],
+    "victory": [
+      "Inabalável.",
+      "Blindagem intacta. Inimigos, não."
+    ],
+    "defeat": [
+      "Sistema... falhando...",
+      "Preciso de um ferreiro."
+    ],
+    "kill": [
+      "Devolvido ao remetente.",
+      "Atropelado."
+    ],
+    "audio": {
+      "select": "vo/tita_blindado_select.mp3"
+    }
+  },
+  "stats": {
+    "hp": 5800,
+    "moveSpeed": 225,
+    "attackInterval": 0.9,
+    "radius": 26
+  },
+  "basicAttack": {
+    "projectile": "iron_shotgun"
+  },
+  "special": {
+    "ability": "iron_bastion"
+  },
+  "animations": [
+    "idle",
+    "move",
+    "attack",
+    "hurt",
+    "death",
+    "special",
+    "victory"
+  ],
+  "portrait": "procedural",
+  "sprite": "procedural",
+  "palette": [
+    "#ff8a1f",
+    "#2a2f38",
+    "#9ff3ff"
+  ],
+  "art": {
+    "skull": "square",
+    "headwear": "samurai",
+    "eyes": "visor",
+    "eyeColor": "#9ff3ff",
+    "jaw": "open",
+    "body": "armor",
+    "weapon": "shield",
+    "aura": "electric",
+    "scale": 1.18
+  },
+  "skins": [
+    "default",
+    "golden",
+    "void",
+    "neon"
+  ],
+  "obtain": [
+    "chest",
+    "shop"
+  ]
+}

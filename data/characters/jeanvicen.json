@@ -1,0 +1,77 @@
+{
+  "id": "jeanvicen",
+  "name": "JEANVICEN",
+  "title": "O Criador da Arena",
+  "rarity": "creator",
+  "role": "lutador",
+  "lore": "Ninguém derrotou o Criador porque ninguém entendeu as regras antes dele — afinal, foi ele quem escreveu. JEANVICEN, fundador do Klipza Studio, desceu à própria arena pra testar o jogo na raça. Os raios neon dele quicam de inimigo em inimigo e, quando aperta Reescrever, a arena obedece. Siga o criador: @0neajx.",
+  "voiceLines": {
+    "select": [
+      "Eu fiz essa arena. Bem-vindo a ela.",
+      "Klipza Studio na área. Bora testar."
+    ],
+    "victory": [
+      "Funcionou de primeira. Como planejado.",
+      "Isso não é bug, é feature."
+    ],
+    "defeat": [
+      "Anotado. Vai pro patch.",
+      "Até o criador perde. Às vezes."
+    ],
+    "kill": [
+      "Deletado.",
+      "Ctrl+Z não salva você."
+    ],
+    "audio": {
+      "select": "vo/jeanvicen_select.mp3"
+    }
+  },
+  "stats": {
+    "hp": 3000,
+    "moveSpeed": 265,
+    "attackInterval": 0.62
+  },
+  "basicAttack": {
+    "projectile": "creator_spark"
+  },
+  "special": {
+    "ability": "creator_rewrite"
+  },
+  "animations": [
+    "idle",
+    "move",
+    "attack",
+    "hurt",
+    "death",
+    "special",
+    "victory"
+  ],
+  "portrait": "procedural",
+  "sprite": "procedural",
+  "palette": [
+    "#ff2d95",
+    "#140a24",
+    "#3df2ff"
+  ],
+  "art": {
+    "skull": "round",
+    "headwear": "crown",
+    "eyes": "star",
+    "eyeColor": "#3df2ff",
+    "jaw": "grin",
+    "body": "hoodie",
+    "weapon": "guitar",
+    "aura": "creator"
+  },
+  "skins": [
+    "default",
+    "golden",
+    "void",
+    "neon",
+    "jeanvicen_glitch"
+  ],
+  "obtain": [
+    "chest",
+    "creator"
+  ]
+}

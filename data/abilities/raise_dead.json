@@ -1,0 +1,32 @@
+{
+  "id": "raise_dead",
+  "name": "Levante dos Mortos",
+  "type": "summon",
+  "cooldown": 13,
+  "chargePerHit": 0.7,
+  "ai": "engage",
+  "description": "Ergue três esqueletinhos que caçam inimigos por 10s.",
+  "params": {
+    "count": 3,
+    "minion": {
+      "name": "Esqueletinho",
+      "hp": 900,
+      "moveSpeed": 270,
+      "radius": 15,
+      "lifetime": 10,
+      "projectile": "minion_claw",
+      "attackInterval": 0.7,
+      "look": {
+        "color": "#e8ffd0",
+        "eyeColor": "#a6ff4d",
+        "scale": 0.68
+      }
+    }
+  },
+  "vfx": {
+    "color": "#a6ff4d",
+    "color2": "#2f5c0a",
+    "kind": "summon"
+  },
+  "sfx": "summon"
+}

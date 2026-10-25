@@ -1,0 +1,101 @@
+{
+  "maxPlayerLevel": 100,
+  "xpCurve": {
+    "base": 110,
+    "growth": 1.11
+  },
+  "levelUpReward": {
+    "coins": 80,
+    "gems": 5,
+    "chestEvery": 3,
+    "chest": "bau_sombrio"
+  },
+  "character": {
+    "maxLevel": 9,
+    "hpPerLevel": 0.045,
+    "damagePerLevel": 0.045,
+    "upgradeCosts": [
+      0,
+      40,
+      90,
+      160,
+      260,
+      400,
+      580,
+      820,
+      1100
+    ]
+  },
+  "starterCharacters": [
+    "ossinho",
+    "rachada",
+    "po_pistoleira",
+    "bruxo_verde",
+    "tambor"
+  ],
+  "starterPet": "bone_bat",
+  "startingCoins": 250,
+  "startingGems": 40,
+  "startingChests": [
+    "bau_ossos"
+  ],
+  "trophyRoad": [
+    {
+      "trophies": 20,
+      "reward": {
+        "coins": 150
+      }
+    },
+    {
+      "trophies": 50,
+      "reward": {
+        "chest": "bau_sombrio"
+      }
+    },
+    {
+      "trophies": 90,
+      "reward": {
+        "gems": 30,
+        "title": "cacador"
+      }
+    },
+    {
+      "trophies": 140,
+      "reward": {
+        "chest": "bau_sombrio"
+      }
+    },
+    {
+      "trophies": 200,
+      "reward": {
+        "coins": 400
+      }
+    },
+    {
+      "trophies": 280,
+      "reward": {
+        "chest": "bau_lendario"
+      }
+    },
+    {
+      "trophies": 380,
+      "reward": {
+        "gems": 60,
+        "title": "lenda_da_cripta"
+      }
+    },
+    {
+      "trophies": 500,
+      "reward": {
+        "chest": "bau_lendario"
+      }
+    },
+    {
+      "trophies": 700,
+      "reward": {
+        "gems": 120,
+        "title": "imortal"
+      }
+    }
+  ]
+}

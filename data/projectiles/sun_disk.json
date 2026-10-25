@@ -1,0 +1,26 @@
+{
+  "id": "sun_disk",
+  "type": "direct",
+  "range": 400,
+  "speed": 640,
+  "damage": 480,
+  "radius": 12,
+  "homing": 90,
+  "onHit": {
+    "effect": "burn",
+    "duration": 2,
+    "dps": 90
+  },
+  "vfx": {
+    "shape": "orb",
+    "color": "#ffe14d",
+    "color2": "#ff7b00",
+    "trail": "gold",
+    "impact": "gold",
+    "scale": 1.15
+  },
+  "sfx": {
+    "fire": "sun",
+    "hit": "magic_hit"
+  }
+}

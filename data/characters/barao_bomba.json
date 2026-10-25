@@ -1,0 +1,75 @@
+{
+  "id": "barao_bomba",
+  "name": "Barão Bomba",
+  "title": "O Aristocrata Explosivo",
+  "rarity": "raro",
+  "role": "artilheiro",
+  "lore": "Nobre falido que trocou a herança inteira por pólvora. O Barão lança crânios-bomba por cima de qualquer muro com a elegância de quem serve chá. Quando acende a Bomba-Mãe, até os bots dão um passo pra trás.",
+  "voiceLines": {
+    "select": [
+      "Chá às cinco, explosão às cinco e um.",
+      "Com licença... BOOM."
+    ],
+    "victory": [
+      "Uma vitória digna de nobreza.",
+      "O pavio foi perfeito."
+    ],
+    "defeat": [
+      "Pavio curto demais...",
+      "Que deselegante."
+    ],
+    "kill": [
+      "Boom, cavalheiro.",
+      "Explosivamente educado."
+    ],
+    "audio": {
+      "select": "vo/barao_bomba_select.mp3"
+    }
+  },
+  "stats": {
+    "hp": 2700,
+    "moveSpeed": 235,
+    "attackInterval": 1.05
+  },
+  "basicAttack": {
+    "projectile": "skull_bomb"
+  },
+  "special": {
+    "ability": "mega_bomb"
+  },
+  "animations": [
+    "idle",
+    "move",
+    "attack",
+    "hurt",
+    "death",
+    "special",
+    "victory"
+  ],
+  "portrait": "procedural",
+  "sprite": "procedural",
+  "palette": [
+    "#b3202e",
+    "#1a1a1a",
+    "#ffd84a"
+  ],
+  "art": {
+    "skull": "wide",
+    "headwear": "tophat",
+    "eyes": "cyclops",
+    "eyeColor": "#ffd84a",
+    "jaw": "beard",
+    "body": "suit",
+    "weapon": "cannon"
+  },
+  "skins": [
+    "default",
+    "golden",
+    "void",
+    "neon"
+  ],
+  "obtain": [
+    "chest",
+    "shop"
+  ]
+}

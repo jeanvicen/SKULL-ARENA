@@ -1,0 +1,22 @@
+{
+  "id": "mega_bomb",
+  "name": "Bomba do Barão",
+  "type": "aoe_burst",
+  "cooldown": 12,
+  "chargePerHit": 0.8,
+  "ai": "in_range",
+  "description": "Lança a Bomba-Mãe: depois de 0,7s explode numa área enorme e arremessa todo mundo.",
+  "params": {
+    "castRange": 300,
+    "radius": 150,
+    "damage": 1300,
+    "delay": 0.7,
+    "knockback": 420
+  },
+  "vfx": {
+    "color": "#ff5a1f",
+    "color2": "#ffd84a",
+    "kind": "bomb"
+  },
+  "sfx": "fuse"
+}

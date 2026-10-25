@@ -1,0 +1,29 @@
+{
+  "id": "toxic_flask",
+  "type": "lob",
+  "range": 330,
+  "speed": 480,
+  "damage": 380,
+  "radius": 12,
+  "arcHeight": 110,
+  "aoeRadius": 62,
+  "zone": {
+    "radius": 58,
+    "duration": 2.2,
+    "dps": 120,
+    "color": "#7dff4f",
+    "look": "poison"
+  },
+  "vfx": {
+    "shape": "orb",
+    "color": "#7dff4f",
+    "color2": "#1f6b12",
+    "trail": "poison",
+    "impact": "poison",
+    "scale": 1.1
+  },
+  "sfx": {
+    "fire": "lob",
+    "hit": "splash"
+  }
+}
