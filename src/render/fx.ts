@@ -17,11 +17,11 @@ export class FxDirector {
   private ambientAcc = 0;
   private trailFlip = false;
   /** Mensagens para o HUD (ex.: "ABATE!", "NÉVOA FECHANDO"). */
-  readonly announcements: Array<{ text: string; kind: 'kill' | 'info' | 'warn' | 'special' }> = [];
+  readonly announcements: Array<{ text: string; kind: 'kill' | 'info' | 'warn' | 'special' | 'count' | 'fight' }> = [];
   /** Feed de abates para o HUD. */
   readonly killFeed: Array<{ killer: string; victim: string; mine: boolean; t: number }> = [];
 
-  constructor(private r: GameRenderer, private audio: AudioEngine, private loop: GameLoop | null) {}
+  constructor(private r: GameRenderer, private audio: AudioEngine, public loop: GameLoop | null) {}
 
   private vol(world: World, x: number, y: number, viewer: Fighter | undefined): number {
     if (!viewer) return 0.7;
@@ -211,9 +211,11 @@ export class FxDirector {
           break;
         case 'countdown':
           this.audio.play('countdown', 0.9);
+          this.announcements.push({ text: String(e.n), kind: 'count' });
           break;
         case 'fight':
           this.audio.play('fight', 1);
+          this.announcements.push({ text: 'LUTE!', kind: 'fight' });
           break;
         case 'match_end':
           break;
