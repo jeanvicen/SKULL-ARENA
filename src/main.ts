@@ -1,6 +1,6 @@
-import '@fontsource/lilita-one/400.css';
-import '@fontsource/nunito/600.css';
-import '@fontsource/nunito/800.css';
+import '@fontsource/lilita-one/latin-400.css';
+import '@fontsource/nunito/latin-600.css';
+import '@fontsource/nunito/latin-800.css';
 import './ui/styles.css';
 import { audio } from './audio/audio';
 import { loadContent } from './content/load';
