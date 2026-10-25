@@ -3,7 +3,7 @@
   "type": "direct",
   "range": 370,
   "speed": 900,
-  "damage": 185,
+  "damage": 200,
   "radius": 6,
   "burst": {
     "count": 3,

@@ -8,7 +8,7 @@
   "description": "Um acorde que cura você e aliados próximos, regenera e dá um gás de velocidade.",
   "params": {
     "radius": 200,
-    "heal": 900,
+    "heal": 1200,
     "hps": 160,
     "duration": 3,
     "status": {

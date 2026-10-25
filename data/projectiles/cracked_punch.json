@@ -3,7 +3,7 @@
   "type": "melee",
   "range": 62,
   "speed": 0,
-  "damage": 640,
+  "damage": 600,
   "radius": 20,
   "meleeArcDeg": 110,
   "knockback": 260,

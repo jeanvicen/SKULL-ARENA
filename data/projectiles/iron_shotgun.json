@@ -3,7 +3,7 @@
   "type": "direct",
   "range": 230,
   "speed": 820,
-  "damage": 170,
+  "damage": 150,
   "radius": 8,
   "count": 5,
   "spreadDeg": 40,

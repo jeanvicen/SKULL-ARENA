@@ -27,9 +27,9 @@
     }
   },
   "stats": {
-    "hp": 7600,
+    "hp": 6400,
     "moveSpeed": 225,
-    "attackInterval": 0.9,
+    "attackInterval": 0.95,
     "radius": 26
   },
   "basicAttack": {

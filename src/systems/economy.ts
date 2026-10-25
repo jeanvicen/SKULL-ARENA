@@ -176,7 +176,7 @@ export function applyMatch(content: ContentDB, s: SaveData, m: MatchSummary, rng
   const xp = Math.round(r.xpBase + (m.won ? r.xpWin : r.xpWin * 0.5 * placeFactor) + m.kills * 6);
   const coins = Math.round(r.coinsBase + (m.won ? r.coinsWin : r.coinsWin * 0.4 * placeFactor) + m.kills * 2);
   let trophies = m.won ? r.trophiesWin : Math.round(r.trophiesLose + (m.players > 2 ? placeFactor * r.trophiesWin * 0.6 : 0));
-  if (s.trophies + trophies < 0) trophies = -s.trophies;
+  if (s.trophies + trophies < 0) trophies = s.trophies > 0 ? -s.trophies : 0;
 
   s.coins += coins;
   s.trophies += trophies;

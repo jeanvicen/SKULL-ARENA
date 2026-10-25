@@ -14,7 +14,8 @@
     "validate:data": "vitest run tests/content.test.ts",
     "icons": "node scripts/gen-icons.mjs",
     "e2e": "node scripts/e2e-smoke.mjs",
-    "e2e:offline": "node scripts/e2e-offline.mjs"
+    "e2e:offline": "node scripts/e2e-offline.mjs",
+    "balance": "BALANCE=1 vitest run tests/balance.test.ts"
   },
   "devDependencies": {
     "typescript": "5.9.3",

@@ -27,9 +27,9 @@
     }
   },
   "stats": {
-    "hp": 4700,
+    "hp": 5000,
     "moveSpeed": 245,
-    "attackInterval": 1.0
+    "attackInterval": 0.9
   },
   "basicAttack": {
     "projectile": "ghost_arrow"

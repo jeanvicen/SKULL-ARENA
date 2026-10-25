@@ -3,7 +3,7 @@
   "type": "direct",
   "range": 370,
   "speed": 760,
-  "damage": 440,
+  "damage": 470,
   "radius": 9,
   "pierce": 2,
   "onHit": {

@@ -27,9 +27,9 @@
     }
   },
   "stats": {
-    "hp": 5300,
+    "hp": 4900,
     "moveSpeed": 300,
-    "attackInterval": 0.48
+    "attackInterval": 0.55
   },
   "basicAttack": {
     "projectile": "shadow_dagger"

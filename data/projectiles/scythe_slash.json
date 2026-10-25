@@ -3,10 +3,10 @@
   "type": "melee",
   "range": 84,
   "speed": 0,
-  "damage": 600,
+  "damage": 560,
   "radius": 24,
   "meleeArcDeg": 140,
-  "lifesteal": 0.2,
+  "lifesteal": 0.12,
   "vfx": {
     "shape": "scythe",
     "color": "#ff3355",

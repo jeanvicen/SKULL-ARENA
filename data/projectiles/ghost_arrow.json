@@ -3,7 +3,7 @@
   "type": "direct",
   "range": 440,
   "speed": 1050,
-  "damage": 520,
+  "damage": 640,
   "radius": 7,
   "falloffMul": 1.45,
   "vfx": {

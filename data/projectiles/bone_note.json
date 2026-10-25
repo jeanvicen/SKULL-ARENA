@@ -3,7 +3,7 @@
   "type": "direct",
   "range": 320,
   "speed": 560,
-  "damage": 300,
+  "damage": 400,
   "radius": 11,
   "pierce": 1,
   "vfx": {

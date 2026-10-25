@@ -3,7 +3,7 @@
   "type": "lob",
   "range": 360,
   "speed": 420,
-  "damage": 720,
+  "damage": 680,
   "radius": 14,
   "arcHeight": 140,
   "aoeRadius": 78,

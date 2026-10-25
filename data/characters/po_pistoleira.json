@@ -29,7 +29,7 @@
   "stats": {
     "hp": 5600,
     "moveSpeed": 275,
-    "attackInterval": 0.62
+    "attackInterval": 0.58
   },
   "basicAttack": {
     "projectile": "dust_burst"

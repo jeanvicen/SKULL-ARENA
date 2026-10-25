@@ -3,7 +3,7 @@
   "type": "direct",
   "range": 320,
   "speed": 640,
-  "damage": 420,
+  "damage": 460,
   "radius": 9,
   "vfx": {
     "shape": "bone",

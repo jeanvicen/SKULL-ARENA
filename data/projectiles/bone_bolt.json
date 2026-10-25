@@ -3,7 +3,7 @@
   "type": "direct",
   "range": 330,
   "speed": 600,
-  "damage": 380,
+  "damage": 420,
   "radius": 9,
   "vfx": {
     "shape": "shard",

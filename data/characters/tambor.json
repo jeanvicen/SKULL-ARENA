@@ -27,9 +27,9 @@
     }
   },
   "stats": {
-    "hp": 5700,
+    "hp": 6000,
     "moveSpeed": 250,
-    "attackInterval": 0.6
+    "attackInterval": 0.55
   },
   "basicAttack": {
     "projectile": "bone_note"

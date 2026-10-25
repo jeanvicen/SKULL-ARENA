@@ -3,7 +3,7 @@
   "type": "direct",
   "range": 360,
   "speed": 420,
-  "damage": 420,
+  "damage": 450,
   "radius": 11,
   "homing": 150,
   "vfx": {
