@@ -32,7 +32,6 @@ export function registerServiceWorker(app: App): void {
         const w = reg.installing;
         w?.addEventListener('statechange', () => {
           if (w.state === 'installed' && navigator.serviceWorker.controller) {
-            app.toast('Atualizando o jogo para a versão mais recente…', 'gold', 3500);
             w.postMessage('SKIP_WAITING');
           }
         });

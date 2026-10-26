@@ -58,7 +58,7 @@ export function menuScreen(app: App): Screen {
   const show = new Showcase(heroCanvas);
   show.set(def, owned?.skin && owned.skin !== 'default' ? content.skins.get(owned.skin) ?? null : null, rarity.color);
   show.start();
-  const bubble = h('div', { class: 'voice-bubble', style: 'top:12%;left:50%;right:auto;transform:translateX(-50%);max-width:80%;display:none' });
+  const bubble = h('div', { class: 'voice-bubble menu-voice', 'aria-live': 'polite', style: 'display:none' });
   const sayLine = () => {
     const lines = def.voiceLines.select;
     bubble.textContent = `“${lines[Math.floor(Math.random() * lines.length)]}”`;
@@ -73,27 +73,29 @@ export function menuScreen(app: App): Screen {
   };
   let bubbleT = 0;
   heroCanvas.addEventListener('click', sayLine);
-  const hero = h('div', { class: 'hero' },
-    heroCanvas,
-    bubble,
-    h('div', { class: 'plate' },
-      h('div', { class: 'cname stroke' }, def.name),
-      h('div', { class: 'ctitle' }, rarityTag(app, def.rarity), ` · Nível ${owned?.level ?? 1} · ${def.title}`),
+  const hero = h('section', { class: 'hero', 'aria-label': `Personagem em destaque: ${def.name}` }, heroCanvas);
+  const identity = h('section', { class: 'character-identity', 'aria-label': 'Informações do personagem' },
+    h('div', { class: 'character-copy' },
+      h('div', { class: 'cname stroke', title: def.name }, def.name),
+      h('div', { class: 'ctitle' }, rarityTag(app, def.rarity), h('span', null, `Nível ${owned?.level ?? 1}`), h('span', null, def.title)),
+      bubble,
     ),
     h('button', { class: 'btn small dark switch', onclick: () => { app.click(); void app.go('collection'); } }, 'Trocar'),
   );
+  const showcase = h('div', { class: 'showcase-column' }, hero, identity);
 
-  // Trilhos laterais
+  // Atalhos em uma faixa própria, sempre fora da área gráfica do personagem.
   const pending = pendingClaims(content, s);
-  const leftRail = h('div', { class: 'side-rail' },
-    h('div', { class: 'rail-btn' }, h('button', { class: 'icon-btn', 'aria-label': 'Eventos', onclick: () => { app.click(); void app.go('events'); } }, svg(ICON.events), pending ? h('span', { class: 'badge' }, String(pending)) : null), 'Eventos'),
-    h('div', { class: 'rail-btn' }, h('button', { class: 'icon-btn', 'aria-label': 'Trilha de troféus', onclick: () => { app.click(); void app.go('events', { tab: 'trofeus' }); } }, svg(ICON.trophy)), 'Troféus'),
+  const quickActions = h('nav', { class: 'quick-actions', 'aria-label': 'Ações rápidas' },
+    h('button', { class: 'quick-action', onclick: () => { app.click(); void app.go('events'); } },
+      h('span', { class: 'quick-icon' }, svg(ICON.events), pending ? h('span', { class: 'badge' }, String(pending)) : null), h('span', null, 'Eventos')),
+    h('button', { class: 'quick-action', onclick: () => { app.click(); void app.go('events', { tab: 'trofeus' }); } },
+      h('span', { class: 'quick-icon' }, svg(ICON.trophy)), h('span', null, 'Troféus')),
+    h('button', { class: 'quick-action', onclick: () => { app.click(); void app.go('settings'); } },
+      h('span', { class: 'quick-icon' }, svg(ICON.gear)), h('span', null, 'Config')),
+    h('button', { class: 'quick-action', onclick: () => { app.click(); void app.go('rooms'); } },
+      h('span', { class: 'quick-icon' }, svg(ICON.door)), h('span', null, 'Salas')),
   );
-  const rightRail = h('div', { class: 'side-rail right' },
-    h('div', { class: 'rail-btn' }, h('button', { class: 'icon-btn', 'aria-label': 'Configurações', onclick: () => { app.click(); void app.go('settings'); } }, svg(ICON.gear)), 'Config'),
-    h('div', { class: 'rail-btn' }, h('button', { class: 'icon-btn', 'aria-label': 'Salas', onclick: () => { app.click(); void app.go('rooms'); } }, svg(ICON.door)), 'Salas'),
-  );
-  hero.append(leftRail, rightRail);
 
   // Banner de evento sazonal ativo
   const season = content.events.find((e) => e.kind === 'seasonal' && eventActive(e, new Date()));
@@ -138,16 +140,16 @@ export function menuScreen(app: App): Screen {
       badge ? h('span', { class: 'badge', style: 'right:12%' }, String(badge)) : null));
   });
 
-  const main = h('div', { class: `menu-main${app.isDesktop ? ' desk desk-center' : ''}` });
+  const main = h('main', { class: `menu-main${app.isDesktop ? ' desk desk-center' : ''}` });
   if (app.isDesktop) {
-    main.append(hero, h('div', { class: 'right-col' }, banner ?? '', h('div', { class: 'panel', style: 'padding:14px' },
-      h('div', { class: 'display', style: 'font-size:14px;color:var(--ink3);margin-bottom:8px' }, 'PARTIDA RÁPIDA'), playZone,
-      h('div', { style: 'margin-top:10px' }, notice('Offline contra BOTS (marcados como BOT). Multiplayer online requer servidor — Fase 5.', 'info')))));
+    main.append(showcase, h('div', { class: 'right-col' }, quickActions, banner ?? '', h('div', { class: 'panel menu-play-panel' },
+      h('div', { class: 'display menu-section-label' }, 'PARTIDA RÁPIDA'), playZone,
+      h('div', { class: 'menu-offline-note' }, notice('Offline contra BOTS (marcados como BOT). Multiplayer online requer servidor — Fase 5.', 'info')))));
   } else {
-    main.append(hero, banner ?? '', playZone);
+    main.append(quickActions, showcase, banner ?? '', playZone);
   }
 
-  const el = h('div', { class: 'screen' }, menuBg(), topbar(app), main, nav);
+  const el = h('div', { class: `screen menu-screen${app.isDesktop ? ' menu-desktop' : ''}` }, menuBg(), topbar(app), main, nav);
   return {
     el,
     destroy: () => show.stop(),

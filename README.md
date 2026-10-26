@@ -1,6 +1,6 @@
 # 💀 SKULL ARENA
 
-**Brawler de arena top-down feito de raiz para tela em pé.** Heróis-caveira estilizados, controle de um dedo onde **andar = mirar = atacar**, partidas rápidas e uma coleção de personagens com raridades.
+**Brawler de arena 2.5D feito de raiz para celular em paisagem, com arenas e modelos de personagens tridimensionais.** Heróis-caveira estilizados, controle de um dedo onde **andar = mirar = atacar**, partidas rápidas e uma coleção de personagens com raridades.
 
 **Klipza Studio** · Criador **jeanvicen** · Instagram **[@0neajx](https://instagram.com/0neajx)**
 
@@ -15,7 +15,7 @@ npm install
 npm run dev        # http://localhost:5173 (abre no celular pela rede local também)
 ```
 
-| | Celular (retrato) | Computador |
+| | Celular (paisagem) | Computador |
 |---|---|---|
 | Mover | Joystick (faixa de baixo) | `WASD` / setas |
 | Mirar | **A direção em que você anda** | Mouse (ou modo “Clássico” = igual ao celular) |
@@ -36,7 +36,7 @@ npm test              # 62 testes: regra de controle, projéteis, especiais, det
                       # partidas headless em todo modo×mapa, economia, save, conteúdo
 npm run balance       # relatório 1v1 (todos contra todos) — lento
 npm run icons         # regenera ícones do PWA a partir do SVG do logo
-npm run e2e           # (com `npm run preview` rodando) fluxo completo + screenshots, retrato e desktop
+npm run e2e           # (com `npm run preview` rodando) fluxo completo + screenshots, paisagem e desktop
 npm run e2e:offline   # verifica instalabilidade (0 erros) e partida rodando SEM rede
 ```
 
@@ -96,7 +96,7 @@ Referência completa: [docs/DADOS.md](docs/DADOS.md).
 1. Suba o repositório no GitHub (`jeanvicen/skull-arena`).
 2. Em [vercel.com/new](https://vercel.com/new), **Import** o repositório.
 3. Framework: **Vite** (detectado). Build: `npm run build`. Output: `dist`. (Já configurado em `vercel.json`.)
-4. **Deploy.** Cada push na branch principal gera deploy novo; o service worker avisa “Nova versão disponível”.
+4. **Deploy.** Cada push na branch principal gera deploy novo; o Service Worker aplica a versão atualizada automaticamente ao assumir o controle da página.
 5. Abra a URL no celular → menu do navegador → **Adicionar à tela inicial**. Pronto: instalado e jogável offline.
 
 Play Store (TWA/Bubblewrap), checklist de publicação e requisitos de 2026: [docs/PUBLICACAO.md](docs/PUBLICACAO.md).
