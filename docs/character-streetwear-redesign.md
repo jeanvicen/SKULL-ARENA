@@ -23,3 +23,18 @@ Visual-only direction for the existing 17-character roster. Combat data, abiliti
 | Titã Blindado | `#ff8a1f` / `#2a2f38` / `#9ff3ff` | Industrial armor, utility straps | Electric/shield | Heavy, stable movement |
 
 The in-game Canvas renderer and Canvas showcase share the same redesigned procedural sprites. The Three.js showcase remains outside this visual pass; it is not the source for combat sprites.
+
+## 2.5D volume pass (October 2026)
+
+The playable roster now receives a dedicated volume pass in the shared procedural Canvas sprite bake. At combat scale, clothing is modeled with rounded sleeve cross-sections, an occluded inner face, upper-left highlights, under-fold shadows, large garment folds and a convex torso light plane. A separate per-character silhouette map categorizes the cut as layered, roomy, tailored, heavy, or soft; this affects the sleeve width and depth, while each character's signature outer panels and canonical art/palette continue to distinguish the full outfit. These are vector-like Canvas paths and gradients drawn at sprite-bake time—not CSS filters, additional flat icon details, or claimed hand-painted/raster assets. Because the fight and Canvas showcase use the same baked sprite, the treatment appears in both places without altering combat data.
+
+### Scope and explicit limits
+
+- All 17 current playable IDs are explicitly represented in the silhouette map and tested against the content registry. Future roster additions must add a cut there.
+- This remains a 2D Canvas renderer with layered shading and implied form, not a real 3D model, mesh, skeletal rig, hand-drawn sprite sheet, or physically accurate lighting. The visual direction is 2.5D rather than true 3D.
+- The current head, weapon and effects retain their existing procedural art; this pass chiefly models apparel/shoulder volume. Existing skull, eyes, jaw, headwear, weapons, palettes, powers, animation, collision, stats and cooldowns are preserved.
+- Shapes are designed for the small arena sprite and can simplify at tiny resolutions. Inspect actual device scale when tuning; avoid adding glows that impair silhouette readability.
+- The Three.js showcase remains outside scope, as before. It is not used by the combat renderer or the Canvas portrait showcase.
+- Validation covers source/build/tests when available; automated tests verify roster coverage and identity contracts, not subjective visual quality or screenshots on every display.
+
+The treatment does not modify fighter dimensions, hitboxes, collision, balance, cooldowns, or simulation.

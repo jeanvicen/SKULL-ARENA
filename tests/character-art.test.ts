@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { loadContent } from '../src/content/load';
-import { CHARACTER_DIRECTION, resolveLook } from '../src/render/art/skull';
+import { CHARACTER_DIRECTION, CHARACTER_VOLUME_SILHOUETTES, resolveLook } from '../src/render/art/skull';
 
 describe('redesign visual dos personagens', () => {
   const db = loadContent();
@@ -12,6 +12,7 @@ describe('redesign visual dos personagens', () => {
       const look = resolveLook(def);
       expect(look.art.streetwear, def.id).toBeTruthy();
       expect(look.art.motion, def.id).toBeTruthy();
+      expect(CHARACTER_VOLUME_SILHOUETTES[def.id], `${def.id} needs a distinct volume cut`).toBeTruthy();
     }
   });
 

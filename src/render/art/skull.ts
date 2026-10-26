@@ -35,6 +35,13 @@ export const CHARACTER_DIRECTION: Record<string, { streetwear: NonNullable<Chara
   tita_blindado: { streetwear: 'industrial', motion: 'heavy' },
 };
 
+export const CHARACTER_VOLUME_SILHOUETTES: Record<string, 'layered' | 'roomy' | 'tailored' | 'heavy' | 'soft'> = {
+  anubis: 'layered', arqueira: 'layered', barao_bomba: 'tailored', bruxo_verde: 'soft',
+  ceifador: 'layered', coveiro: 'heavy', jeanvicen: 'roomy', lanterneira: 'soft',
+  necromante: 'roomy', ossinho: 'roomy', po_pistoleira: 'layered', purple_shade: 'soft',
+  rachada: 'heavy', rainha_gelida: 'soft', ricochete: 'layered', tambor: 'roomy', tita_blindado: 'heavy',
+};
+
 export function resolveLook(def: CharacterDef, skin?: SkinDef | null): Look {
   const pal = skin?.palette ?? def.palette;
   const direction = CHARACTER_DIRECTION[def.id];
@@ -1128,9 +1135,53 @@ function drawBody(c: CanvasRenderingContext2D, L: Look): void {
     c.beginPath(); c.moveTo(-9, bot - 4); c.lineTo(-7, bot - 1); c.moveTo(9, bot - 4); c.lineTo(7, bot - 1); c.stroke();
   }
 
+  // Modelagem 2.5D legível à escala da arena: mangas cilíndricas, faces de luz/sombra
+  // e dobras em planos grandes. São formas geométricas reais da arte, não filtros.
+  drawClothingVolume(c, L, top, bot);
+
+  // Modelagem 2.5D comum a todo o elenco, com mangas/volumes individualizados pelo corte.
+  drawClothingVolume(c, L, top, bot);
   // Silhueta de moda específica: grandes painéis externos e bainhas contrastadas
   // permanecem legíveis no tamanho reduzido do combate, sem cobrir rosto ou arma.
   drawSignatureLayer(c, L, ol, grad);
+}
+
+/** Volumes esculpidos en roupa, legíveis em combate: manga tubular, sombra de contato,
+ * faces de luz e dobras grandes. Arte Canvas geométrica, sem filtro ou sprite raster falso. */
+function drawClothingVolume(c: CanvasRenderingContext2D, L: Look, top: number, bot: number): void {
+  const style = L.art.streetwear ?? 'skate';
+  const silhouette = CHARACTER_VOLUME_SILHOUETTES[L.id] ?? 'layered';
+  const P=L.primary, D=L.dark, A=L.accent, ol=outline(D);
+  const armor=L.art.body==='armor'||style==='industrial'||silhouette==='heavy';
+  const wide=silhouette==='roomy'||silhouette==='soft';
+  const rx=armor?7.5:wide?7:5.8, ry=armor?8:wide?8.5:7;
+  const base=L.art.body==='ribs'?darken(L.bone,.24):P;
+  for(const side of [-1,1]){
+    const x=side* (armor?16:wide?15:14), y=top+(style==='regal'||style==='dapper'?2:4);
+    c.save(); c.translate(x,y); c.rotate(side*-.1);
+    rrect(c,-rx,-ry,rx*2,ry*2,armor?3:rx*.8);
+    const g=c.createLinearGradient(-rx,-ry,rx,ry);
+    g.addColorStop(0,lighten(base,.48));g.addColorStop(.3,lighten(base,.18));g.addColorStop(.72,base);g.addColorStop(1,darken(base,.48));
+    fillStroke(c,g,ol,armor?1.9:1.6);
+    // Face interna oclusa separa manga e tronco, reflexo curvo marca o volume cilíndrico.
+    c.beginPath();c.moveTo(-rx*.05,-ry+2);c.quadraticCurveTo(-rx*.8,0,-rx*.12,ry-1);c.lineTo(rx*.22,ry-1);c.quadraticCurveTo(rx*.02,0,rx*.2,-ry+2);c.closePath();
+    c.fillStyle=rgba(darken(base,.62),.56);c.fill();
+    c.beginPath();c.moveTo(-rx*.58,-ry*.5);c.quadraticCurveTo(-rx*.05,-ry*.92,rx*.45,-ry*.46);c.strokeStyle=rgba(lighten(base,.82),.84);c.lineWidth=1.6;c.stroke();
+    c.beginPath();c.moveTo(-rx*.6,ry*.18);c.quadraticCurveTo(0,ry*.52,rx*.58,ry*.18);c.strokeStyle=rgba(D,.78);c.lineWidth=1.2;c.stroke();
+    c.beginPath();c.moveTo(-rx*.76,ry*.55);c.quadraticCurveTo(0,ry*.86,rx*.76,ry*.55);c.strokeStyle=rgba(armor?A:darken(P,.42),.95);c.lineWidth=armor?2.4:1.8;c.stroke();
+    c.restore();
+  }
+  // Peito convexo: plano iluminado no alto/esquerda e faixa em sombra debaixo do tecido.
+  c.save();c.globalAlpha=L.art.body==='ribs'?.32:.56;
+  c.beginPath();c.moveTo(-9,top+5);c.quadraticCurveTo(-3,top+1,2,top+5);c.quadraticCurveTo(7,-18,5,bot-4);c.quadraticCurveTo(0,bot-1,-6,bot-4);c.quadraticCurveTo(-9,-12,-9,top+5);c.closePath();
+  const face=c.createLinearGradient(-8,top,7,bot);face.addColorStop(0,lighten(L.art.body==='ribs'?L.bone:P,.7));face.addColorStop(.28,lighten(P,.3));face.addColorStop(.64,P);face.addColorStop(1,darken(P,.5));c.fillStyle=face;c.fill();c.restore();
+  // Dobras de alfaiataria/manto em linhas largas, estilo próprio.
+  c.lineCap='round';c.lineWidth=1.45;c.strokeStyle=rgba(lighten(P,.78),.78);c.beginPath();
+  if(style==='desert'||style==='ranger'){c.moveTo(-10,top+6);c.quadraticCurveTo(-5,top+12,-7,top+17);c.moveTo(10,top+5);c.quadraticCurveTo(6,top+11,9,top+15);}
+  else if(style==='regal'||style==='soft-layered'){c.moveTo(-7,top+5);c.quadraticCurveTo(-3,-17,-5,bot-2);c.moveTo(7,top+5);c.quadraticCurveTo(3,-17,5,bot-2);}
+  else{c.moveTo(-9,top+6);c.lineTo(-5,top+10);c.lineTo(-7,top+15);c.moveTo(9,top+6);c.lineTo(5,top+10);c.lineTo(7,top+15);}c.stroke();
+  c.strokeStyle=rgba(darken(D,.12),.76);c.lineWidth=1.2;c.beginPath();c.moveTo(-9,bot-3);c.quadraticCurveTo(-4,bot-7,-2,bot-3);c.moveTo(9,bot-3);c.quadraticCurveTo(4,bot-7,2,bot-3);c.stroke();
+  if(armor){for(const side of [-1,1]){ellipse(c,side*14,top+4,3.4,2.2,side*.2);const pg=c.createLinearGradient(side*14-3,top+2,side*14+3,top+6);pg.addColorStop(0,lighten(P,.7));pg.addColorStop(.5,P);pg.addColorStop(1,darken(P,.5));fillStroke(c,pg,ol,1.1);c.fillStyle=A;c.fillRect(side*14-1.3,top+3.5,2.6,.9);}}
 }
 
 function drawSignatureLayer(c: CanvasRenderingContext2D, L: Look, ol: string, grad: (color: string) => CanvasGradient): void {
