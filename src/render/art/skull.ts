@@ -96,11 +96,32 @@ export function bakeCharacter(look: Look, res: number): CharacterSprites {
 // ───────────────────────────── helpers de desenho ─────────────────────────────
 
 function fillStroke(c: CanvasRenderingContext2D, fill: string | CanvasGradient, stroke: string, lw = LW): void {
+  // Volume de peça: sombra curta de contato, contorno externo profundo e bisel sutil.
+  // Esta função roda ao assar sprites, não por lutador a cada frame.
+  c.save();
+  c.shadowColor = 'rgba(0,0,0,0.34)';
+  c.shadowBlur = 2.4;
+  c.shadowOffsetX = 0;
+  c.shadowOffsetY = 1.5;
   c.fillStyle = fill;
   c.fill();
+  c.restore();
+
+  c.lineJoin = 'round';
+  c.lineWidth = lw + 0.9;
+  c.strokeStyle = darken(stroke, 0.16);
+  c.stroke();
   c.lineWidth = lw;
   c.strokeStyle = stroke;
   c.stroke();
+
+  // Filete refletido na borda, coerente com a luz superior esquerda.
+  c.save();
+  c.globalAlpha = 0.24;
+  c.lineWidth = Math.max(0.7, lw * 0.34);
+  c.strokeStyle = mix(stroke, '#fff4dc', 0.42);
+  c.stroke();
+  c.restore();
 }
 
 function ellipse(c: CanvasRenderingContext2D, x: number, y: number, rx: number, ry: number, rot = 0): void {
@@ -114,10 +135,13 @@ function rrect(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: 
 }
 
 function boneGrad(c: CanvasRenderingContext2D, bone: string, x: number, y: number, r: number): CanvasGradient {
-  const g = c.createRadialGradient(x - r * 0.35, y - r * 0.45, r * 0.1, x, y, r * 1.15);
-  g.addColorStop(0, lighten(bone, 0.5));
-  g.addColorStop(0.55, bone);
-  g.addColorStop(1, darken(bone, 0.28));
+  // Marfim com luz especular e sombra fria de volume, sempre vindo do alto à esquerda.
+  const g = c.createRadialGradient(x - r * 0.42, y - r * 0.52, r * 0.06, x + r * 0.08, y + r * 0.12, r * 1.28);
+  g.addColorStop(0, lighten(bone, 0.78));
+  g.addColorStop(0.2, lighten(bone, 0.5));
+  g.addColorStop(0.56, bone);
+  g.addColorStop(0.82, darken(bone, 0.16));
+  g.addColorStop(1, darken(bone, 0.48));
   return g;
 }
 
@@ -194,10 +218,29 @@ function drawHead(c: CanvasRenderingContext2D, L: Look, back: boolean): void {
     c.stroke();
   }
 
-  // Brilho especular
-  ellipse(c, g.cx - g.rx * 0.38, g.cy - g.ry * 0.5, g.rx * 0.3, g.ry * 0.16, -0.5);
-  c.fillStyle = 'rgba(255,255,255,0.55)';
+  // Luz de recorte e reflexo no osso: reforça o volume sem encobrir os traços únicos.
+  c.save();
+  c.beginPath();
+  c.ellipse(g.cx, g.cy, g.rx * 0.99, g.ry * 0.99, 0, Math.PI * 1.08, Math.PI * 1.82);
+  c.lineWidth = 1.25;
+  c.strokeStyle = rgba(lighten(L.bone, 0.8), 0.52);
+  c.stroke();
+  c.restore();
+
+  const spec = c.createRadialGradient(g.cx - g.rx * 0.4, g.cy - g.ry * 0.58, 0.4, g.cx - g.rx * 0.35, g.cy - g.ry * 0.48, g.rx * 0.42);
+  spec.addColorStop(0, 'rgba(255,255,255,0.68)');
+  spec.addColorStop(0.38, 'rgba(255,255,255,0.22)');
+  spec.addColorStop(1, 'rgba(255,255,255,0)');
+  ellipse(c, g.cx - g.rx * 0.35, g.cy - g.ry * 0.48, g.rx * 0.42, g.ry * 0.23, -0.5);
+  c.fillStyle = spec;
   c.fill();
+  // Pequeno reflexo quente, lido como acabamento pintado e não como filtro global.
+  c.save();
+  c.globalAlpha = 0.32;
+  ellipse(c, g.cx + g.rx * 0.48, g.cy + g.ry * 0.42, g.rx * 0.12, g.ry * 0.055, 0.35);
+  c.fillStyle = L.accent;
+  c.fill();
+  c.restore();
 
   drawHeadwear(c, g, L, ol, back);
 }
@@ -1004,9 +1047,12 @@ function drawWeapon(c: CanvasRenderingContext2D, L: Look): void {
   const P = L.primary, D = L.dark, A = L.accent;
   const metal = (x0: number, y0: number, x1: number, y1: number) => {
     const g = c.createLinearGradient(x0, y0, x1, y1);
-    g.addColorStop(0, '#ffffff');
-    g.addColorStop(0.4, '#c9d3e6');
-    g.addColorStop(1, '#5b6478');
+    g.addColorStop(0, '#fffdf1');
+    g.addColorStop(0.16, '#dfe8f4');
+    g.addColorStop(0.34, '#78869d');
+    g.addColorStop(0.48, '#f8f3df');
+    g.addColorStop(0.68, '#8995a9');
+    g.addColorStop(1, '#353c4c');
     return g;
   };
   switch (L.art.weapon) {
