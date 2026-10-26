@@ -87,7 +87,7 @@ export function matchmakingScreen(app: App, params: Record<string, unknown>): Sc
         h('div', { class: 'small', style: 'margin-top:4px;color:#ffb347;font-weight:800' }, `Bots: ${diffName}`)));
       audio.play('reward', 0.7);
       cancelBtn.remove();
-      setTimeout(() => !cancelled && void app.go('game', { setup }, 'iris'), 1400);
+      setTimeout(() => !cancelled && void app.go('game', { setup }, 'none'), 1400);
     }
   };
   setTimeout(tick, 600);
