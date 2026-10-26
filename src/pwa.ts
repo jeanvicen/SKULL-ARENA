@@ -18,13 +18,21 @@ export function registerServiceWorker(app: App): void {
     app.toast('SKULL ARENA instalado! Agora dá pra jogar offline.', 'good', 3500);
   });
   if (!('serviceWorker' in navigator) || import.meta.env.DEV) return;
+  // Quando o SW novo assume, descarte o documento antigo: JS e app shell precisam
+  // pertencer à mesma versão. A primeira instalação não força reload.
+  let hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController) window.location.reload();
+    hadController = true;
+  });
   const register = () =>
     navigator.serviceWorker.register('/sw.js').then((reg) => {
+      void reg.update().catch(() => undefined);
       reg.addEventListener('updatefound', () => {
         const w = reg.installing;
         w?.addEventListener('statechange', () => {
           if (w.state === 'installed' && navigator.serviceWorker.controller) {
-            app.toast('Nova versão disponível — reabra o jogo para atualizar.', 'gold', 5000);
+            app.toast('Atualizando o jogo para a versão mais recente…', 'gold', 3500);
             w.postMessage('SKIP_WAITING');
           }
         });

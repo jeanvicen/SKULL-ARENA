@@ -13,6 +13,7 @@ import { darken, lighten, mix, outline, rgba } from './color';
 
 export interface Look {
   art: CharacterArt;
+  id: string;
   primary: string;
   dark: string;
   accent: string;
@@ -40,6 +41,7 @@ export function resolveLook(def: CharacterDef, skin?: SkinDef | null): Look {
   const art: CharacterArt = { ...def.art, ...direction, headwear: skin?.headwear ?? def.art.headwear };
   return {
     art,
+    id: def.id,
     primary: pal[0],
     dark: pal[1],
     accent: pal[2],
@@ -900,17 +902,23 @@ function drawBody(c: CanvasRenderingContext2D, L: Look): void {
 
   // Calça larga e tênis de rua: a parte inferior dá uma silhueta diferente mesmo na escala de combate.
   const pants = stylePants(L.art.streetwear, D, P);
-  c.beginPath(); c.moveTo(-11, -5); c.quadraticCurveTo(-16, 2, -14, 8); c.lineTo(-3, 8); c.lineTo(0, -5); c.closePath();
+  const stance = L.id === 'tita_blindado' ? 1.3 : L.id === 'ossinho' || L.id === 'rachada' ? 1.16 : 1;
+  c.beginPath(); c.moveTo(-10, -5); c.quadraticCurveTo(-17*stance, 1, -16*stance, 8); c.lineTo(-2, 8); c.lineTo(0, -5); c.closePath();
   fillStroke(c, grad(pants), ol, 1.8);
-  c.beginPath(); c.moveTo(2, -5); c.lineTo(0, 8); c.quadraticCurveTo(5, 10, 14, 8); c.lineTo(12, -5); c.closePath();
+  c.beginPath(); c.moveTo(2, -5); c.lineTo(1, 8); c.quadraticCurveTo(7*stance, 10, 16*stance, 8); c.lineTo(12, -5); c.closePath();
   fillStroke(c, grad(darken(pants, .08)), ol, 1.8);
-  // Bainhas e tênis robustos, em cores neutras para leitura no cenário.
+  // Bainhas e tênis robustos, maiores e contrastados para sobreviver à escala mobile.
   for (const side of [-1, 1]) {
-    const x = side < 0 ? -9 : 7;
-    rrect(c, x - 1, 7, 11, 5, 2.5); fillStroke(c, '#e7e2d9', ol, 1.4);
-    c.fillStyle = A; c.fillRect(x + 1, 7.4, 5, 1.4);
+    const x = side < 0 ? -11 : 7;
+    rrect(c, x - 1, 7, 13, 5, 2.5); fillStroke(c, L.id === 'tita_blindado' ? '#7d8793' : '#e7e2d9', ol, 1.5);
+    c.fillStyle = A; c.fillRect(x + 1, 7.4, 7, 1.8);
     c.strokeStyle = rgba(D, .8); c.lineWidth = 1;
-    c.beginPath(); c.moveTo(x + 1, 9); c.lineTo(x + 7, 9); c.stroke();
+    c.beginPath(); c.moveTo(x + 1, 9.5); c.lineTo(x + 8, 9.5); c.stroke();
+  }
+  // Recortes de joelho/bainha de escala grande; uma leitura de personagem, não textura.
+  if (['techwear','ranger','industrial','sport','skate','desert'].includes(L.art.streetwear ?? '')) {
+    c.strokeStyle = A; c.lineWidth = 2.1;
+    c.beginPath(); c.moveTo(-15,-1); c.lineTo(-5,0); c.moveTo(6,0); c.lineTo(16,-1); c.stroke();
   }
   // Cinto/fecho legível e bolsos de carga em estilos que pedem roupa utilitária.
   rrect(c, -12, -7, 24, 3, 1.2); fillStroke(c, darken(D, .2), ol, 1.2);
@@ -1118,6 +1126,80 @@ function drawBody(c: CanvasRenderingContext2D, L: Look): void {
     // costuras grandes, sem logotipos ou microdetalhes que sumam durante a partida.
     c.strokeStyle = rgba(lighten(P,.55),.48); c.lineWidth = 1;
     c.beginPath(); c.moveTo(-9, bot - 4); c.lineTo(-7, bot - 1); c.moveTo(9, bot - 4); c.lineTo(7, bot - 1); c.stroke();
+  }
+
+  // Silhueta de moda específica: grandes painéis externos e bainhas contrastadas
+  // permanecem legíveis no tamanho reduzido do combate, sem cobrir rosto ou arma.
+  drawSignatureLayer(c, L, ol, grad);
+}
+
+function drawSignatureLayer(c: CanvasRenderingContext2D, L: Look, ol: string, grad: (color: string) => CanvasGradient): void {
+  const P=L.primary, D=L.dark, A=L.accent;
+  const panel=(path:()=>void,color:string=P)=>{c.beginPath();path();fillStroke(c,grad(color),ol,2.1);};
+  const hem=(x1:number,y:number,x2:number,color=A)=>{c.beginPath();c.moveTo(x1,y);c.lineTo(x2,y);c.lineWidth=2.5;c.strokeStyle=color;c.stroke();};
+  switch(L.id){
+    case 'anubis': // angular cropped tech jacket + long split coat tails
+      panel(()=>{c.moveTo(-18,-29);c.lineTo(-25,-23);c.lineTo(-22,-5);c.lineTo(-14,-2);c.lineTo(-12,-19);c.closePath();});
+      panel(()=>{c.moveTo(18,-29);c.lineTo(25,-23);c.lineTo(22,-5);c.lineTo(14,-2);c.lineTo(12,-19);c.closePath();});
+      hem(-22,-5,-14,A);hem(14,-5,22,A); c.fillStyle=A;c.fillRect(-24,-22,4,8);c.fillRect(20,-22,4,8);break;
+    case 'arqueira': // asymmetrical shoulder mantle and visible quiver strap
+      panel(()=>{c.moveTo(-13,-29);c.lineTo(-23,-25);c.lineTo(-27,-13);c.lineTo(-20,-8);c.lineTo(-12,-17);c.closePath();},D);
+      c.beginPath();c.moveTo(-19,-29);c.lineTo(13,-4);c.lineWidth=4;c.strokeStyle=A;c.stroke();
+      panel(()=>{c.moveTo(16,-28);c.lineTo(24,-24);c.lineTo(18,-17);c.lineTo(13,-21);c.closePath();});break;
+    case 'barao_bomba': // broad lapels and long formal coat tails
+      panel(()=>{c.moveTo(-14,-29);c.lineTo(-23,-25);c.lineTo(-22,-3);c.lineTo(-10,2);c.lineTo(-12,-16);c.closePath();});
+      panel(()=>{c.moveTo(14,-29);c.lineTo(23,-25);c.lineTo(22,-3);c.lineTo(10,2);c.lineTo(12,-16);c.closePath();});
+      c.beginPath();c.moveTo(-10,-29);c.lineTo(-3,-18);c.lineTo(0,-23);c.lineTo(4,-18);c.lineTo(11,-29);c.lineWidth=2;c.strokeStyle=A;c.stroke();break;
+    case 'bruxo_verde': // oversized alchemist mantle with high collar
+      panel(()=>{c.moveTo(-13,-31);c.lineTo(-24,-25);c.lineTo(-26,-5);c.lineTo(-19,1);c.lineTo(-11,-12);c.closePath();},D);
+      panel(()=>{c.moveTo(13,-31);c.lineTo(24,-25);c.lineTo(26,-5);c.lineTo(19,1);c.lineTo(11,-12);c.closePath();});
+      c.beginPath();c.moveTo(-10,-29);c.lineTo(0,-23);c.lineTo(10,-29);c.lineWidth=4;c.strokeStyle=A;c.stroke();break;
+    case 'ceifador': // torn, one-sided punk shoulder cape
+      panel(()=>{c.moveTo(-13,-30);c.lineTo(-25,-26);c.lineTo(-27,-12);c.lineTo(-20,-15);c.lineTo(-23,-7);c.lineTo(-14,-10);c.lineTo(-10,-20);c.closePath();});
+      c.beginPath();c.moveTo(15,-26);c.lineTo(22,-21);c.lineTo(18,-12);c.lineWidth=3;c.strokeStyle=A;c.stroke();break;
+    case 'coveiro': // heavy work apron + broad straps
+      panel(()=>{c.moveTo(-17,-29);c.lineTo(-23,-23);c.lineTo(-22,-3);c.lineTo(-14,0);c.lineTo(-13,-18);c.closePath();},D);
+      panel(()=>{c.moveTo(17,-29);c.lineTo(23,-23);c.lineTo(22,-3);c.lineTo(14,0);c.lineTo(13,-18);c.closePath();},D);
+      c.beginPath();c.moveTo(-9,-29);c.lineTo(-6,-18);c.lineTo(0,-15);c.lineTo(6,-18);c.lineTo(9,-29);c.lineWidth=3;c.strokeStyle=A;c.stroke();break;
+    case 'jeanvicen': // varsity sleeves, diagonal artist strap
+      for(const side of [-1,1]) panel(()=>{c.moveTo(side*13,-28);c.lineTo(side*23,-24);c.lineTo(side*21,-10);c.lineTo(side*14,-13);c.closePath();},side<0?D:P);
+      c.beginPath();c.moveTo(-17,-28);c.lineTo(16,-4);c.lineWidth=4;c.strokeStyle=A;c.stroke();
+      c.beginPath();c.moveTo(-5,-25);c.lineTo(0,-20);c.lineTo(5,-25);c.lineWidth=2;c.strokeStyle='#f3eee4';c.stroke();break;
+    case 'lanterneira': // long soft shawl panels
+      panel(()=>{c.moveTo(-14,-29);c.lineTo(-24,-24);c.lineTo(-20,5);c.lineTo(-14,1);c.lineTo(-11,-17);c.closePath();},D);
+      panel(()=>{c.moveTo(14,-29);c.lineTo(24,-24);c.lineTo(20,5);c.lineTo(14,1);c.lineTo(11,-17);c.closePath();});
+      hem(-20,3,-14,A);hem(14,3,20,A);break;
+    case 'necromante': // toybox cape with oversized rounded shoulder tabs
+      for(const side of [-1,1]){ellipse(c,side*18,-25,8,7,side*.1);fillStroke(c,grad(P),ol,2);}
+      panel(()=>{c.moveTo(-12,-28);c.lineTo(-22,-23);c.lineTo(-19,-9);c.lineTo(-12,-12);c.closePath();},D);break;
+    case 'ossinho': // cropped skate bomber with oversized sleeves
+      for(const side of [-1,1]) panel(()=>{c.moveTo(side*13,-28);c.lineTo(side*24,-25);c.lineTo(side*22,-13);c.lineTo(side*14,-15);c.closePath();},P);
+      hem(-18,-11,18,A);break;
+    case 'po_pistoleira': // desert duster and shoulder poncho
+      panel(()=>{c.moveTo(-13,-28);c.lineTo(-25,-23);c.lineTo(-24,2);c.lineTo(-18,6);c.lineTo(-12,-14);c.closePath();},D);
+      panel(()=>{c.moveTo(13,-28);c.lineTo(25,-23);c.lineTo(24,2);c.lineTo(18,6);c.lineTo(12,-14);c.closePath();});
+      c.beginPath();c.moveTo(-22,-20);c.lineTo(22,-20);c.lineWidth=3;c.strokeStyle=A;c.stroke();break;
+    case 'purple_shade': // dramatic gothic shoulder drapes
+      panel(()=>{c.moveTo(-13,-29);c.lineTo(-25,-26);c.lineTo(-27,-7);c.lineTo(-18,2);c.lineTo(-12,-17);c.closePath();},D);
+      panel(()=>{c.moveTo(13,-29);c.lineTo(25,-26);c.lineTo(27,-7);c.lineTo(18,2);c.lineTo(12,-17);c.closePath();},D);
+      hem(-24,-7,-18,A);hem(18,-7,24,A);break;
+    case 'rachada': // athletic shoulder pads and wide racer trim
+      for(const side of [-1,1]){ellipse(c,side*18,-25,8,5.5,side*.12);fillStroke(c,grad(P),ol,2);}
+      c.beginPath();c.moveTo(-20,-19);c.lineTo(-12,-15);c.moveTo(20,-19);c.lineTo(12,-15);c.lineWidth=3;c.strokeStyle=A;c.stroke();break;
+    case 'rainha_gelida': // regal mantle, shoulder fins and long hem
+      panel(()=>{c.moveTo(-13,-29);c.lineTo(-26,-24);c.lineTo(-21,-14);c.lineTo(-13,-18);c.closePath();});
+      panel(()=>{c.moveTo(13,-29);c.lineTo(26,-24);c.lineTo(21,-14);c.lineTo(13,-18);c.closePath();});
+      hem(-21,-13,21,'#e8f5ff'); c.fillStyle=A;c.fillRect(-2,-13,4,4);break;
+    case 'ricochete': // asymmetrical short biker jacket and diagonal band
+      panel(()=>{c.moveTo(-14,-29);c.lineTo(-24,-24);c.lineTo(-21,-8);c.lineTo(-14,-12);c.closePath();},D);
+      panel(()=>{c.moveTo(14,-29);c.lineTo(24,-24);c.lineTo(21,-12);c.lineTo(14,-15);c.closePath();});
+      c.beginPath();c.moveTo(-14,-27);c.lineTo(17,-5);c.lineWidth=3;c.strokeStyle=A;c.stroke();break;
+    case 'tambor': // performer shoulder epaulettes and sash
+      for(const side of [-1,1]){ellipse(c,side*17,-26,7,5,side*.1);fillStroke(c,grad(P),ol,1.8);}
+      c.beginPath();c.moveTo(-15,-29);c.lineTo(16,-5);c.lineWidth=4;c.strokeStyle=A;c.stroke();break;
+    case 'tita_blindado': // massive segmented armor shoulders extending the silhouette
+      for(const side of [-1,1]){panel(()=>{c.moveTo(side*12,-29);c.lineTo(side*25,-27);c.lineTo(side*28,-19);c.lineTo(side*21,-13);c.lineTo(side*12,-17);c.closePath();},P);}
+      c.beginPath();c.moveTo(-21,-17);c.lineTo(21,-17);c.lineWidth=3;c.strokeStyle=A;c.stroke();break;
   }
 }
 
