@@ -454,16 +454,19 @@ export class GameRenderer {
 
     c.scale(sc, sc);
     const moving = f.moving;
-    const bob = moving ? Math.abs(Math.sin(f.walkPhase * 1.0)) * 4 : Math.sin(t * 3 + f.id) * 1.3;
-    const squash = moving ? Math.sin(f.walkPhase * 2) * 0.04 : Math.sin(t * 3 + f.id) * 0.02;
-    const lean = moving ? Math.cos(f.facing) * 0.1 : 0;
+    const motion = L.art.motion ?? 'measured';
+    const idlePulse = Math.sin(t * (motion === 'bounce' || motion === 'rhythm' ? 5 : motion === 'float' ? 1.8 : 2.7) + f.id);
+    const bob = moving ? Math.abs(Math.sin(f.walkPhase * (motion === 'quick' ? 1.35 : 1.0))) * (motion === 'heavy' ? 2.8 : 4) : idlePulse * (motion === 'float' ? 2.6 : motion === 'heavy' ? .7 : motion === 'bounce' ? 2.1 : 1.3);
+    const squash = moving ? Math.sin(f.walkPhase * 2) * (motion === 'heavy' ? .055 : .04) : idlePulse * (motion === 'bounce' ? .035 : .02);
+    const attitude = motion === 'swagger' || L.art.streetwear === 'punk' ? .09 : motion === 'heavy' ? .025 : motion === 'precise' ? .012 : .04;
+    const lean = moving ? Math.cos(f.facing) * attitude : Math.sin(t * (motion === 'rhythm' ? 2.5 : 1.4) + f.id) * attitude;
     const flip = Math.cos(f.facing) < -0.05;
     const back = Math.sin(f.facing) < -0.5;
     const atk = f.attackT;
-    const recoil = atk * 5;
+    const recoil = atk * (motion === 'heavy' ? 7 : motion === 'quick' ? 3 : 5);
 
     // pés
-    const step = moving ? Math.sin(f.walkPhase * 2) : 0;
+    const step = moving ? Math.sin(f.walkPhase * (motion === 'quick' ? 2.7 : motion === 'rhythm' ? 1.6 : 2)) : Math.sin(t * (motion === 'bounce' ? 4.5 : 2) + f.id) * (motion === 'float' ? .08 : .025);
     c.fillStyle = darken(L.dark, 0.25);
     for (const s of [-1, 1]) {
       c.beginPath();
@@ -481,7 +484,7 @@ export class GameRenderer {
       c.translate(hx, hy);
       c.rotate(f.facing);
       if (Math.cos(f.facing) < 0) c.scale(1, -1);
-      const thrust = atk * 6;
+      const thrust = atk * (motion === 'heavy' ? 4 : motion === 'quick' ? 9 : 6);
       const w = sp.weapon;
       c.drawImage(w.canvas, -w.ax + thrust, -w.ay, w.w, w.h);
       c.restore();
@@ -504,7 +507,7 @@ export class GameRenderer {
     // cabeça (balança um pouco mais que o corpo)
     c.save();
     if (flip) c.scale(-1, 1);
-    const headBob = moving ? Math.sin(f.walkPhase * 2 + 0.6) * 1.5 : Math.sin(t * 3 + f.id + 0.8) * 1;
+    const headBob = moving ? Math.sin(f.walkPhase * (motion === 'quick' ? 2.6 : 2) + 0.6) * (motion === 'heavy' ? 1 : 1.5) : Math.sin(t * (motion === 'rhythm' ? 4 : 2.8) + f.id + 0.8) * (motion === 'float' ? 1.8 : 1);
     const headPunch = 1 + atk * 0.06 + f.specialT * 0.08;
     c.translate(0, headBob - 30);
     c.scale(headPunch, headPunch);

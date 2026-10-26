@@ -22,9 +22,22 @@ export interface Look {
   scale: number;
 }
 
+export const CHARACTER_DIRECTION: Record<string, { streetwear: NonNullable<CharacterArt['streetwear']>; motion: NonNullable<CharacterArt['motion']> }> = {
+  anubis: { streetwear: 'techwear', motion: 'measured' }, arqueira: { streetwear: 'ranger', motion: 'precise' },
+  barao_bomba: { streetwear: 'dapper', motion: 'elegant' }, bruxo_verde: { streetwear: 'alchemist', motion: 'sway' },
+  ceifador: { streetwear: 'punk', motion: 'quick' }, coveiro: { streetwear: 'workwear', motion: 'heavy' },
+  jeanvicen: { streetwear: 'street-artist', motion: 'swagger' }, lanterneira: { streetwear: 'soft-layered', motion: 'float' },
+  necromante: { streetwear: 'toybox', motion: 'bounce' }, ossinho: { streetwear: 'skate', motion: 'bounce' },
+  po_pistoleira: { streetwear: 'desert', motion: 'quick' }, purple_shade: { streetwear: 'goth', motion: 'float' },
+  rachada: { streetwear: 'sport', motion: 'heavy' }, rainha_gelida: { streetwear: 'regal', motion: 'elegant' },
+  ricochete: { streetwear: 'punk', motion: 'rhythm' }, tambor: { streetwear: 'performer', motion: 'rhythm' },
+  tita_blindado: { streetwear: 'industrial', motion: 'heavy' },
+};
+
 export function resolveLook(def: CharacterDef, skin?: SkinDef | null): Look {
   const pal = skin?.palette ?? def.palette;
-  const art: CharacterArt = { ...def.art, headwear: skin?.headwear ?? def.art.headwear };
+  const direction = CHARACTER_DIRECTION[def.id];
+  const art: CharacterArt = { ...def.art, ...direction, headwear: skin?.headwear ?? def.art.headwear };
   return {
     art,
     primary: pal[0],
@@ -88,7 +101,7 @@ function whiteOf(p: PartCanvas): PartCanvas {
 export function bakeCharacter(look: Look, res: number): CharacterSprites {
   const head = part(96, 104, 48, 100, res, (c) => drawHead(c, look, false));
   const headBack = part(96, 104, 48, 100, res, (c) => drawHead(c, look, true));
-  const body = part(70, 50, 35, 46, res, (c) => drawBody(c, look));
+  const body = part(70, 72, 35, 46, res, (c) => drawBody(c, look));
   const weapon = part(96, 64, 26, 32, res, (c) => drawWeapon(c, look));
   return { head, headBack, body, weapon, headWhite: whiteOf(head), bodyWhite: whiteOf(body), look };
 }
@@ -242,6 +255,7 @@ function drawHead(c: CanvasRenderingContext2D, L: Look, back: boolean): void {
   c.fill();
   c.restore();
 
+  drawStreetHair(c, g, L, ol);
   drawHeadwear(c, g, L, ol, back);
 }
 
@@ -544,6 +558,36 @@ function drawPharaohBack(c: CanvasRenderingContext2D, g: SkullGeom, L: Look): vo
   c.restore();
 }
 
+function drawStreetHair(c: CanvasRenderingContext2D, g: SkullGeom, L: Look, ol: string): void {
+  const style = L.art.streetwear;
+  const top = g.cy - g.ry + 4;
+  const hair = darken(L.dark, 0.24);
+  // Franja/cachos desenhados em formas grandes para continuarem legíveis em jogo.
+  if (style === 'punk' || style === 'street-artist') {
+    c.beginPath(); c.moveTo(-g.rx * .9, top + 8);
+    c.lineTo(-g.rx * .72, top - 5); c.lineTo(-g.rx * .42, top + 2);
+    c.lineTo(-g.rx * .12, top - 12); c.lineTo(g.rx * .05, top + 1);
+    c.lineTo(g.rx * .4, top - 8); c.lineTo(g.rx * .48, top + 3);
+    c.lineTo(g.rx * .82, top - 1); c.lineTo(g.rx * .75, top + 9); c.closePath();
+    fillStroke(c, hair, ol, 1.8);
+    c.strokeStyle = rgba(L.accent, .85); c.lineWidth = 2;
+    c.beginPath(); c.moveTo(-g.rx * .1, top - 6); c.lineTo(g.rx * .08, top + 1); c.stroke();
+  } else if (style === 'skate' || style === 'performer' || style === 'toybox') {
+    for (let i = -2; i <= 2; i++) {
+      const x = i * g.rx * .27, r = g.rx * (style === 'performer' ? .22 : .18);
+      ellipse(c, x, top + Math.abs(i) * 1.3, r, r * .72, i * .08);
+      fillStroke(c, hair, ol, 1.4);
+    }
+    c.beginPath(); c.moveTo(-g.rx * .7, top + 5); c.quadraticCurveTo(-g.rx * .2, top + 13, g.rx * .35, top + 3);
+    c.lineWidth = 2; c.strokeStyle = rgba(lighten(hair, .2), .85); c.stroke();
+  } else if (style === 'goth' || style === 'desert' || style === 'ranger') {
+    c.beginPath(); c.moveTo(-g.rx * .95, top + 2); c.quadraticCurveTo(-g.rx * .45, top - 13, g.rx * .2, top - 5);
+    c.quadraticCurveTo(g.rx * .65, top - 3, g.rx * .92, top + 4); c.lineTo(g.rx * .7, top + 8);
+    c.lineTo(g.rx * .35, top + 3); c.lineTo(g.rx * .1, top + 11); c.lineTo(-g.rx * .15, top + 3);
+    c.lineTo(-g.rx * .55, top + 9); c.closePath(); fillStroke(c, hair, ol, 1.8);
+  }
+}
+
 function drawHeadwear(c: CanvasRenderingContext2D, g: SkullGeom, L: Look, ol: string, back: boolean): void {
   const top = g.cy - g.ry;
   const P = L.primary, D = L.dark, A = L.accent;
@@ -827,10 +871,25 @@ function drawHeadwear(c: CanvasRenderingContext2D, g: SkullGeom, L: Look, ol: st
 
 // ───────────────────────────── CORPO ─────────────────────────────
 
+function stylePants(style: string | undefined, dark: string, primary: string): string {
+  switch (style) {
+    case 'desert': return '#92633b';
+    case 'regal': return mix(dark, '#26365c', .42);
+    case 'sport': return mix(dark, '#536f91', .4);
+    case 'toybox': return mix(dark, '#536a42', .42);
+    case 'skate': return mix(dark, '#56616d', .45);
+    case 'performer': return mix(dark, '#443552', .42);
+    case 'goth': return darken(dark, .1);
+    case 'industrial': return mix(dark, '#46505a', .45);
+    default: return mix(dark, primary, .16);
+  }
+}
+
 function drawBody(c: CanvasRenderingContext2D, L: Look): void {
   const ol = outline(L.dark);
   const P = L.primary, D = L.dark, A = L.accent;
   const top = -30, bot = -4;
+  const streetStyle = L.art.streetwear;
   const grad = (col: string) => {
     const g = c.createLinearGradient(-16, top, 16, bot);
     g.addColorStop(0, lighten(col, 0.22));
@@ -838,6 +897,30 @@ function drawBody(c: CanvasRenderingContext2D, L: Look): void {
     g.addColorStop(1, darken(col, 0.32));
     return g;
   };
+
+  // Calça larga e tênis de rua: a parte inferior dá uma silhueta diferente mesmo na escala de combate.
+  const pants = stylePants(L.art.streetwear, D, P);
+  c.beginPath(); c.moveTo(-11, -5); c.quadraticCurveTo(-16, 2, -14, 8); c.lineTo(-3, 8); c.lineTo(0, -5); c.closePath();
+  fillStroke(c, grad(pants), ol, 1.8);
+  c.beginPath(); c.moveTo(2, -5); c.lineTo(0, 8); c.quadraticCurveTo(5, 10, 14, 8); c.lineTo(12, -5); c.closePath();
+  fillStroke(c, grad(darken(pants, .08)), ol, 1.8);
+  // Bainhas e tênis robustos, em cores neutras para leitura no cenário.
+  for (const side of [-1, 1]) {
+    const x = side < 0 ? -9 : 7;
+    rrect(c, x - 1, 7, 11, 5, 2.5); fillStroke(c, '#e7e2d9', ol, 1.4);
+    c.fillStyle = A; c.fillRect(x + 1, 7.4, 5, 1.4);
+    c.strokeStyle = rgba(D, .8); c.lineWidth = 1;
+    c.beginPath(); c.moveTo(x + 1, 9); c.lineTo(x + 7, 9); c.stroke();
+  }
+  // Cinto/fecho legível e bolsos de carga em estilos que pedem roupa utilitária.
+  rrect(c, -12, -7, 24, 3, 1.2); fillStroke(c, darken(D, .2), ol, 1.2);
+  rrect(c, -1.5, -7.3, 3, 3.4, .7); fillStroke(c, A, ol, 1);
+  if (['techwear','ranger','workwear','alchemist','industrial'].includes(L.art.streetwear ?? '')) {
+    rrect(c, 9, -1, 7, 8, 1.8); fillStroke(c, darken(pants,.08), ol, 1.2);
+    c.fillStyle = A; c.fillRect(11, 1, 3, 1.2);
+    c.strokeStyle = rgba(lighten(pants,.45),.65); c.lineWidth = 1;
+    c.beginPath(); c.moveTo(10, 3); c.lineTo(15, 3); c.stroke();
+  }
 
   // pescoço (vértebra)
   rrect(c, -4, top - 6, 8, 8, 3);
@@ -1017,6 +1100,24 @@ function drawBody(c: CanvasRenderingContext2D, L: Look): void {
       fillStroke(c, darken(L.bone, 0.1), ol, 1.4);
       break;
     }
+  }
+  // Camadas e marcas próprias: recortes, alças e patches substituem o aspecto de uniforme genérico.
+  if (streetStyle === 'techwear' || streetStyle === 'industrial' || streetStyle === 'ranger') {
+    c.strokeStyle = rgba(A, .9); c.lineWidth = 2;
+    c.beginPath(); c.moveTo(-11, top + 2); c.lineTo(-7, bot - 2); c.moveTo(11, top + 2); c.lineTo(7, bot - 2); c.stroke();
+    rrect(c, 7, top + 4, 5, 7, 1.3); fillStroke(c, darken(P,.18), ol, 1.1);
+    c.fillStyle = A; c.fillRect(8, top + 6, 3, 1.2);
+  } else if (streetStyle === 'punk' || streetStyle === 'goth') {
+    rrect(c, -12, top + 3, 5, 6, 1); fillStroke(c, darken(P,.2), ol, 1.1);
+    c.strokeStyle = A; c.lineWidth = 1.5; c.beginPath(); c.moveTo(-11, top + 7); c.lineTo(-8, top + 4); c.stroke();
+    for (const x of [-13, 13]) { ellipse(c, x, top + 8, 1.2, 1.2); c.fillStyle = '#c6c8ce'; c.fill(); }
+  } else if (streetStyle === 'street-artist' || streetStyle === 'skate' || streetStyle === 'performer') {
+    rrect(c, -5, top + 5, 10, 6, 1.5); fillStroke(c, darken(P,.18), ol, 1.1);
+    c.strokeStyle = A; c.lineWidth = 1.4; c.beginPath(); c.moveTo(-3, top + 8); c.lineTo(0, top + 6); c.lineTo(3, top + 8); c.stroke();
+  } else {
+    // costuras grandes, sem logotipos ou microdetalhes que sumam durante a partida.
+    c.strokeStyle = rgba(lighten(P,.55),.48); c.lineWidth = 1;
+    c.beginPath(); c.moveTo(-9, bot - 4); c.lineTo(-7, bot - 1); c.moveTo(9, bot - 4); c.lineTo(7, bot - 1); c.stroke();
   }
 }
 

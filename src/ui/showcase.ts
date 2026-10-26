@@ -131,10 +131,13 @@ export class Showcase {
     c.scale(scale * 1.2, scale * 1.2);
     let jump = 0;
     if (this.mode === 'victory') jump = Math.abs(Math.sin(t * 4)) * 10;
-    const bob = Math.sin(t * 2.4) * 1.6 + jump;
+    const motion = L.art.motion ?? 'measured';
+    const bobRate = motion === 'bounce' || motion === 'rhythm' ? 4.8 : motion === 'float' ? 1.8 : motion === 'quick' ? 3.6 : 2.4;
+    const bobAmount = motion === 'float' ? 2.8 : motion === 'heavy' ? 0.8 : motion === 'bounce' ? 2.3 : 1.6;
+    const bob = Math.sin(t * bobRate) * bobAmount + jump;
     const pose = this.poseT;
     const facing = this.mode === 'defeat' ? Math.PI * 0.5 : this.facing + Math.sin(t * 0.7) * 0.2;
-    const sq = Math.sin(t * 2.4) * 0.02;
+    const sq = Math.sin(t * bobRate) * (motion === 'bounce' ? 0.035 : motion === 'heavy' ? 0.012 : 0.02);
     c.translate(0, -bob);
     if (this.mode === 'defeat') c.rotate(Math.sin(t * 1.5) * 0.05);
 
@@ -176,7 +179,7 @@ export class Showcase {
     c.restore();
     drawWeapon();
     c.save();
-    c.translate(0, Math.sin(t * 2.4 + 0.6) * 1.2 - 30);
+    c.translate(0, Math.sin(t * (motion === 'rhythm' ? 4 : motion === 'float' ? 1.8 : 2.8) + 0.6) * (motion === 'float' ? 1.8 : 1.2) - 30);
     const hp = 1 + pose * 0.08;
     c.scale(hp, hp);
     c.translate(0, 30);

@@ -201,6 +201,8 @@ export type WeaponStyle =
   | 'scythe' | 'pistols' | 'staff' | 'bow' | 'hammer' | 'daggers' | 'cannon' | 'lute'
   | 'chain' | 'book' | 'claws' | 'fist' | 'katana' | 'lantern' | 'trident' | 'guitar' | 'flask' | 'shield' | 'shovel';
 export type AuraStyle = 'none' | 'flame' | 'void' | 'gold' | 'creator' | 'frost' | 'toxic' | 'electric';
+export type StreetwearStyle = 'techwear' | 'ranger' | 'dapper' | 'alchemist' | 'punk' | 'workwear' | 'street-artist' | 'soft-layered' | 'toybox' | 'skate' | 'desert' | 'goth' | 'sport' | 'regal' | 'performer' | 'industrial';
+export type MotionStyle = 'measured' | 'precise' | 'elegant' | 'sway' | 'quick' | 'heavy' | 'swagger' | 'float' | 'bounce' | 'rhythm';
 
 export interface CharacterArt {
   skull: SkullShape;
@@ -215,6 +217,10 @@ export interface CharacterArt {
   boneColor?: string;
   /** Escala do corpo (tanques são maiores). */
   scale?: number;
+  /** Silhueta streetwear própria, sem tocar em atributos de combate. */
+  streetwear?: StreetwearStyle;
+  /** Motivo de idle/ataque do personagem, usado somente pelo render. */
+  motion?: MotionStyle;
 }
 
 // ───────────────────────────── Personagens ─────────────────────────────
