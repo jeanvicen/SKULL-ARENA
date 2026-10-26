@@ -40,16 +40,8 @@ export class App {
     this.layer = h('div', { style: 'position:absolute;inset:0' });
     this.trans = h('div', { class: 'transition' });
     this.toasts = h('div', { class: 'toasts' });
-    const rotate = h('div', { class: 'rotate-hint' },
-      h('div', null,
-        h('div', { style: 'font-size:60px' }, '📱'),
-        h('h2', { class: 'stroke', style: 'margin:10px 0' }, 'Gire o celular'),
-        h('p', { class: 'muted' }, 'SKULL ARENA foi feito para tela EM PÉ.'),
-        h('button', { class: 'btn small dark', onclick: () => rotate.classList.remove('show') }, 'Jogar assim mesmo'),
-      ),
-    );
-    rotate.classList.add('show');
-    root.append(this.layer, this.trans, this.toasts, rotate);
+    // O jogo adapta-se à orientação disponível; não bloqueia a partida com um aviso.
+    root.append(this.layer, this.trans, this.toasts);
     window.addEventListener('keydown', (e) => this.onKey(e));
   }
 

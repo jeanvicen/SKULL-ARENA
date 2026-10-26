@@ -1,6 +1,6 @@
 /**
  * Dois PERFIS DE INPUT selecionados em runtime e trocáveis:
- *  - touch:   celular em pé. Um joystick: ANDA = MIRA = ATACA. Botão de especial separado.
+ *  - touch:   dispositivos de toque em qualquer orientação. Um joystick: ANDA = MIRA = ATACA. Botão de especial separado.
  *  - desktop: WASD/setas movem, MOUSE mira (mira separada do movimento), clique ataca,
  *             botão direito / Espaço / E usa o especial.
  * Em modo "auto", o jogo troca sozinho ao detectar toque ou teclado/mouse.

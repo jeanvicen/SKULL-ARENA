@@ -11,12 +11,13 @@ export function portraitOf(app: App, def: CharacterDef, skinId = 'default', size
 }
 
 export function menuBg(): HTMLElement {
-  const bg = h('div', { class: 'menu-bg' });
-  const items = ['💀', '🦴', '☠️', '🕯️', '🦴', '💀'];
-  items.forEach((e, i) => {
-    bg.append(h('div', { class: 'floaty', style: `left:${8 + i * 16}%;top:${10 + ((i * 37) % 70)}%;animation-delay:${-i * 2.3}s;font-size:${30 + (i % 3) * 14}px` }, e));
-  });
-  return bg;
+  // Motivos ornamentais em CSS substituem os emojis de sistema como arte de fundo.
+  return h('div', { class: 'menu-bg', 'aria-hidden': 'true' },
+    ...Array.from({ length: 6 }, (_, i) => h('div', {
+      class: 'floaty rune',
+      style: `left:${8 + i * 16}%;top:${10 + ((i * 37) % 70)}%;animation-delay:${-i * 2.3}s;--rune-size:${30 + (i % 3) * 14}px`,
+    }, i % 2 ? '✦' : '◇')),
+  );
 }
 
 export function currencyPill(app: App, kind: 'coins' | 'gems', withPlus = true): HTMLElement {
@@ -123,6 +124,13 @@ export function drawChest(c: CanvasRenderingContext2D, chest: ChestDef, w: numbe
   c.roundRect(-36, -4, 72, 34, 6);
   c.fill();
   c.stroke();
+  // Face lateral sombreada e filete superior para volume em escala pequena.
+  c.fillStyle = darken(chest.color2, 0.45);
+  c.beginPath();
+  c.moveTo(28, -1); c.lineTo(36, -4); c.lineTo(36, 30); c.lineTo(28, 27);
+  c.closePath(); c.fill();
+  c.strokeStyle = lighten(chest.color, 0.28); c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(-32, 1); c.lineTo(27, 1); c.stroke();
   // faixas
   c.fillStyle = chest.color;
   c.fillRect(-26, -4, 8, 34);
@@ -162,6 +170,13 @@ export function drawChest(c: CanvasRenderingContext2D, chest: ChestDef, w: numbe
   c.fillStyle = chest.color;
   c.fillRect(-26, -32, 8, 28);
   c.fillRect(18, -32, 8, 28);
+  // Rebites e dobradiça, mantendo a tampa articulada no eixo traseiro.
+  c.fillStyle = lighten(chest.color, 0.45);
+  for (const x of [-31, 31]) {
+    c.beginPath(); c.arc(x, -8, 1.6, 0, Math.PI * 2); c.fill();
+  }
+  c.strokeStyle = darken(chest.color2, 0.55); c.lineWidth = 2;
+  c.beginPath(); c.moveTo(-24, -4); c.lineTo(24, -4); c.stroke();
   // fechadura de caveira
   c.fillStyle = '#ffd84a';
   c.beginPath();

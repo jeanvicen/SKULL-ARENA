@@ -15,9 +15,8 @@ import { ABILITY_ICON, h, ICON, svg } from '../dom';
 
 /**
  * Tela da partida: canvas da arena + HUD + controles.
- * Layout touch (retrato): arena no topo (~72%), faixa de controles embaixo
- * (os controles NUNCA cobrem a arena). Layout desktop: arena em tela cheia,
- * HUD nos cantos, WASD + mouse.
+ * Layout touch em retrato: arena acima dos controles. Em paisagem, controles
+ * compactos sobre as bordas da arena. Desktop mantém WASD + mouse em tela cheia.
  */
 export function gameScreen(app: App, params: Record<string, unknown>): Screen {
   const setup = params.setup as MatchSetup;
@@ -101,6 +100,7 @@ export function gameScreen(app: App, params: Record<string, unknown>): Screen {
     controller?.destroy();
     const desktop = inputProfile.profile === 'desktop';
     root.classList.toggle('desktop', desktop);
+    root.classList.toggle('touch-landscape', !desktop && window.innerWidth > window.innerHeight);
     deskHint.style.display = desktop ? '' : 'none';
     specialKey.style.display = desktop ? '' : 'none';
     if (desktop) {
@@ -122,10 +122,12 @@ export function gameScreen(app: App, params: Record<string, unknown>): Screen {
   function layout(): void {
     const W = window.innerWidth, H = window.innerHeight;
     const desktop = inputProfile.profile === 'desktop';
+    const touchLandscape = !desktop && W > H;
+    root.classList.toggle('touch-landscape', touchLandscape);
     const qDpr = settings.quality === 'alta' ? 2 : settings.quality === 'media' ? 1.5 : 1;
     const dpr = Math.min(window.devicePixelRatio || 1, qDpr);
     let arenaH: number;
-    if (desktop) {
+    if (desktop || touchLandscape) {
       arenaH = H;
       controls.style.height = '';
     } else {
@@ -136,7 +138,14 @@ export function gameScreen(app: App, params: Record<string, unknown>): Screen {
     arena.style.height = `${arenaH}px`;
     renderer.resize(W, arenaH, dpr);
     if (desktop) renderer.camera.setViewport(0, 0, W, arenaH, Math.max(1000, W / (H / 1050)), 1050);
-    else renderer.camera.setViewport(0, 0, W, arenaH, 600, 760);
+    else if (touchLandscape) {
+      // Enquadra a largura real da arena (não a amplia até revelar exterior).
+      // A altura visível deriva da proporção do viewport e mantém a transformação
+      // mundo/tela da câmera, logo joystick e mira continuam alinhados.
+      const viewWorldW = world.map.size.w;
+      const viewWorldH = viewWorldW * arenaH / W;
+      renderer.camera.setViewport(0, 0, W, arenaH, viewWorldW, viewWorldH);
+    } else renderer.camera.setViewport(0, 0, W, arenaH, 600, 760);
     if (!prepared) {
       renderer.prepare(world, settings.quality);
       renderer.camera.snap(player.x, player.y);
