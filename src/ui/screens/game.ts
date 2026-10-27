@@ -138,7 +138,7 @@ export function gameScreen(app: App, params: Record<string, unknown>): Screen {
       arenaH = H;
       controls.style.height = '';
     } else {
-      const ch = Math.round(Math.max(204, Math.min(252, H * 0.31)));
+      const ch = H <= 580 ? 190 : H <= 700 ? 208 : Math.round(Math.max(204, Math.min(252, H * 0.31)));
       controls.style.height = `${ch}px`;
       arenaH = H - ch;
     }

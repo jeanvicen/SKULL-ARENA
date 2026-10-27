@@ -786,7 +786,7 @@ h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 400; }
 .game.touch-portrait .bot-banner .notice { font-size: 10px; padding: 5px 8px; }
 .game.touch-portrait .announce { top: 35%; font-size: clamp(30px, 9vw, 44px); }
 @media (max-height: 700px) {
-  .game.touch-portrait .controls { height: 208px; grid-template-rows: 48px minmax(112px,1fr); padding-top: 5px; }
+  .game.touch-portrait .controls { grid-template-rows: 48px minmax(112px,1fr); padding-top: 5px; }
   .game.touch-portrait .joy-base::after { bottom: 0; }
   .game.touch-portrait .special-btn { width: 56px; height: 56px; }
 }
@@ -824,7 +824,7 @@ h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 400; }
   .loading-screen .studio { margin-bottom: 4px !important; }
 }
 @media (max-height: 580px) and (orientation: portrait) {
-  .game.touch-portrait .controls { height: 190px !important; grid-template-rows: 42px minmax(106px,1fr); }
+  .game.touch-portrait .controls { grid-template-rows: 42px minmax(106px,1fr); }
   .game.touch-portrait .special-btn { width: 52px; height: 52px; }
   .game.touch-portrait .pcard .souls { display: none; }
   .game.touch-portrait .pcard .row { min-height: 28px; }
