@@ -756,3 +756,77 @@ h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 400; }
   .menu-screen .play-zone { width: 100%; }
   .menu-screen .bottom-nav.desk { max-width: 760px; margin: 0 auto; }
 }
+
+/* Controles touch divididos para retrato: mover, mirar/atacar e especial. */
+.game.touch-portrait .controls {
+  height: 238px; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr) 68px;
+  grid-template-rows: 54px minmax(128px,1fr); column-gap: 6px; row-gap: 4px;
+  align-items: center; padding: 7px 8px calc(8px + var(--safe-bottom));
+}
+.game.touch-portrait .pcard { grid-column: 1 / -1; grid-row: 1; display: grid; grid-template-columns: 1fr; gap: 2px; width: 100%; }
+.game.touch-portrait .pcard .row { display: flex; min-height: 32px; }
+.game.touch-portrait .pcard .pimg { width: 30px; height: 30px; border-radius: 9px; }
+.game.touch-portrait .pcard .pn { font-size: 12px; }
+.game.touch-portrait .pcard .hp { height: 10px; }
+.game.touch-portrait .pcard .souls { font-size: 10px; line-height: 1; }
+.game.touch-portrait .joyzone { grid-row: 2; width: 100%; height: 100%; min-height: 0; touch-action: none; }
+.game.touch-portrait .move-zone { grid-column: 1; }
+.game.touch-portrait .aim-zone { grid-column: 2; }
+.game.touch-portrait .joy-base::after { content: 'MOVER'; bottom: 2px; font-size: 9px; letter-spacing: .7px; }
+.game.touch-portrait .aim-base::after { content: 'MIRAR · ATACAR'; }
+.game.touch-portrait .special-wrap { grid-column: 3; grid-row: 2; min-width: 0; gap: 4px; }
+.game.touch-portrait .special-btn { width: clamp(58px, 18vw, 68px); height: clamp(58px, 18vw, 68px); padding: 5px; }
+.game.touch-portrait .special-name { max-width: 72px; font-size: 9px; overflow-wrap: anywhere; }
+.game.touch-portrait .special-key { display: none !important; }
+.game.touch-portrait .hud-top { top: calc(8px + var(--safe-top)); }
+.game.touch-portrait .hud-status { font-size: 14px; padding: 4px 9px; }
+.game.touch-portrait .hud-pause { left: calc(8px + env(safe-area-inset-left, 0px)); top: calc(8px + var(--safe-top)); }
+.game.touch-portrait .killfeed { top: calc(52px + var(--safe-top)); }
+.game.touch-portrait .bot-banner { top: calc(54px + var(--safe-top)); max-width: min(76%, 320px); }
+.game.touch-portrait .bot-banner .notice { font-size: 10px; padding: 5px 8px; }
+.game.touch-portrait .announce { top: 35%; font-size: clamp(30px, 9vw, 44px); }
+@media (max-height: 700px) {
+  .game.touch-portrait .controls { height: 208px; grid-template-rows: 48px minmax(112px,1fr); padding-top: 5px; }
+  .game.touch-portrait .joy-base::after { bottom: 0; }
+  .game.touch-portrait .special-btn { width: 56px; height: 56px; }
+}
+@media (max-width: 350px) {
+  .game.touch-portrait .controls { grid-template-columns: minmax(0,1fr) minmax(0,1fr) 60px; column-gap: 3px; padding-inline: 5px; }
+  .game.touch-portrait .special-btn { width: 54px; height: 54px; }
+  .game.touch-portrait .special-name { font-size: 8px; }
+  .game.touch-portrait .aim-base::after { font-size: 8px; letter-spacing: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .game.touch-portrait .special-btn.ready { animation: none; } }
+.game.touch-landscape .move-zone { left: calc(14px + env(safe-area-inset-left, 0px)); right: auto; }
+.game.touch-landscape .aim-zone {
+  position: absolute; right: calc(145px + env(safe-area-inset-right, 0px)); bottom: calc(12px + var(--safe-bottom));
+  left: auto; width: clamp(116px, 22vw, 164px); height: clamp(116px, 36vh, 164px); min-height: 0;
+  pointer-events: auto; touch-action: none;
+}
+.game.touch-landscape .joy-base::after { display: none; }
+.game.touch-portrait .aim-zone { pointer-events: auto; }
+.game.touch-portrait .controls { border-top-width: 2px; }
+.game.touch-portrait .pcard .hp { margin: 0; }
+.game.touch-portrait .special-wrap { padding-right: env(safe-area-inset-right, 0px); }
+.game.touch-portrait .move-zone { margin-left: env(safe-area-inset-left, 0px); }
+.game.touch-portrait .aim-base.active { border-color: var(--pink); box-shadow: inset 0 0 18px rgba(0,0,0,.6), 0 0 20px rgba(255,45,149,.4); }
+.loading-screen { min-height: 100dvh; padding: max(16px, var(--safe-top)) 16px max(16px, var(--safe-bottom)); overflow: auto; }
+.loading-screen .logo { width: min(100%, 340px); }
+.loading-screen .logo .l1 { font-size: clamp(44px, 14vw, 64px); }
+.loading-screen .logo .l2 { font-size: clamp(50px, 16vw, 72px); }
+.loading-screen .logo svg.lskull { width: clamp(78px, 25vw, 120px); height: auto; }
+.loading-screen .loading-bar { width: min(280px, 82vw); }
+.login-screen { min-height: 100dvh; padding-top: max(16px, var(--safe-top)) !important; padding-bottom: max(16px, var(--safe-bottom)) !important; overscroll-behavior: contain; }
+.login-screen .login-card { flex: none; max-height: none; }
+@media (max-height: 620px) {
+  .loading-screen { gap: 4px !important; }
+  .loading-screen .logo { transform: scale(.78) !important; margin: -16px 0 !important; }
+  .loading-screen .studio { margin-bottom: 4px !important; }
+}
+@media (max-height: 580px) and (orientation: portrait) {
+  .game.touch-portrait .controls { height: 190px !important; grid-template-rows: 42px minmax(106px,1fr); }
+  .game.touch-portrait .special-btn { width: 52px; height: 52px; }
+  .game.touch-portrait .pcard .souls { display: none; }
+  .game.touch-portrait .pcard .row { min-height: 28px; }
+  .game.touch-portrait .pcard .pimg { width: 26px; height: 26px; }
+}

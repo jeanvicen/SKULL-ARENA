@@ -61,13 +61,16 @@ export function gameScreen(app: App, params: Record<string, unknown>): Screen {
   );
   const joyBase = h('div', { class: 'joy-base' });
   const joyKnob = h('div', { class: 'joy-knob' }, svg(ICON.skull));
-  const joyzone = h('div', { class: 'joyzone' }, joyBase, joyKnob);
+  const joyzone = h('div', { class: 'joyzone move-zone', 'aria-label': 'Mover' }, joyBase, joyKnob);
+  const aimBase = h('div', { class: 'joy-base aim-base' });
+  const aimKnob = h('div', { class: 'joy-knob aim-knob' }, svg(ICON.target));
+  const aimzone = h('div', { class: 'joyzone aim-zone', 'aria-label': 'Mirar e atacar' }, aimBase, aimKnob);
   const ab = player.ability;
   const specialBtn = h('button', { class: 'special-btn', style: `--ab:${ab.vfx.color}`, 'aria-label': `Especial: ${ab.name}` },
     h('div', { class: 'core' }, svg(ABILITY_ICON[ab.type] ?? ABILITY_ICON.aoe_burst)));
   const specialKey = h('div', { class: 'special-key' }, 'ESPAÇO · BOTÃO DIREITO');
   const specialWrap = h('div', { class: 'special-wrap' }, specialBtn, h('div', { class: 'special-name stroke' }, ab.name), specialKey);
-  const controls = h('div', { class: 'controls' }, pcard, joyzone, specialWrap);
+  const controls = h('div', { class: 'controls', 'aria-label': 'Controles da partida' }, pcard, joyzone, aimzone, specialWrap);
   const deskHint = h('div', { class: 'desk-hint' },
     h('kbd', null, 'WASD'), ' mover · ', h('kbd', null, 'Mouse'), ' mirar · ', h('kbd', null, 'Clique'), settings.autoFire ? ' (auto-tiro ligado)' : ' atacar', ' · ', h('kbd', null, 'Espaço'), ' especial · ', h('kbd', null, 'Esc'), ' pausa');
   root.append(arena, controls, deskHint);
@@ -101,6 +104,8 @@ export function gameScreen(app: App, params: Record<string, unknown>): Screen {
     const desktop = inputProfile.profile === 'desktop';
     root.classList.toggle('desktop', desktop);
     root.classList.toggle('touch-landscape', !desktop && window.innerWidth > window.innerHeight);
+    root.classList.toggle('touch-portrait', !desktop && window.innerWidth <= window.innerHeight);
+    root.classList.toggle('touch-portrait', !desktop && window.innerWidth <= window.innerHeight);
     deskHint.style.display = desktop ? '' : 'none';
     specialKey.style.display = desktop ? '' : 'none';
     if (desktop) {
@@ -112,18 +117,20 @@ export function gameScreen(app: App, params: Record<string, unknown>): Screen {
       };
     } else {
       specialBtn.onclick = null;
-      controller = new TouchController(joyzone, joyBase, joyKnob, specialBtn, {
-        deadZone: settings.joystick.deadZone, radius: settings.joystick.radius, smoothing: settings.joystick.smoothing, floating: settings.joystick.floating,
+      controller = new TouchController(joyzone, joyBase, joyKnob, aimzone, aimBase, aimKnob, specialBtn, {
+        deadZone: settings.joystick.deadZone, radius: Math.min(settings.joystick.radius, Math.max(40, (window.innerWidth - 100) / 4)), smoothing: settings.joystick.smoothing, floating: settings.joystick.floating,
       }, () => audio.unlock());
     }
     layout();
   }
 
   function layout(): void {
-    const W = window.innerWidth, H = window.innerHeight;
+    const viewport = window.visualViewport;
+    const W = Math.round(viewport?.width ?? window.innerWidth), H = Math.round(viewport?.height ?? window.innerHeight);
     const desktop = inputProfile.profile === 'desktop';
     const touchLandscape = !desktop && W > H;
     root.classList.toggle('touch-landscape', touchLandscape);
+    root.classList.toggle('touch-portrait', !desktop && !touchLandscape);
     const qDpr = settings.quality === 'alta' ? 2 : settings.quality === 'media' ? 1.5 : 1;
     const dpr = Math.min(window.devicePixelRatio || 1, qDpr);
     let arenaH: number;
@@ -131,7 +138,7 @@ export function gameScreen(app: App, params: Record<string, unknown>): Screen {
       arenaH = H;
       controls.style.height = '';
     } else {
-      const ch = Math.round(Math.max(168, Math.min(250, H * 0.27)));
+      const ch = Math.round(Math.max(204, Math.min(252, H * 0.31)));
       controls.style.height = `${ch}px`;
       arenaH = H - ch;
     }
@@ -145,7 +152,7 @@ export function gameScreen(app: App, params: Record<string, unknown>): Screen {
       const viewWorldW = world.map.size.w;
       const viewWorldH = viewWorldW * arenaH / W;
       renderer.camera.setViewport(0, 0, W, arenaH, viewWorldW, viewWorldH);
-    } else renderer.camera.setViewport(0, 0, W, arenaH, 600, 760);
+    } else renderer.camera.setViewport(0, 0, W, arenaH, 760, 940);
     if (!prepared) {
       renderer.prepare(world, settings.quality);
       renderer.camera.snap(player.x, player.y);
@@ -158,6 +165,8 @@ export function gameScreen(app: App, params: Record<string, unknown>): Screen {
   makeController();
   const onResize = () => layout();
   window.addEventListener('resize', onResize);
+  window.visualViewport?.addEventListener('resize', onResize);
+  window.visualViewport?.addEventListener('resize', onResize);
   const onVis = () => {
     if (document.hidden) {
       if (!paused && !ended) openPause();
@@ -338,6 +347,8 @@ export function gameScreen(app: App, params: Record<string, unknown>): Screen {
       offProfile();
       closePause?.();
       window.removeEventListener('resize', onResize);
+      window.visualViewport?.removeEventListener('resize', onResize);
+      window.visualViewport?.removeEventListener('resize', onResize);
       document.removeEventListener('visibilitychange', onVis);
     },
   };

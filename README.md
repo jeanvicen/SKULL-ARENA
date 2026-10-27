@@ -68,7 +68,7 @@ src/
   engine/    loop de passo fixo, colisão círculo×retângulo, pooling, RNG, A*
   combat/    mundo, projéteis, especiais, mira (a regra), partida local
   entities/  IA dos bots
-  input/     perfis touch | desktop (trocáveis em runtime), joystick
+  input/     perfis touch (movimento e mira separados) | desktop (trocáveis em runtime)
   content/   tipos (contrato), loader por glob, validação, simetria de mapas
   render/    renderer, câmera, partículas, fx, arte procedural (caveiras, mapas, pets)
   audio/     síntese de sfx e música

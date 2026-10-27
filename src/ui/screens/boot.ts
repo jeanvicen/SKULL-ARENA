@@ -34,7 +34,7 @@ export function logo(): HTMLElement {
 export function loadingScreen(app: App): Screen {
   const fill = h('i', { style: 'width:0%' });
   const status = h('div', { class: 'muted small', style: 'margin-top:8px;font-weight:800;text-align:center' }, 'Acordando as caveiras…');
-  const el = h('div', { class: 'screen', style: 'justify-content:center;align-items:center' },
+  const el = h('div', { class: 'screen loading-screen', style: 'justify-content:center;align-items:center' },
     menuBg(),
     h('div', { class: 'studio display', style: 'letter-spacing:4px;color:var(--ink3);margin-bottom:14px;font-size:13px' }, 'KLIPZA STUDIO APRESENTA'),
     logo(),
@@ -104,7 +104,7 @@ export function loginScreen(app: App): Screen {
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') enter();
   });
-  const el = h('div', { class: 'screen', style: 'justify-content:center;align-items:center;padding:16px;overflow-y:auto' },
+  const el = h('div', { class: 'screen login-screen', style: 'justify-content:center;align-items:center;padding:16px;overflow-y:auto' },
     menuBg(),
     h('div', { style: 'transform:scale(0.72);margin:-30px 0 -24px' }, logo()),
     h('div', { class: 'panel login-card' },
