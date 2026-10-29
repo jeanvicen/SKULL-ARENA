@@ -1,0 +1,398 @@
+======================================================================
+ SKULL ARENA — PESQUISA DO GÊNERO + PROMPT MESTRE COMPLETO
+ Versão 2.0 — outubro/2026
+ Idioma: português do Brasil
+======================================================================
+
+Este arquivo tem 3 partes:
+  PARTE 1 — Pesquisa: o que faz brawlers mobile (Brawl Stars e cia.) prenderem o jogador
+  PARTE 2 — Design completo do SKULL ARENA (tudo que o jogo tem)
+  PARTE 3 — PROMPT MESTRE pronto pra colar numa IA e (re)construir o jogo inteiro
+
+Ele é também a "constituição" do projeto: o código deste repositório segue
+o que está escrito aqui. Se mudar o design, mude este arquivo junto.
+
+
+######################################################################
+ PARTE 1 — PESQUISA DO GÊNERO
+######################################################################
+
+1.1 JOGOS ANALISADOS
+---------------------
+- Brawl Stars (Supercell): arena brawler top-down 3v3 / battle royale, partidas
+  de 2–3 min, twin-stick, munição em barras, "Super" carregado causando dano,
+  Gadgets (ativos com usos limitados), Star Powers (passivos), Hypercharge
+  (estado turbinado com barra própria). Progressão: troféus por personagem,
+  Trophy Road, Brawl Pass, Starr Drops (recompensa aleatória que "sobe de
+  raridade"), maestrias, ranqueada, clubes, salas de amigos e editor de mapas.
+- Smash Legends: partidas de ~3 min, controles simples, plataformas e pulo,
+  personalização visual forte.
+- Squad Busters: sessões curtíssimas, crescimento do "esquadrão" durante a
+  partida — sensação de poder crescendo em 3 minutos.
+- Bullet Echo: visão em cone e furtividade (arbustos/escuridão como mecânica).
+- Zooba / Blast Royale / Heroes Strike: battle royale e MOBA curto, partidas
+  de 3–5 min, heróis com papéis claros.
+- Clash Royale (mesma escola de design): baús, loop de recompensa após cada
+  vitória, coleção grande, ligas por troféus.
+
+1.2 LIÇÕES PÚBLICAS DA SUPERCELL (fontes no final)
+--------------------------------------------------
+- O Brawl Stars teve o pior momento em 2022/23. Tiraram as caixas aleatórias e
+  colocaram uma trilha linear ("Starr Road") — o próprio time chamou essa
+  decisão de ingênua. Até o jogador mais engajado levava ~10 meses pra
+  liberar um Lendário.
+- A virada (receita 8,8x de jun/2023 a fev/2024) veio de: recompensas
+  aleatórias de engajamento de volta (Starr Drops ganhos jogando, ex.: 3 drops
+  a cada 8 vitórias), passe reformulado, recursos pra jogadores muito
+  engajados e muitos eventos/ofertas temporárias (25+ em ~5 meses).
+- O rework da Trophy Road com buffs fortes pra jogador NOVO melhorou a
+  retenção inicial de forma clara. Sistemas que não davam objetivo concreto
+  ("Records") não engajaram.
+- Análises independentes apontam que o motor de retenção é fazer o jogador
+  usar MUITOS personagens: troféus por personagem + retorno decrescente de
+  troféus nas vitórias empurram a pessoa a evoluir outros brawlers.
+
+1.3 O QUE PRENDE (traduzido pra regras de design)
+-------------------------------------------------
+ 1. Do toque no PLAY até a partida: < 10 segundos. Fila nunca trava (bots
+    rotulados preenchem quando não há gente).
+ 2. Partida curta (2–4 min). Morrer não tira ninguém do jogo por muito tempo
+    (respawn 3–5 s nos modos de equipe).
+ 3. Feedback em TUDO: hit-stop de 40–60 ms no acerto forte, tremida de tela,
+    número de dano, flash branco no alvo, som de impacto diferente pra
+    crítico/eliminação, anúncio de multi-kill, câmera lenta no fim.
+ 4. Microcírculo < 1 minuto (achar inimigo → trocar tiros → eliminar → pegar
+    recompensa no chão). Meso: partida. Macro: troféus, passe, coleção.
+ 5. Recompensa variável e visível: "Drop da Caveira" depois de vitórias, que
+    sobe de raridade tocando. Probabilidades SEMPRE exibidas.
+ 6. Barras de progresso quase cheias: tela de resultado mostra troféus, XP,
+    passe e missões enchendo ao mesmo tempo ("só mais uma").
+ 7. Primeira vitória do dia em dobro, sequência de vitórias com bônus de
+    troféus, missões diárias rápidas, calendário de login que NÃO zera se
+    faltar um dia (não punir).
+ 8. Coleção enorme (500+ personagens, 500+ pets) com raridades e
+    "quase lá" (fragmentos/garantia) — desejo de completar.
+ 9. Identidade: cada personagem tem silhueta, animação de idle, frase, história
+    e um kit que joga diferente. Personagem no menu se mexendo e reagindo ao
+    toque vende o personagem.
+10. Social: jogar com amigos em 2 toques (sala com código), chat, convites.
+11. Eventos com data (fim de semana em dobro, personagem em destaque com chance
+    aumentada, modo especial) — motivo pra voltar no dia certo.
+12. Mapas legíveis: rotas, coberturas, arbustos (emboscada), paredes
+    destrutíveis (o mapa muda durante a partida), barris explosivos.
+
+1.4 LINHAS QUE NÃO VAMOS CRUZAR
+-------------------------------
+- Nada copiado: nomes, personagens, mapas, artes, sons e UI são originais.
+  Brawl Stars é referência de GÊNERO, não de conteúdo.
+- "Viciante" = combate bom + progressão justa + variedade. Sem dinheiro real
+  dentro do jogo nesta versão; Isvoid se ganha jogando, em eventos e códigos.
+- Probabilidade de baú/drop sempre visível; garantia (pity) informada.
+- Bots sempre marcados como BOT. Nunca fingir que bot é gente.
+- Modo local (offline) é rotulado como local; não fingir servidor.
+
+
+######################################################################
+ PARTE 2 — DESIGN COMPLETO DO SKULL ARENA
+######################################################################
+
+2.1 VISÃO
+---------
+SKULL ARENA é um arena brawler / twin-stick shooter 2.5D para celular DEITADO
+(paisagem), instalável como PWA (e empacotável pra Play Store via TWA).
+Personagens streetwear (moletom oversized, calça cargo/larga, tênis grandes,
+cabelo bagunçado, fones, óculos, correntes) no estilo "Friday Night Funkin'":
+todos do mesmo tamanho de jogo, contorno marcado ao redor da silhueta,
+cores fortes, sombreado em 2 tons + luz de borda pra dar VOLUME (2.5D), nada
+de desenho chapado.
+
+2.2 FLUXO DE ENTRADA
+--------------------
+1. Splash: fundo preto → "SKULL ARENA" em letras grossas → uma CAVEIRA EM PIXEL
+   aparece, ri com a mandíbula batendo e GLITCH (RGB separado, fatias
+   deslocadas, travadinha), e se desfaz em pixels. Risada com som real.
+   Toque pula. Nunca prende o jogador (config e sessão carregam em paralelo).
+2. Sem conta → tela Entrar/Criar conta (nome, e-mail, senha; validação clara).
+   - Modo local: conta fica no aparelho (senha com PBKDF2, rotulado "conta
+     local deste aparelho").
+   - Modo online (se servidor configurado): conta real no servidor (scrypt,
+     token com expiração).
+3. Com sessão válida → Menu principal direto.
+
+2.3 MENU PRINCIPAL (paisagem)
+-----------------------------
+- Fundo animado: arena noturna com neblina neon, lua-caveira, brasas subindo.
+- CENTRO: personagem selecionado GRANDE, em pé num holofote, fazendo a
+  própria animação de idle. Tocar nele = reação (emote + fala).
+- Embaixo do personagem: botão gigante JOGAR. Embaixo dele, pequeno:
+  "tipo de partida: Guerra 10v10 ▾" → abre o seletor:
+    • Guerra de Gangues 10 vs 10 (equipe)
+    • Todos contra Todos (10 jogadores)
+    • Jogar com Amigos (sala privada com código / convites)
+    • Treino (bonecos de teste)
+    • modos de EVENTO quando houver
+- Barra superior: avatar/nível/XP, Moedas da Morte, Isvoid, Troféus, ⚙️.
+- Lateral esquerda: Loja, Baús, Passe, Eventos, Missões.
+- Lateral direita: Personagens, Pets, Estrada da Morte (troféus), Social, Códigos.
+- Nada cobre o personagem do centro. Painéis abrem por cima com voltar.
+
+2.4 MODOS
+---------
+- GUERRA DE GANGUES 10v10 (Caça-Caveiras): eliminar inimigo derruba uma caveira;
+  pegar caveira do inimigo pontua pro seu time, pegar do aliado "salva" o ponto.
+  Vence quem chegar a 40 pontos ou tiver mais em 4:00. Respawn 4 s na base.
+- TODOS CONTRA TODOS: 10 jogadores, 3:00, 1 ponto por eliminação, +1 extra
+  por derrubar quem está em sequência (3+ kills seguidas = "PROCURADO").
+  Respawn 3 s em ponto seguro longe dos inimigos.
+- JOGAR COM AMIGOS: criar sala → código de 6 letras → amigos entram ou são
+  convidados; dono escolhe modo/mapa/times; completa com bots (marcados) se
+  quiser. Igual "time com amigos" do gênero: quem está na sala cai no MESMO
+  time.
+- TREINO: mapa pequeno com bonecos que mostram o dano.
+- EVENTOS: modos com modificadores (ex.: Chuva de Meteoros, Caveira Gigante,
+  Só Supers, Velocidade x2).
+
+2.5 CONTROLES (iguais ao gênero)
+--------------------------------
+- Esquerda: joystick flutuante (nasce onde o dedão encosta) = MOVER.
+- Direita: joystick de ATAQUE: arrastar = mirar (mostra a linha/área),
+  soltar = atira. Toque rápido = tiro automático no inimigo mais perto.
+  Dá pra andar e atirar ao mesmo tempo (twin-stick).
+- Ao redor do ataque: botão SUPER (carrega causando dano; arrasta pra mirar)
+  e de 1 a 3 botões de HABILIDADE com recarga por tempo (contador no botão).
+  Personagens mais raros podem ter 3 habilidades + super (4 botões).
+- Munição: 3 barras que recarregam sozinhas (cada personagem tem seu tempo).
+- PC: WASD/setas move, mouse mira, clique atira, Q/E/R habilidades, Espaço super.
+- Opções: tamanho/opacidade dos botões, inverter lados, vibração, mira assistida.
+
+2.6 COMBATE E FÍSICA
+--------------------
+- Simulação determinística em passo fixo de 60 Hz (mesma semente + mesmas
+  entradas = mesmo resultado) — roda no navegador E no servidor.
+- Hitbox circular, paredes em grade, projéteis com tipos: reto, arco (lob),
+  cone (espingarda), rajada, perfurante, ricochete, teleguiado, bumerangue,
+  corrente, feixe, órbita.
+- Status: lentidão, atordoar, queimar, veneno, congelar, raiz, silêncio,
+  marca (dano extra), knockback, puxão.
+- Física "um pouco realista": props (caixas, barris, pneus, latas) com massa,
+  empurrados por explosões e personagens, atrito, colisão entre si; destroços
+  com gravidade no eixo Z (pulam e quicam); paredes destrutíveis que racham e
+  explodem em pedaços; barril explosivo em cadeia; caveira do personagem quica
+  ao morrer.
+- Arbustos escondem (só aparece pra inimigo perto), água bloqueia andar mas
+  não tiro, pads de salto, altares de cura, power-ups.
+
+2.7 PERSONAGENS
+---------------
+- Raridades (ordem fixa, num arquivo só): Comum, Incomum, Raro, Extremo, Épico,
+  GOD, CREATORs. Cada uma com cor, ícone, brilho animado e orçamento de poder.
+- 3 iniciais grátis:
+    • KAZE (atacante, Comum) — moletom preto oversized, jeans azul largo,
+      pistolas gêmeas; rajada rápida, dash sombrio, super de chuva de balas.
+    • MARRETA (tanque, Comum) — jaqueta puffer, cargo larga, marreta; golpe em
+      arco, investida que derruba, super terremoto.
+    • DJ KIKO (suporte, Comum) — camiseta canelada, óculos, fone sem fio,
+      relógio, caixa de som; ondas que ferem inimigo e curam aliado, escudo
+      de grave, super "Drop do Beat" (área de cura + empurrão).
+- VICEN₹ (CREATORs, ID interno "vicen_creator") — o personagem mais forte do
+  jogo: 3 habilidades + super, visual único (moletom do vazio, coroa-caveira,
+  corrente dourada ₹, aura prismática). Chance de 1% no Baú do Vazio (com
+  garantia anunciada) ou via evento.
+- 500+ personagens no catálogo: dezenas feitos à mão + gerador determinístico
+  (semente fixa) que combina espécie (humano, caveira, alienígena, robô,
+  demônio, zumbi, fantasma, felino...), roupas, cabelo, acessórios, arma,
+  papel e kit de habilidades — cada um com nome, frase, HISTÓRIA detalhada
+  (origem, bairro, trauma, objetivo, rival), stats e poderes.
+- Cada personagem: ataque básico + 1–3 habilidades + super + passiva opcional,
+  animações idle/correr/atacar/habilidade/dano/vitória/derrota/emote, paleta e
+  3 variações de cor (skins).
+
+2.8 PETS
+--------
+500+ pets (feitos à mão + gerados) com raridade, animação própria (flutuar,
+bater asa, pular), e um bônus PEQUENO e legível (ex.: +4% velocidade, cura
+lenta, faísca automática fraca, escudo quando a vida fica baixa, revela
+arbusto perto). Seguem o personagem e reagem a eliminações.
+
+2.9 ECONOMIA E PROGRESSÃO
+-------------------------
+- Moedas da Morte (comum): partidas, missões, drops, estrada, eventos.
+- Isvoid (rara): drops altos, eventos, estrada, códigos, conquistas.
+  Sem dinheiro real nesta versão.
+- XP de conta + níveis. Nível de poder do personagem 1–10 (Moedas da Morte).
+- Troféus por personagem e total; ligas: Ferro, Bronze, Prata, Ouro, Diamante,
+  Mítico, Lenda, Caveira Suprema. Retorno decrescente de troféus em
+  personagens com muitos troféus (incentiva variar).
+- Estrada da Morte (trilha de troféus) com prêmios fixos.
+- Drop da Caveira: depois de cada vitória (limite diário), toca pra subir de
+  raridade; recompensa conforme a raridade final. Odds na tela.
+- Baús: Comum, Raro, Épico, GOD, do Vazio — abertura animada (tremer, rachar,
+  luz da raridade, cartas voando). Odds + garantia exibidas.
+- Passe da Caveira (temporada): 50 níveis, trilha grátis + premium (Isvoid).
+- Missões diárias (3) e semanais (5), troca de missão grátis 1x por dia.
+- Calendário de login de 7 dias (não zera).
+- Loja: ofertas diárias que giram, baús, personagens, pets, skins.
+- Códigos de recompensa: arquivo único pra criar/apagar códigos com prêmios,
+  validade, limite de usos.
+- Eventos: arquivo único com datas, banner, multiplicadores, modo, baú,
+  personagem em destaque, missões e presentes.
+
+2.10 SOCIAL
+-----------
+- Modo online (servidor próprio incluso): amigos por código, status online,
+  chat privado e global (limite de mensagens, filtro de palavrões, bloquear e
+  denunciar), convites para sala, times de amigos.
+- Modo local: mostra seu código, explica como ligar o online. Nada de amigo
+  falso.
+
+2.11 ÁUDIO
+----------
+Áudio REAL (gravações), nunca bip de oscilador: packs CC0 (Kenney Impact,
+Sci-Fi, Voiceover Fighter, Interface, UI; Warfork CC0 — armas, narrador e
+trilhas; Motion Monkey Retro Arcade — risadas, explosões, armas; pacotes CC0
+de quebra/impacto/criaturas). Tratados com ffmpeg (corte, normalização,
+compressão MP3). Mixer com canais música/efeitos/voz/interface,
+limite de vozes simultâneas, variação de pitch, ducking da música em
+anúncios, áudio posicional simples (volume/pan pela distância).
+
+2.12 ARQUITETURA
+----------------
+- TypeScript + Vite. Canvas 2D (jogo + arte), HTML/CSS (menus). PWA com
+  service worker próprio (joga offline).
+- src/engine     → loop de passo fixo, matemática, RNG com semente, colisão, pool
+- src/sim        → simulação (mundo, personagens, habilidades, projéteis,
+                   física, modos, bots). Sem DOM: roda no Node/servidor.
+- src/content    → dados: raridades, personagens, habilidades, pets, mapas,
+                   eventos, códigos, baús, passe, missões, loja
+- src/art        → rig 2.5D, peças modulares, animações, pets, arte de mapa
+- src/render     → câmera, renderizador do mundo, efeitos, partículas, HUD
+- src/audio      → mixer e catálogo de sons
+- src/meta       → economia (redutor puro de ações — o MESMO no cliente e no
+                   servidor), perfil, save
+- src/net        → cliente online (WebSocket) + backend local/remoto
+- src/ui         → telas
+- server/        → servidor Node (contas, amigos, chat, salas, partidas
+                   autoritativas rodando a MESMA simulação)
+- tools/         → scripts: novo personagem, novo pet, novo evento, validar
+- tests/         → vitest (simulação, economia, conteúdo, odds)
+
+2.13 FACILIDADE PRA EDITAR (requisito do dono)
+----------------------------------------------
+- Criar personagem: 1 arquivo em src/content/characters/ (ou `npm run novo:personagem`).
+- Criar animação: lista de quadros-chave por osso (rotação/posição) — editável
+  à mão; prévia no Estúdio dentro do jogo.
+- Criar mapa: desenho em texto (cada letra = um bloco) + simetria automática.
+- Criar evento / código / baú / missão: editar um arquivo e pronto.
+- README explica TUDO, com exemplos de copiar e colar.
+
+
+######################################################################
+ PARTE 3 — PROMPT MESTRE (copie daqui até o FIM)
+######################################################################
+
+Você é engenheiro-chefe, game designer e diretor de arte do SKULL ARENA.
+Construa (ou continue) o jogo completo neste repositório seguindo TODAS as
+regras abaixo. Trabalhe em etapas pequenas, rode os testes e faça commit a
+cada etapa. Nunca diga que algo funciona sem ter executado.
+
+[OBJETIVO]
+Arena brawler twin-stick 2.5D pra celular em PAISAGEM, PWA instalável, com
+partidas de 3–4 min, 10v10, Todos contra Todos, sala com amigos, 500+
+personagens, 500+ pets, raridades Comum→Incomum→Raro→Extremo→Épico→GOD→
+CREATORs, moedas "Moedas da Morte" e "Isvoid", troféus, estrada de troféus,
+baús animados, Drop da Caveira, passe, missões, login diário, eventos e
+códigos de recompensa fáceis de editar, social (amigos/chat) e áudio real.
+
+[ENTRADA]
+Splash com "SKULL ARENA" + caveira em pixel rindo com glitch e som de risada
+real → se não tem conta: Entrar/Criar conta → se tem: Menu.
+
+[MENU]
+Personagem selecionado grande no centro se mexendo com a própria animação
+(reage ao toque). Botão JOGAR embaixo; embaixo dele, pequeno, "tipo de
+partida" (Guerra 10v10 / Todos contra Todos / Jogar com Amigos / Treino /
+Eventos). Topo: nível, Moedas da Morte, Isvoid, Troféus, configurações.
+Laterais: Loja, Baús, Passe, Eventos, Missões | Personagens, Pets, Estrada da
+Morte, Social, Códigos.
+
+[CONTROLES]
+Joystick esquerdo move; direito mira e atira ao soltar (toque rápido =
+auto-mira); botão de Super (carrega com dano) e 1–3 botões de habilidade com
+recarga; munição em 3 barras. Teclado/mouse no PC.
+
+[ARTE]
+Personagens 2.5D estilo FNF/anime urbano: mesmo tamanho, contorno contínuo
+em volta da silhueta (passe de silhueta escura antes do preenchimento),
+sombreado em 2 tons + luz de borda, roupas streetwear (moletom oversized,
+calça larga com dobras, tênis grandes de sola branca), cabelo marcante,
+acessórios. Rig com ossos (quadril, tronco, cabeça, braços, mãos, pernas,
+pés) + peças pré-renderizadas em cache; animações por quadros-chave
+editáveis. Vista frente/costas conforme a mira. Mapas 2.5D com paredes de
+altura, sombras, arbustos, água, props com física e destruição.
+
+[COMBATE]
+Simulação determinística 60 Hz sem DOM. Habilidades COMPOSTAS por efeitos
+(projétil, corpo-a-corpo, dash, teleporte, área, zona, cura, escudo, buff,
+debuff, invocar torreta/minion, parede, feixe, armadilha, clone, furtividade,
+gancho, órbita, transformação, voltar no tempo). Status com contrajogo.
+Física de props/destroços. Bots com a mesma visão e entrada do jogador
+(sem trapaça), níveis de dificuldade e SEMPRE marcados como BOT.
+
+[CONTEÚDO]
+3 iniciais grátis (Kaze atacante, Marreta tanque, DJ Kiko suporte), Vicen₹
+CREATORs (vicen_creator) o mais forte, 1% no Baú do Vazio com garantia
+exibida. 500+ personagens (feitos à mão + gerador determinístico com nome,
+história detalhada, stats, poderes, visual). 500+ pets com bônus pequeno.
+Mapas grandes (10v10) e médios (FFA) escritos em texto com simetria.
+
+[ECONOMIA]
+Um REDUTOR PURO `aplicarAcao(perfil, acao, contexto)` é a única forma de
+mudar o perfil (abrir baú, comprar, resgatar código, missão, passe, drop,
+resultado de partida). O mesmo código roda no modo local e no servidor.
+Idempotência por id de transação. Odds visíveis. Sem dinheiro real.
+
+[ONLINE]
+Servidor Node (WebSocket) com contas (scrypt), tokens, amigos, presença,
+chat com limite e filtro, bloquear/denunciar, salas com código, fila com
+preenchimento por bots marcados, partidas autoritativas (o servidor roda a
+simulação; cliente manda só entradas; snapshots + interpolação + predição
+do próprio movimento). Códigos e eventos validados no servidor.
+
+[ÁUDIO]
+Só gravações reais CC0/licenciadas, catálogo num arquivo, mixer com canais,
+limite de vozes, variação de pitch, posicional, ducking.
+
+[EDIÇÃO FÁCIL]
+Personagem/pet/mapa/evento/código/baú/missão = editar 1 arquivo. Scripts
+`npm run novo:personagem`, `npm run novo:pet`, `npm run novo:evento`,
+`npm run validar`. Estúdio no jogo pra pré-visualizar personagens e
+animações. README completo com exemplos.
+
+[QUALIDADE]
+Testes (vitest) de simulação, economia, odds, conteúdo; typecheck; build;
+teste e2e com screenshots em paisagem; 60 fps com 20 lutadores num celular
+médio; nada de botão decorativo; nada copiado de outros jogos.
+
+FIM DO PROMPT MESTRE
+
+
+######################################################################
+ FONTES DA PESQUISA
+######################################################################
+- Supercell — Brawl Stars 2025 in review (Frank's blog post):
+  https://supercell.com/en/games/brawlstars/blog/community/2025-in-review-franks-blog-post
+- MobileGamer.biz — Supercell explains Brawl Stars' big comeback (GDC):
+  https://mobilegamer.biz/supercell-explains-brawl-stars-big-comeback-from-an-all-time-low-to-8-8x-revenue/
+- PocketGamer.biz — How Supercell sparked a Brawl Stars resurgence:
+  https://www.pocketgamer.biz/game-analysis-how-supercell-sparked-a-brawl-stars-resurgence
+- Naavik — Brawl Stars deconstruction:
+  https://naavik.co/deep-dives/brawl-stars-deconstruction/
+- GDC 2019 — Inside the design of Brawl Stars:
+  https://gdconf.com/news/go-inside-design-supercells-new-hit-game-brawl-stars-gdc-2019
+- Mobile Free to Play — Brawl Stars vs Clash Royale, designing gacha:
+  https://mobilefreetoplay.com/brawl-stars-vs-clash-royale-designing-gacha/
+- Meliorgames — Designing mobile games for short session behavior:
+  https://meliorgames.com/game-development/designing-mobile-games-for-short-session-behavior/
+- Áudio CC0: github.com/lavenderdotpet/CC0-Public-Domain-Sounds (Warfork CC0,
+  Kenney, The Motion Monkey, Ben Burnes), github.com/Calinou/kenney-interface-sounds,
+  github.com/KenneyNL (starter kits).
