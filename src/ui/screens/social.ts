@@ -4,7 +4,6 @@ import { MODE } from '../../content/modes';
 import type { ModeId } from '../../content/types';
 import { store, validName } from '../../meta/store';
 import { net, type FriendInfo } from '../../net/online';
-import { startOnlineMatch } from '../../net/match';
 import type { App, Screen } from '../app';
 import { btn, coinIcon, esc, h, num, toast, fill } from '../dom';
 import { startMatch } from '../play';
@@ -334,7 +333,6 @@ export function socialScreen(app: App, start: Tab = 'amigos'): Screen {
   for (const t of ['friends', 'chat', 'chatHistory', 'room', 'status']) offs.push(net.on(t, () => render()));
   offs.push(net.on('error', (m) => toast(String(m.msg ?? 'Erro'), 'err')));
   offs.push(net.on('invite', (m) => toast(`${String(m.fromName)} te chamou pra sala ${String(m.code)}!`, 'info', 5000)));
-  offs.push(net.on('match.start', (m) => startOnlineMatch(app, m)));
   if (net.configured()) net.connect();
   render();
   const s = app.page('SOCIAL', h('div.social', null, tabs, body), { cls: 'page-social' });

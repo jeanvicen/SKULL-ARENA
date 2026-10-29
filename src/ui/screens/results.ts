@@ -14,7 +14,7 @@ import { gainCard } from '../rewards';
  * RESULTADO DA PARTIDA: vitória/derrota, suas estatísticas, prêmios contando,
  * missões que andaram, placar com todo mundo (BOTs identificados).
  */
-export function resultsScreen(app: App, s: MatchSummary, w: World, me: Fighter, again: () => void): Screen {
+export function resultsScreen(app: App, s: MatchSummary, w: World, me: Fighter, again: () => void, opts: { rewards?: MatchRewards | null; againLabel?: string } = {}): Screen {
   const res = s.win === null ? 'draw' : s.win ? 'win' : 'lose';
   const ffa = w.mode.teams === 0;
   const head = ffa ? `${s.placement}º LUGAR` : res === 'win' ? 'VITÓRIA!' : res === 'lose' ? 'DERROTA' : 'EMPATE';
@@ -87,7 +87,7 @@ export function resultsScreen(app: App, s: MatchSummary, w: World, me: Fighter, 
         audio.playMusic('music_menu');
         app.home();
       }),
-      btn('JOGAR DE NOVO', 'btn-yellow big', () => again()),
+      btn(opts.againLabel ?? 'JOGAR DE NOVO', 'btn-yellow big', () => again()),
     ),
   );
 
@@ -95,7 +95,8 @@ export function resultsScreen(app: App, s: MatchSummary, w: World, me: Fighter, 
   void (async () => {
     let r: MatchRewards;
     try {
-      r = await store.run('match', s);
+      // partida online: o servidor já calculou os prêmios
+      r = opts.rewards ?? (await store.run('match', s));
     } catch (e) {
       fill(rewardsBox, h('p.err', null, `Não deu pra salvar o resultado: ${e instanceof Error ? e.message : e}`));
       toast('Erro ao salvar o resultado.', 'err');

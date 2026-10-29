@@ -4,6 +4,8 @@ import '@fontsource/press-start-2p/400.css';
 import './styles/main.css';
 import { audio } from './audio/audio';
 import { store } from './meta/store';
+import { startOnlineMatch } from './net/match';
+import { net } from './net/online';
 import { App } from './ui/app';
 import { toast } from './ui/dom';
 import { authScreen } from './ui/screens/auth';
@@ -17,6 +19,8 @@ import { splashScreen } from './ui/screens/splash';
 
 const app = new App(document.getElementById('app')!);
 app.home = () => app.show(menuScreen(app));
+// partida online começou (sala de amigos): entra direto, de qualquer tela
+net.on('match.start', (m) => startOnlineMatch(app, m));
 audio.setVolumes(store.settings);
 
 // toque no celular: tela cheia + trava em paisagem (quando o navegador deixa)

@@ -45,29 +45,42 @@ export class BotDirector {
   ) {
     this.nav = new NavGrid(w.map);
     this.rng = new Rng(seed);
-    for (const f of w.fighters) {
-      if (!f.isBot) continue;
-      const d = clamp(difficulty + this.rng.range(-0.12, 0.12), 0.05, 1);
-      this.brains.set(f.id, {
-        id: f.id,
-        diff: f === w.boss ? 0.8 : d,
-        thinkT: this.rng.range(0, 0.3),
-        target: -1,
-        goal: null,
-        path: [],
-        pathT: 0,
-        strafe: this.rng.chance(0.5) ? 1 : -1,
-        strafeT: 0,
-        triggerT: 0,
-        aimErr: 0,
-        retreat: false,
-        wander: null,
-        skillT: this.rng.range(0.5, 2),
-        stuckT: 0,
-        lastX: f.x,
-        lastY: f.y,
-      });
-    }
+    for (const f of w.fighters) if (f.isBot) this.adopt(f.id, difficulty);
+  }
+
+  /**
+   * Coloca a IA no controle de um lutador (BOTs no começo; no online, também
+   * quem caiu da conexão — ele continua jogando como BOT até voltar).
+   */
+  adopt(id: number, difficulty = 0.6): void {
+    const f = this.w.fighters[id];
+    if (!f || this.brains.has(id)) return;
+    const w = this.w;
+    const d = clamp(difficulty + this.rng.range(-0.12, 0.12), 0.05, 1);
+    this.brains.set(f.id, {
+      id: f.id,
+      diff: f === w.boss ? 0.8 : d,
+      thinkT: this.rng.range(0, 0.3),
+      target: -1,
+      goal: null,
+      path: [],
+      pathT: 0,
+      strafe: this.rng.chance(0.5) ? 1 : -1,
+      strafeT: 0,
+      triggerT: 0,
+      aimErr: 0,
+      retreat: false,
+      wander: null,
+      skillT: this.rng.range(0.5, 2),
+      stuckT: 0,
+      lastX: f.x,
+      lastY: f.y,
+    });
+  }
+
+  /** Devolve o controle pro humano (voltou a conexão). */
+  release(id: number): void {
+    this.brains.delete(id);
   }
 
   /** Preenche `out[id]` com a entrada de cada bot neste passo. */

@@ -1,6 +1,5 @@
 import { audio } from '../audio/audio';
-import { allCharacters, BOSS } from '../content/characters';
-import { RARITY } from '../content/rarities';
+import { BOSS } from '../content/characters';
 import type { CharacterDef, MapDef, ModeDef, PetDef } from '../content/types';
 import { FixedLoop } from '../engine/loop';
 import { Rng } from '../engine/rng';
@@ -9,7 +8,8 @@ import type { MatchSummary } from '../meta/economy';
 import { WorldRenderer } from '../render/worldRenderer';
 import { BotDirector } from '../sim/bots';
 import type { Fighter, FighterInput, GameEvent } from '../sim/types';
-import { STEP, World, type RosterEntry } from '../sim/world';
+import { STEP, World } from '../sim/world';
+import { buildRoster } from './roster';
 import { esc, Hud } from './hud';
 
 /**
@@ -41,49 +41,6 @@ export interface SessionOpts {
   onEnd: (summary: MatchSummary, world: World, me: Fighter) => void;
   onQuit: () => void;
 }
-
-const BOT_NAMES = [
-  'Rato',
-  'Zica',
-  'Mago22',
-  'Pivete',
-  'Neném',
-  'Cabeça',
-  'Lagartixa',
-  'Sombra',
-  'Trovão',
-  'Faísca',
-  'Bigode',
-  'Formiga',
-  'Doidão',
-  'Pancada',
-  'Goiaba',
-  'Tchuco',
-  'Biscoito',
-  'Brisa',
-  'Caveirinha',
-  'Dentinho',
-  'Gelinho',
-  'Chumbinho',
-  'Marola',
-  'Pirata',
-  'Corvo',
-  'Bala',
-  'Fumaça',
-  'Pixel',
-  'Tampinha',
-  'Japa',
-  'Teco',
-  'Vovó',
-  'Rodinha',
-  'Cobra',
-  'Pé de Pano',
-  'Nuvem',
-  'Cometa',
-  'Grilo',
-  'Ventania',
-  'Carrapato',
-];
 
 export class MatchSession {
   readonly root: HTMLDivElement;
@@ -124,20 +81,7 @@ export class MatchSession {
     o.host.appendChild(this.root);
 
     // ----------------------------------------------------------- elenco
-    const roster: RosterEntry[] = [{ name: o.playerName, def: o.char, team: 0, isBot: false, isLocal: true, pet: o.pet, level: o.level }];
-    const boss = !!o.mode.modifiers?.boss;
-    const total = boss ? o.mode.players - 1 : o.mode.players;
-    const names = rng.shuffle([...BOT_NAMES]);
-    const pool = allCharacters();
-    // bots usam mais personagens comuns/raros (os muito raros aparecem pouco)
-    const weights = pool.map((c) => [10, 8, 6, 3, 1.6, 0.6, 0.15][RARITY[c.rarity].tier] ?? 1);
-    const party = o.partyNames ?? [];
-    for (let i = 1; i < total; i++) {
-      const team = boss ? 0 : o.mode.teams === 2 ? i % 2 : i;
-      const def = rng.weighted(pool, weights);
-      const friend = team === 0 && party.length ? party.shift() : undefined;
-      roster.push({ name: friend ?? names[i % names.length]!, def, team, isBot: true, level: rng.int(1, Math.max(1, Math.min(10, o.level + 1))), pet: null });
-    }
+    const { roster, boss } = buildRoster(o.mode, rng, [{ name: o.playerName, def: o.char, pet: o.pet, level: o.level, isLocal: true }], { partyNames: o.partyNames });
     this.world = new World({ map: o.map, mode: o.mode, seed, roster, boss: boss ? BOSS : undefined });
     this.bots = new BotDirector(this.world, o.botDifficulty, seed ^ 0x5bd1);
 

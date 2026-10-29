@@ -4,6 +4,9 @@ import { Rng } from '../engine/rng';
 import { net } from '../net/online';
 import { ACTIONS, type ActionArgs, type ActionName, type ActionResult } from './actions';
 import { EconomyError } from './economy';
+import { validName } from './validate';
+
+export { validName };
 import { migrate, newProfile, type Profile } from './profile';
 
 /**
@@ -84,14 +87,6 @@ async function hashPassword(password: string, saltB64: string): Promise<string> 
   const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
   const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: 120_000 }, key, 256);
   return b64(bits);
-}
-
-export function validName(name: string): string | null {
-  const n = name.trim();
-  if (n.length < 3) return 'O nome precisa de pelo menos 3 letras.';
-  if (n.length > 16) return 'Máximo de 16 caracteres.';
-  if (!/^[\p{L}\p{N}_ .-]+$/u.test(n)) return 'Use só letras, números, espaço, ponto, _ ou -.';
-  return null;
 }
 
 // ---------------------------------------------------------------- loja de estado
@@ -197,6 +192,15 @@ export class Store {
     this.account = null;
     this.profile = null;
     write(K_SESSION, null);
+    this.emit();
+  }
+
+  /** Troca o perfil inteiro (o servidor mandou a versão nova). */
+  setProfile(p: unknown): void {
+    const m = migrate(p);
+    if (!m) return;
+    this.profile = m;
+    this.save();
     this.emit();
   }
 

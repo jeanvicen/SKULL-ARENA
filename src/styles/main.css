@@ -3416,3 +3416,13 @@ select.inp {
     min-width: 170px;
   }
 }
+
+.online-badge {
+  position: absolute;
+  bottom: calc(6px + var(--safe-b));
+  left: calc(10px + var(--safe-l));
+  font-family: var(--f-title);
+  font-size: 8px;
+  color: var(--cyan);
+  pointer-events: none;
+}
