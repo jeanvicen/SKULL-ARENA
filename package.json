@@ -1,0 +1,39 @@
+{
+  "name": "skull-arena",
+  "version": "2.0.0",
+  "private": true,
+  "description": "SKULL ARENA — arena brawler 2.5D para celular em paisagem (PWA).",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "validar": "tsx tools/validate.ts",
+    "novo:personagem": "node tools/new-character.mjs",
+    "novo:pet": "node tools/new-pet.mjs",
+    "novo:evento": "node tools/new-event.mjs",
+    "novo:codigo": "node tools/new-code.mjs",
+    "audio": "node tools/build-audio.mjs",
+    "icons": "node tools/gen-icons.mjs",
+    "server": "tsx server/index.ts",
+    "server:build": "esbuild server/index.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist-server/index.mjs --packages=external",
+    "e2e": "node tools/e2e.mjs"
+  },
+  "dependencies": {
+    "@fontsource/lilita-one": "^5.3.0",
+    "@fontsource/nunito": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/ws": "^8.18.2",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5",
+    "ws": "^8.22.0"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+dist-server/
+server-data/
+*.log
+.DS_Store
+e2e-shots/
+.vite/
+coverage/
