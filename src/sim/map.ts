@@ -63,9 +63,21 @@ export function expandGrid(def: MapDef): string[] {
     case 'mirror_x':
       return pad.map((r) => r + r.split('').reverse().map(swapTeam).join(''));
     case 'mirror_y':
-      return [...pad, ...pad.slice().reverse().map((r) => r.split('').map(swapTeam).join(''))];
+      return [
+        ...pad,
+        ...pad
+          .slice()
+          .reverse()
+          .map((r) => r.split('').map(swapTeam).join('')),
+      ];
     case 'point':
-      return [...pad, ...pad.slice().reverse().map((r) => r.split('').reverse().map(swapTeam).join(''))];
+      return [
+        ...pad,
+        ...pad
+          .slice()
+          .reverse()
+          .map((r) => r.split('').reverse().map(swapTeam).join('')),
+      ];
     default:
       return pad;
   }
@@ -192,8 +204,8 @@ export class GameMap {
     const stepY = dy > 0 ? 1 : -1;
     const tDeltaX = dx !== 0 ? Math.abs(TILE / dx) : Infinity;
     const tDeltaY = dy !== 0 ? Math.abs(TILE / dy) : Infinity;
-    let tMaxX = dx !== 0 ? ((stepX > 0 ? (tx + 1) * TILE - x0 : x0 - tx * TILE) / Math.abs(dx)) : Infinity;
-    let tMaxY = dy !== 0 ? ((stepY > 0 ? (ty + 1) * TILE - y0 : y0 - ty * TILE) / Math.abs(dy)) : Infinity;
+    let tMaxX = dx !== 0 ? (stepX > 0 ? (tx + 1) * TILE - x0 : x0 - tx * TILE) / Math.abs(dx) : Infinity;
+    let tMaxY = dy !== 0 ? (stepY > 0 ? (ty + 1) * TILE - y0 : y0 - ty * TILE) / Math.abs(dy) : Infinity;
     let guard = 0;
     let t = 0;
     while (guard++ < 400) {

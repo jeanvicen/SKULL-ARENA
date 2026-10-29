@@ -49,24 +49,7 @@ export interface StatusApply {
 // Projéteis
 // ---------------------------------------------------------------------------
 
-export type ProjShape =
-  | 'bullet'
-  | 'orb'
-  | 'skull'
-  | 'note'
-  | 'blade'
-  | 'arrow'
-  | 'fire'
-  | 'shard'
-  | 'bone'
-  | 'coin'
-  | 'glyph'
-  | 'rock'
-  | 'bubble'
-  | 'card'
-  | 'bolt'
-  | 'spray'
-  | 'wave';
+export type ProjShape = 'bullet' | 'orb' | 'skull' | 'note' | 'blade' | 'arrow' | 'fire' | 'shard' | 'bone' | 'coin' | 'glyph' | 'rock' | 'bubble' | 'card' | 'bolt' | 'spray' | 'wave';
 
 export interface ProjLook {
   shape: ProjShape;
@@ -227,18 +210,7 @@ export interface PassiveDef {
 // Aparência (2.5D procedural)
 // ---------------------------------------------------------------------------
 
-export type Species =
-  | 'human'
-  | 'skeleton'
-  | 'alien'
-  | 'robot'
-  | 'demon'
-  | 'zombie'
-  | 'ghost'
-  | 'feline'
-  | 'vampire'
-  | 'lizard'
-  | 'void';
+export type Species = 'human' | 'skeleton' | 'alien' | 'robot' | 'demon' | 'zombie' | 'ghost' | 'feline' | 'vampire' | 'lizard' | 'void';
 
 export type BodyType = 'slim' | 'normal' | 'broad' | 'heavy';
 
@@ -260,19 +232,7 @@ export type HairStyle =
 
 export type EyeStyle = 'sleepy' | 'sharp' | 'round' | 'glow' | 'closed' | 'wide' | 'hollow' | 'visor' | 'cyclops' | 'lazy';
 
-export type TopStyle =
-  | 'hoodie'
-  | 'oversized_tee'
-  | 'puffer'
-  | 'turtleneck_jacket'
-  | 'varsity'
-  | 'tank'
-  | 'trench'
-  | 'tracksuit'
-  | 'ribbed_tee'
-  | 'kimono'
-  | 'vest'
-  | 'robe';
+export type TopStyle = 'hoodie' | 'oversized_tee' | 'puffer' | 'turtleneck_jacket' | 'varsity' | 'tank' | 'trench' | 'tracksuit' | 'ribbed_tee' | 'kimono' | 'vest' | 'robe';
 
 export type PantsStyle = 'baggy' | 'cargo' | 'wide_jeans' | 'shorts' | 'track' | 'hakama' | 'skirt';
 export type ShoeStyle = 'chunky' | 'hightop' | 'skate' | 'boots' | 'slides' | 'runner';
@@ -435,26 +395,7 @@ export interface CharacterDef {
 // ---------------------------------------------------------------------------
 
 export type PetBody =
-  | 'bat'
-  | 'crow'
-  | 'cat'
-  | 'ghost'
-  | 'slime'
-  | 'drone'
-  | 'skull'
-  | 'dragon'
-  | 'jelly'
-  | 'frog'
-  | 'snake'
-  | 'eye'
-  | 'flame'
-  | 'robot'
-  | 'bunny'
-  | 'fox'
-  | 'spider'
-  | 'fish'
-  | 'owl'
-  | 'crystal';
+  'bat' | 'crow' | 'cat' | 'ghost' | 'slime' | 'drone' | 'skull' | 'dragon' | 'jelly' | 'frog' | 'snake' | 'eye' | 'flame' | 'robot' | 'bunny' | 'fox' | 'spider' | 'fish' | 'owl' | 'crystal';
 
 export interface PetBonus {
   speed?: number; // +fração
@@ -567,7 +508,6 @@ export type Reward =
   | { kind: 'skin'; characterId: string; variant: number }
   | { kind: 'randomCharacter'; rarity: RarityId }
   | { kind: 'randomPet'; rarity: RarityId }
-  | { kind: 'powerPoints'; amount: number }
   | { kind: 'title'; id: string; text: string };
 
 export interface ChestDef {
@@ -614,6 +554,11 @@ export interface EventDef {
   missions?: MissionDef[];
   /** presente ao abrir o jogo durante o evento (1x por conta) */
   loginGift?: Reward[];
+  /**
+   * (opcional) evento que REPETE toda semana dentro de start..end:
+   * dias da semana em que fica ativo (0 = domingo … 6 = sábado).
+   */
+  weekly?: number[];
 }
 
 export interface PromoCodeDef {
@@ -632,19 +577,7 @@ export interface PromoCodeDef {
   note?: string;
 }
 
-export type MissionGoal =
-  | 'play'
-  | 'win'
-  | 'kills'
-  | 'damage'
-  | 'heal'
-  | 'skulls'
-  | 'supers'
-  | 'skills'
-  | 'boxes'
-  | 'playRole'
-  | 'winMode'
-  | 'top3';
+export type MissionGoal = 'play' | 'win' | 'kills' | 'damage' | 'heal' | 'skulls' | 'supers' | 'skills' | 'boxes' | 'playRole' | 'winMode' | 'top3';
 
 export interface MissionDef {
   id: string;

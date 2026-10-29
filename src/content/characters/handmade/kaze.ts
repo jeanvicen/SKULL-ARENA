@@ -38,7 +38,16 @@ export default defineCharacter({
     indicatorSize: 40,
     pose: 'shoot',
     sfx: 'super_barrage',
-    effects: [{ kind: 'projectile', burst: 8, burstDelay: 0.05, count: 2, spread: 40, proj: proj({ damage: 420, speed: 1600, range: 640, radius: 10, knockback: 40, look: look('bullet', '#ffe08a', { trail: 'spark', size: 1.2 }) }) }],
+    effects: [
+      {
+        kind: 'projectile',
+        burst: 8,
+        burstDelay: 0.05,
+        count: 2,
+        spread: 40,
+        proj: proj({ damage: 420, speed: 1600, range: 640, radius: 10, knockback: 40, look: look('bullet', '#ffe08a', { trail: 'spark', size: 1.2 }) }),
+      },
+    ],
   },
   passive: { name: 'Sangue Frio', desc: '+15% de dano quando está com menos de 40% de vida.', lowHpRage: 0.15 },
   look: {

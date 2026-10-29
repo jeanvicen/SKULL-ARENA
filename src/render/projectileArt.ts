@@ -1,231 +1,149 @@
 import type { ProjLook } from '../content/types';
-import { alpha, darken, lighten } from '../art/color';
+import { mix } from '../art/color';
+import { PixelBuffer, outline, rgba, shade } from '../pixel/buffer';
+import { INK, ramp } from '../pixel/palette';
+
+type Canvas = HTMLCanvasElement | OffscreenCanvas;
 
 /**
- * Desenho dos projéteis (no espaço do mundo, ctx já com a câmera).
- * `r` = raio de colisão; `ang` = direção; `t` = tempo (pra girar/pulsar).
+ * PROJÉTEIS EM PIXEL ART — sprites gerados por formato/cor/direção (16 direções),
+ * com sombreado e contorno, e guardados em cache.
  */
-export function drawProjectile(ctx: CanvasRenderingContext2D, look: ProjLook, x: number, y: number, r: number, ang: number, t: number, glowImg: CanvasImageSource | null): void {
-  const s = (look.size ?? 1) * Math.max(7, r);
-  const c = look.color;
-  const c2 = look.color2 ?? lighten(c, 0.5);
-  if (glowImg) {
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.7;
-    ctx.drawImage(glowImg, x - s * 2.2, y - s * 2.2, s * 4.4, s * 4.4);
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = 'source-over';
+const cache = new Map<string, Canvas>();
+export const PROJ_SPR = 28;
+
+export function projSprite(look: ProjLook, radiusWorld: number, angle: number, frame = 0): Canvas {
+  const dirs = 16;
+  const rot = look.spin || look.shape === 'skull' || look.shape === 'note' || look.shape === 'orb' || look.shape === 'bubble' || look.shape === 'coin';
+  const bucket = rot ? 0 : ((Math.round((angle / (Math.PI * 2)) * dirs) % dirs) + dirs) % dirs;
+  const s = Math.max(2, Math.min(9, Math.round((Math.max(7, radiusWorld) * (look.size ?? 1)) / 2.4)));
+  const key = `${look.shape}|${look.color}|${look.color2 ?? ''}|${s}|${bucket}|${frame}`;
+  let c = cache.get(key);
+  if (!c) {
+    c = render(look, s, (bucket / dirs) * Math.PI * 2, frame).toCanvas();
+    cache.set(key, c);
   }
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(look.spin ? t * 14 : ang);
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
-  const ink = 'rgba(14,6,22,0.9)';
+  return c;
+}
+
+function render(look: ProjLook, s: number, a: number, frame: number): PixelBuffer {
+  const N = PROJ_SPR;
+  const b = new PixelBuffer(N, N);
+  const C = N / 2;
+  const ramps: number[][] = [];
+  const P = (color: string) => {
+    ramps.push(ramp(color));
+    return ramps.length - 1;
+  };
+  const ca = Math.cos(a);
+  const sa = Math.sin(a);
+  /** gira pontos locais (x pra frente) */
+  const R = (pts: number[]) => {
+    const out: number[] = [];
+    for (let i = 0; i < pts.length; i += 2) out.push(C + pts[i]! * ca - pts[i + 1]! * sa, C + pts[i]! * sa + pts[i + 1]! * ca);
+    return out;
+  };
+  const c = look.color;
+  const c2 = look.color2 ?? mix(c, '#ffffff', 0.5);
+  const poly = (pts: number[], id: number) => b.fillPoly(R(pts), ramps[id]![2]!, id);
   switch (look.shape) {
     case 'bullet': {
-      ctx.fillStyle = ink;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, s * 1.35, s * 0.62, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = c;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, s * 1.15, s * 0.45, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.ellipse(s * 0.3, -s * 0.1, s * 0.5, s * 0.16, 0, 0, Math.PI * 2);
-      ctx.fill();
+      const id = P(c);
+      poly([-s * 1.3, -s * 0.5, s * 0.8, -s * 0.5, s * 1.4, 0, s * 0.8, s * 0.5, -s * 1.3, s * 0.5], id);
       break;
     }
     case 'bolt':
     case 'arrow': {
-      ctx.strokeStyle = ink;
-      ctx.lineWidth = s * 0.9;
-      ctx.beginPath();
-      ctx.moveTo(-s * 2, 0);
-      ctx.lineTo(s * 1.4, 0);
-      ctx.stroke();
-      ctx.strokeStyle = c;
-      ctx.lineWidth = s * 0.5;
-      ctx.stroke();
-      ctx.fillStyle = look.shape === 'arrow' ? c2 : '#ffffff';
-      ctx.beginPath();
-      ctx.moveTo(s * 1.9, 0);
-      ctx.lineTo(s * 0.9, -s * 0.6);
-      ctx.lineTo(s * 0.9, s * 0.6);
-      ctx.fill();
+      const id = P(c);
+      poly([-s * 2, -s * 0.3, s * 1, -s * 0.3, s * 1, s * 0.3, -s * 2, s * 0.3], id);
+      const tip = P(look.shape === 'arrow' ? c2 : '#ffffff');
+      poly([s * 0.8, -s * 0.7, s * 2, 0, s * 0.8, s * 0.7], tip);
       break;
     }
     case 'orb':
     case 'bubble': {
-      ctx.fillStyle = ink;
-      ctx.beginPath();
-      ctx.arc(0, 0, s * 1.08, 0, Math.PI * 2);
-      ctx.fill();
-      const g = ctx.createRadialGradient(-s * 0.3, -s * 0.3, 0, 0, 0, s);
-      g.addColorStop(0, lighten(c, 0.7));
-      g.addColorStop(1, look.shape === 'bubble' ? alpha(c, 0.6) : c);
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(0, 0, s * 0.9, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,0.8)';
-      ctx.beginPath();
-      ctx.arc(-s * 0.35, -s * 0.35, s * 0.22, 0, Math.PI * 2);
-      ctx.fill();
+      const id = P(c);
+      b.fillEllipse(C, C, s, s, ramps[id]![2]!, id);
       break;
     }
     case 'skull': {
-      const k = s * 0.95;
-      ctx.rotate(-ang + (look.spin ? 0 : 0));
-      ctx.fillStyle = ink;
-      ctx.beginPath();
-      ctx.arc(0, -k * 0.15, k * 1.15, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = c;
-      ctx.beginPath();
-      ctx.arc(0, -k * 0.2, k * 0.95, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillRect(-k * 0.55, k * 0.4, k * 1.1, k * 0.5);
-      ctx.fillStyle = darken(c, 0.8);
-      ctx.beginPath();
-      ctx.arc(-k * 0.38, -k * 0.2, k * 0.26, 0, Math.PI * 2);
-      ctx.arc(k * 0.38, -k * 0.2, k * 0.26, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillRect(-k * 0.06, k * 0.15, k * 0.12, k * 0.25);
+      const id = P(c);
+      b.fillEllipse(C, C - 1, s, s * 0.9, ramps[id]![2]!, id);
+      b.fillRect(C - s * 0.55, C + s * 0.4, s * 1.1, s * 0.6, ramps[id]![2]!, id);
       break;
     }
     case 'note': {
-      ctx.rotate(-ang);
-      ctx.fillStyle = ink;
-      ctx.beginPath();
-      ctx.ellipse(-s * 0.3, s * 0.5, s * 0.75, s * 0.55, -0.4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillRect(s * 0.15, -s * 1.3, s * 0.4, s * 1.9);
-      ctx.fillStyle = c;
-      ctx.beginPath();
-      ctx.ellipse(-s * 0.3, s * 0.5, s * 0.55, s * 0.38, -0.4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillRect(s * 0.22, -s * 1.2, s * 0.22, s * 1.7);
-      ctx.fillRect(s * 0.22, -s * 1.2, s * 0.7, s * 0.3);
+      const id = P(c);
+      b.fillEllipse(C - 1, C + s * 0.5, s * 0.6, s * 0.45, ramps[id]![2]!, id);
+      b.fillRect(C - 1 + s * 0.4, C - s, Math.max(1, s * 0.3), s * 1.5, ramps[id]![2]!, id);
+      b.fillRect(C - 1 + s * 0.4, C - s, s * 0.7, Math.max(1, s * 0.3), ramps[id]![2]!, id);
       break;
     }
     case 'wave': {
-      ctx.strokeStyle = alpha(c, 0.9);
-      ctx.lineWidth = s * 0.45;
+      const id = P(c);
       for (let i = 0; i < 3; i++) {
-        ctx.globalAlpha = 1 - i * 0.28;
-        ctx.beginPath();
-        ctx.arc(-i * s * 0.7, 0, s * 1.3, -0.9, 0.9);
-        ctx.stroke();
+        for (let k = -4; k <= 4; k++) {
+          const ang = (k / 4) * 0.9;
+          const r = s * 1.3;
+          const px = -i * s * 0.6 + Math.cos(ang) * r;
+          const py = Math.sin(ang) * r;
+          b.fillRect(C + px * ca - py * sa - 0.5, C + px * sa + py * ca - 0.5, 1.5, 1.5, ramps[id]![2 + (i === 0 ? 1 : 0)]!, id);
+        }
       }
-      ctx.globalAlpha = 1;
       break;
     }
     case 'blade':
     case 'shard': {
-      ctx.fillStyle = ink;
-      ctx.beginPath();
-      ctx.moveTo(s * 1.8, 0);
-      ctx.lineTo(-s * 0.4, -s * 0.9);
-      ctx.lineTo(-s * 1.2, 0);
-      ctx.lineTo(-s * 0.4, s * 0.9);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = c;
-      ctx.beginPath();
-      ctx.moveTo(s * 1.45, 0);
-      ctx.lineTo(-s * 0.3, -s * 0.6);
-      ctx.lineTo(-s * 0.9, 0);
-      ctx.lineTo(-s * 0.3, s * 0.6);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      ctx.beginPath();
-      ctx.moveTo(s * 1.2, 0);
-      ctx.lineTo(-s * 0.2, -s * 0.4);
-      ctx.lineTo(-s * 0.2, 0);
-      ctx.fill();
+      const id = P(c);
+      poly([s * 1.7, 0, -s * 0.3, -s * 0.8, -s * 1.1, 0, -s * 0.3, s * 0.8], id);
       break;
     }
     case 'fire':
     case 'spray': {
-      for (let i = 0; i < 3; i++) {
-        const k = s * (1.1 - i * 0.3);
-        ctx.fillStyle = i === 0 ? alpha(darken(c, 0.2), 0.8) : i === 1 ? c : lighten(c, 0.6);
-        ctx.beginPath();
-        ctx.ellipse(-i * s * 0.3, 0, k * 1.3, k * 0.85, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      const o = P(mix(c, '#1d1245', 0.1));
+      b.fillEllipse(C, C, s * 1.2, s * 0.9, ramps[o]![2]!, o);
+      const i2 = P(mix(c, '#fff3d6', 0.5));
+      b.fillEllipse(C + ca * s * 0.3, C + sa * s * 0.3, s * 0.6, s * 0.5, ramps[i2]![2]!, i2);
       break;
     }
     case 'coin': {
-      ctx.rotate(-ang);
-      ctx.scale(Math.abs(Math.cos(t * 12)) * 0.8 + 0.2, 1);
-      ctx.fillStyle = ink;
-      ctx.beginPath();
-      ctx.arc(0, 0, s * 1.15, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = c;
-      ctx.beginPath();
-      ctx.arc(0, 0, s * 0.95, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = c2;
-      ctx.font = `900 ${Math.round(s * 1.2)}px sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('₹', 0, s * 0.05);
+      const id = P(c);
+      const w = [1, 0.7, 0.25, 0.7][frame % 4]!;
+      b.fillEllipse(C, C, Math.max(1, s * w), s, ramps[id]![2]!, id);
       break;
     }
     case 'glyph': {
-      ctx.strokeStyle = ink;
-      ctx.lineWidth = s * 0.6;
-      ctx.beginPath();
-      ctx.rect(-s * 0.9, -s * 0.9, s * 1.8, s * 1.8);
-      ctx.stroke();
-      ctx.strokeStyle = c;
-      ctx.lineWidth = s * 0.32;
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(-s * 0.5, 0);
-      ctx.lineTo(s * 0.5, 0);
-      ctx.moveTo(0, -s * 0.5);
-      ctx.lineTo(0, s * 0.5);
-      ctx.strokeStyle = c2;
-      ctx.stroke();
+      const id = P(c);
+      poly([-s, -s, s, -s, s, s, -s, s], id);
       break;
     }
     case 'rock': {
-      ctx.fillStyle = ink;
-      ctx.beginPath();
-      ctx.arc(0, 0, s * 1.1, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = c;
-      ctx.beginPath();
-      ctx.moveTo(-s * 0.9, -s * 0.2);
-      ctx.lineTo(-s * 0.3, -s * 0.9);
-      ctx.lineTo(s * 0.7, -s * 0.6);
-      ctx.lineTo(s * 0.9, s * 0.4);
-      ctx.lineTo(0, s * 0.9);
-      ctx.lineTo(-s * 0.8, s * 0.5);
-      ctx.fill();
+      const id = P(c);
+      poly([-s, -s * 0.2, -s * 0.3, -s, s * 0.7, -s * 0.7, s, s * 0.4, 0, s, -s * 0.8, s * 0.6], id);
       break;
     }
     case 'card': {
-      ctx.fillStyle = ink;
-      ctx.fillRect(-s * 0.85, -s * 1.15, s * 1.7, s * 2.3);
-      ctx.fillStyle = '#f7f4ec';
-      ctx.fillRect(-s * 0.7, -s, s * 1.4, s * 2);
-      ctx.fillStyle = c;
-      ctx.beginPath();
-      ctx.moveTo(0, -s * 0.5);
-      ctx.lineTo(s * 0.4, 0);
-      ctx.lineTo(0, s * 0.5);
-      ctx.lineTo(-s * 0.4, 0);
-      ctx.fill();
+      const id = P('#f7f4ec');
+      poly([-s * 0.7, -s, s * 0.7, -s, s * 0.7, s, -s * 0.7, s], id);
       break;
     }
   }
-  ctx.restore();
+  shade(b, ramps, {});
+  // detalhes
+  const set = (x: number, y: number, col: number) => b.set(Math.round(x), Math.round(y), col);
+  if (look.shape === 'skull') {
+    const d = rgba(mix(c, '#000000', 0.8));
+    set(C - s * 0.4, C - 1, d);
+    set(C + s * 0.4, C - 1, d);
+    set(C, C + s * 0.3, d);
+  } else if (look.shape === 'orb' || look.shape === 'bubble') set(C - s * 0.4, C - s * 0.4, rgba('#ffffff'));
+  else if (look.shape === 'card') set(C, C, rgba(c));
+  else if (look.shape === 'glyph') {
+    for (let k = -s + 1; k < s; k++) {
+      set(C + k, C, rgba(c2));
+      set(C, C + k, rgba(c2));
+    }
+  } else if (look.shape === 'coin') set(C, C, rgba(c2));
+  outline(b, INK);
+  return b;
 }

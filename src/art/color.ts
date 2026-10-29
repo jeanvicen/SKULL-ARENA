@@ -12,7 +12,11 @@ export function hexToRgb(hex: string): RGB {
   const hit = cache.get(hex);
   if (hit) return hit;
   let h = hex.replace('#', '');
-  if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+  if (h.length === 3)
+    h = h
+      .split('')
+      .map((c) => c + c)
+      .join('');
   const n = parseInt(h.slice(0, 6), 16);
   const rgb = { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
   cache.set(hex, rgb);
@@ -20,7 +24,10 @@ export function hexToRgb(hex: string): RGB {
 }
 
 export function rgbToHex({ r, g, b }: RGB): string {
-  const c = (x: number) => Math.max(0, Math.min(255, Math.round(x))).toString(16).padStart(2, '0');
+  const c = (x: number) =>
+    Math.max(0, Math.min(255, Math.round(x)))
+      .toString(16)
+      .padStart(2, '0');
   return `#${c(r)}${c(g)}${c(b)}`;
 }
 

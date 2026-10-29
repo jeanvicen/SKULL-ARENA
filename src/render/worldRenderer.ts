@@ -1,24 +1,22 @@
-import type { AbilityDef, CharacterDef, PetDef } from '../content/types';
-import { RARITY } from '../content/rarities';
-import { Animator } from '../art/animator';
-import { CLIPS } from '../art/anims';
+import type { AbilityDef, CharacterDef } from '../content/types';
 import { alpha, darken, lighten } from '../art/color';
-import { PetSprite } from '../art/pets';
-import type { Mat } from '../art/rig';
-import { CharacterSprite, makeCanvas } from '../art/sprite';
-import { TAU, clamp, len } from '../engine/math';
+import { clamp, len, TAU } from '../engine/math';
+import { newCanvas } from '../pixel/buffer';
+import { INK_HEX } from '../pixel/palette';
+import { petFrame } from '../pixel/pets';
+import { CharSprite, ORIGIN_X, ORIGIN_Y } from '../pixel/sprite';
 import { T, TILE } from '../sim/map';
-import type { Fighter, Pickup, Prop, Summon } from '../sim/types';
+import type { Fighter, Pickup, Projectile, Prop, Summon } from '../sim/types';
 import type { World } from '../sim/world';
 import { Camera } from './camera';
 import { Fx, type FxHooks, zoneColor } from './fx';
-import { MapArt, WALL_H } from './mapArt';
+import { MapArt, TA, WALL_HA } from './mapArt';
 import { Particles } from './particles';
-import { drawProjectile } from './projectileArt';
+import { pixDither, pixEllipse, pixLine, pixPoly, pixRect, pixRing } from './pix';
+import { projSprite, PROJ_SPR } from './projectileArt';
 import { THEMES, type Theme } from './theme';
 
-/** px de mundo por unidade do rig (altura do personagem ≈ 86 px) */
-export const CHAR_SCALE = 0.86;
+type Canvas = HTMLCanvasElement | OffscreenCanvas;
 
 export interface AimPreview {
   ability: AbilityDef;
@@ -29,9 +27,7 @@ export interface AimPreview {
 }
 
 interface Visual {
-  anim: Animator;
-  sprite: CharacterSprite;
-  pet: PetSprite | null;
+  sprite: CharSprite;
   petX: number;
   petY: number;
   petFlip: boolean;
@@ -41,12 +37,29 @@ interface Visual {
   hpShown: number;
 }
 
-type Canvas = HTMLCanvasElement | OffscreenCanvas;
+/** fonte pixel pra textos no canvas */
+export const PIXEL_FONT = '"Press Start 2P", "Pixelify Sans", monospace';
+
+const whiteCache = new WeakMap<object, Canvas>();
+function whiteOf(src: Canvas): Canvas {
+  let w = whiteCache.get(src);
+  if (!w) {
+    w = newCanvas(src.width, src.height);
+    const g = w.getContext('2d') as CanvasRenderingContext2D;
+    g.drawImage(src as CanvasImageSource, 0, 0);
+    g.globalCompositeOperation = 'source-in';
+    g.fillStyle = '#ffffff';
+    g.fillRect(0, 0, w.width, w.height);
+    whiteCache.set(src, w);
+  }
+  return w;
+}
 
 /**
- * RENDERIZADOR DA PARTIDA (Canvas 2D)
- * Ordem: chão → efeitos de chão → [paredes, arbustos, objetos, personagens, tiros]
- * ordenados por profundidade (Y) → partículas → barras de vida → overlays de tela.
+ * RENDERIZADOR DA PARTIDA (pixel art)
+ * 1) desenha o mundo num buffer pequeno (1 pixel de arte = 2 px de mundo)
+ * 2) amplia esse buffer com ESCALA INTEIRA (cada pixel fica nítido)
+ * 3) por cima, em resolução cheia: nomes, números de dano, vinheta
  */
 export class WorldRenderer {
   readonly ctx: CanvasRenderingContext2D;
@@ -55,18 +68,25 @@ export class WorldRenderer {
   readonly fx: Fx;
   readonly mapArt: MapArt;
   readonly theme: Theme;
-  private visuals = new Map<number, Visual>();
-  private summonSprites = new Map<string, CharacterSprite>();
-  private summonAnims = new Map<number, Animator>();
-  private propSprites = new Map<string, Canvas>();
-  private dpr = 1;
+  private low: HTMLCanvasElement;
+  private lg: CanvasRenderingContext2D;
+  /** pixels de tela (dispositivo) por pixel de arte */
+  S = 3;
+  private lowW = 1;
+  private lowH = 1;
+  private devW = 1;
+  private devH = 1;
   private cssW = 1;
   private cssH = 1;
-  private k = 1;
+  private dpr = 1;
+  /** pixel do buffer onde fica o pixel de arte (0,0) do mapa */
   private ox = 0;
   private oy = 0;
+  private fracX = 0;
+  private fracY = 0;
+  private visuals = new Map<number, Visual>();
+  private sprCache = new Map<string, Canvas>();
   time = 0;
-  /** preview de mira do jogador local */
   aim: AimPreview | null = null;
   lowQuality = false;
 
@@ -77,6 +97,8 @@ export class WorldRenderer {
     hooks: FxHooks,
   ) {
     this.ctx = canvas.getContext('2d', { alpha: false })!;
+    this.low = document.createElement('canvas');
+    this.lg = this.low.getContext('2d', { alpha: false })!;
     this.theme = THEMES[world.map.theme] ?? THEMES.quarteirao;
     this.mapArt = new MapArt(world.map, this.theme);
     this.fx = new Fx(world, this.particles, this.cam, this.theme, localId, hooks);
@@ -89,41 +111,35 @@ export class WorldRenderer {
     const r = this.canvas.getBoundingClientRect();
     this.cssW = Math.max(1, r.width || window.innerWidth);
     this.cssH = Math.max(1, r.height || window.innerHeight);
-    this.dpr = Math.min(this.lowQuality ? 1.25 : 2, window.devicePixelRatio || 1);
-    this.canvas.width = Math.round(this.cssW * this.dpr);
-    this.canvas.height = Math.round(this.cssH * this.dpr);
-    this.cam.fit(this.cssW, this.cssH);
-    // sprites dos personagens dependem da escala: refaz
-    for (const v of this.visuals.values()) v.sprite.dispose();
-    this.visuals.clear();
-    this.summonSprites.clear();
-    this.propSprites.clear();
+    this.dpr = Math.min(this.lowQuality ? 1.5 : 3, window.devicePixelRatio || 1);
+    this.devW = Math.round(this.cssW * this.dpr);
+    this.devH = Math.round(this.cssH * this.dpr);
+    this.canvas.width = this.devW;
+    this.canvas.height = this.devH;
+    // escala inteira: ~600 pixels de arte na largura (≈ 1200 px de mundo)
+    const landscape = this.devW >= this.devH;
+    this.S = Math.max(1, Math.round((landscape ? this.devW : this.devH) / 600));
+    // telas baixas: garante pelo menos ~250 pixels de arte de altura
+    while (this.S > 1 && this.devH / this.S < 250) this.S--;
+    this.lowW = Math.ceil(this.devW / this.S) + 2;
+    this.lowH = Math.ceil(this.devH / this.S) + 2;
+    this.low.width = this.lowW;
+    this.low.height = this.lowH;
+    this.lg.imageSmoothingEnabled = false;
+    this.ctx.imageSmoothingEnabled = false;
+    // zoom da câmera (css px por px de mundo) — usado pelo HUD/controles
+    this.cam.zoom = this.S / 2 / this.dpr;
   }
 
   private visual(f: Fighter): Visual {
     let v = this.visuals.get(f.id);
     if (!v) {
-      const ppu = CHAR_SCALE * (f.def.look.scale ?? 1) * this.cam.zoom * this.dpr;
-      const sprite = this.spriteFor(f.def, ppu);
-      const anim = new Animator(f.def.anim);
-      v = { anim, sprite, pet: f.pet ? new PetSprite(f.pet, 0.8 * this.cam.zoom * this.dpr) : null, petX: f.x - 40, petY: f.y, petFlip: false, flash: 0, lastCastT: -1, wasAlive: true, hpShown: f.hp };
+      v = { sprite: new CharSprite(f.def), petX: f.x - 40, petY: f.y, petFlip: false, flash: 0, lastCastT: -1, wasAlive: true, hpShown: f.hp };
       this.visuals.set(f.id, v);
     }
     return v;
   }
 
-  private spriteCache = new Map<string, CharacterSprite>();
-  private spriteFor(def: CharacterDef, ppu: number): CharacterSprite {
-    const key = `${def.id}@${ppu.toFixed(3)}`;
-    let s = this.spriteCache.get(key);
-    if (!s) {
-      s = new CharacterSprite(def.look, ppu);
-      this.spriteCache.set(key, s);
-    }
-    return s;
-  }
-
-  /** Atualiza animações/efeitos com o tempo real do frame. */
   update(dt: number): void {
     this.time += dt;
     this.cam.update(dt);
@@ -132,14 +148,14 @@ export class WorldRenderer {
     const w = this.world;
     for (const f of w.fighters) {
       const v = this.visual(f);
-      const a = v.anim;
+      const sp = v.sprite;
       if (f.lastCast && f.lastCast.t !== v.lastCastT) {
         v.lastCastT = f.lastCast.t;
         const pose = f.lastCast.kind === 'attack' ? f.def.attack.pose : f.lastCast.kind === 'super' ? f.def.super.pose : f.def.skills[f.lastCast.idx]?.pose;
-        if (pose === 'cast' || pose === 'play') a.play(f.def.anim.attack === 'boombox' ? CLIPS.atk_boombox : CLIPS.atk_cast);
-        else if (pose === 'throw') a.play(CLIPS.atk_throw);
-        else if (pose === 'slam') a.play(CLIPS.atk_heavy_swing);
-        else a.playAttack();
+        if (pose === 'cast' || pose === 'play') sp.playAction(f.def.anim.attack === 'boombox' ? 'atk_boombox' : 'cast');
+        else if (pose === 'throw') sp.playAction('atk_throw');
+        else if (pose === 'slam') sp.playAction('atk_heavy_swing');
+        else sp.playAction('attack');
       }
       if (!f.alive) {
         v.wasAlive = false;
@@ -150,20 +166,19 @@ export class WorldRenderer {
         v.hpShown = f.hp;
       }
       const st = w.over ? (w.winner === f.team ? 'victory' : 'defeat') : f.dash ? 'dash' : w.hasStatus(f, 'stun') || w.hasStatus(f, 'freeze') ? 'stunned' : f.moving || f.jump ? 'run' : 'idle';
-      a.setState(st);
+      sp.setState(st);
       const recently = w.time - (f.lastCast?.t ?? -9) < 0.6;
-      a.lookAt(Math.cos(f.aim), Math.sin(f.aim), f.aiming || recently);
-      a.update(dt);
-      v.flash = Math.max(0, v.flash - dt * 6);
+      sp.anim.lookAt(Math.cos(f.aim), Math.sin(f.aim), f.aiming || recently);
+      sp.update(dt);
+      v.flash = Math.max(0, v.flash - dt * 7);
       v.hpShown += (f.hp - v.hpShown) * Math.min(1, dt * 6);
-      // pet segue com atraso
-      if (v.pet) {
-        const side = a.facing > 0 ? -1 : 1;
-        const tx = f.x + side * 44;
-        const ty = f.y - 6;
+      if (f.pet) {
+        const side = sp.facing > 0 ? -1 : 1;
+        const tx = f.x + side * 46;
+        const ty = f.y - 4;
         v.petX += (tx - v.petX) * Math.min(1, dt * 5);
         v.petY += (ty - v.petY) * Math.min(1, dt * 5);
-        v.petFlip = a.facing < 0;
+        v.petFlip = sp.facing < 0;
       }
     }
   }
@@ -172,81 +187,109 @@ export class WorldRenderer {
     const v = this.visuals.get(targetId);
     if (v) {
       v.flash = 1;
-      v.anim.playHit();
+      v.sprite.playAction('hit');
     }
   }
 
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------- conversão de coordenadas
+  private AX(x: number): number {
+    return Math.round(x / 2) + this.ox;
+  }
+  private AY(y: number): number {
+    return Math.round(y / 2) + this.oy;
+  }
+
+  /** posição de TELA (css px) de um ponto do mundo — pro controle com mouse */
+  worldToScreen(x: number, y: number): { x: number; y: number } {
+    const ax = x / 2 + this.ox - this.fracX;
+    const ay = y / 2 + this.oy - this.fracY;
+    return { x: (ax * this.S) / this.dpr, y: (ay * this.S) / this.dpr };
+  }
+
+  // ---------------------------------------------------------------- RENDER
 
   render(interp: number): void {
-    const ctx = this.ctx;
     const w = this.world;
     const me = w.fighters[this.localId];
-    // câmera
     if (me) {
       const ix = me.px + (me.x - me.px) * interp;
       const iy = me.py + (me.y - me.py) * interp;
       let lx = 0;
       let ly = 0;
       if (this.aim && this.aim.ability.aim !== 'self') {
-        lx = this.aim.ax * Math.min(160, this.aim.ability.range * 0.35);
+        lx = this.aim.ax * Math.min(170, this.aim.ability.range * 0.35);
         ly = this.aim.ay * Math.min(120, this.aim.ability.range * 0.25);
       }
-      this.cam.follow(ix + lx, iy + ly - 20, 1 / 60);
+      this.cam.follow(ix + lx, iy + ly - 30, 1 / 60);
     }
-    this.cam.clampTo(w.map.widthPx, w.map.heightPx, this.cssW, this.cssH);
-    const k = this.cam.zoom * this.dpr;
-    this.k = k;
-    this.ox = (this.cssW * this.dpr) / 2 - this.cam.cx * k;
-    this.oy = (this.cssH * this.dpr) / 2 - this.cam.cy * k;
-    const vx0 = this.cam.cx - this.cssW / this.cam.zoom / 2 - TILE;
-    const vy0 = this.cam.cy - this.cssH / this.cam.zoom / 2 - TILE * 2;
-    const vx1 = this.cam.cx + this.cssW / this.cam.zoom / 2 + TILE;
-    const vy1 = this.cam.cy + this.cssH / this.cam.zoom / 2 + TILE * 2;
-    const tx0 = Math.floor(vx0 / TILE);
-    const ty0 = Math.floor(vy0 / TILE);
-    const tx1 = Math.floor(vx1 / TILE);
-    const ty1 = Math.floor(vy1 / TILE);
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = this.theme.bg;
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    // limita a câmera ao mapa
+    const visW = (this.lowW - 2) * 2;
+    const visH = (this.lowH - 2) * 2;
+    const mw = w.map.widthPx;
+    const mh = w.map.heightPx;
+    this.cam.x = visW >= mw ? mw / 2 : clamp(this.cam.x, visW / 2 - 40, mw - visW / 2 + 40);
+    this.cam.y = visH >= mh ? mh / 2 : clamp(this.cam.y, visH / 2 - 80, mh - visH / 2 + 40);
+    // centro em pixels de arte (com fração pra rolagem suave)
+    const cax = this.cam.cx / 2;
+    const cay = this.cam.cy / 2;
+    const left = cax - (this.lowW - 2) / 2;
+    const top = cay - (this.lowH - 2) / 2;
+    const bx = Math.floor(left);
+    const by = Math.floor(top);
+    this.fracX = left - bx;
+    this.fracY = top - by;
+    this.ox = -bx + 1;
+    this.oy = -by + 1;
+    const g = this.lg;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.globalAlpha = 1;
+    g.fillStyle = this.theme.bg;
+    g.fillRect(0, 0, this.lowW, this.lowH);
+    // área visível em pixels de arte do mapa
+    const ax0 = bx - 2;
+    const ay0 = by - WALL_HA - 4;
+    const ax1 = bx + this.lowW + 2;
+    const ay1 = by + this.lowH + 4;
+    const tx0 = Math.floor(ax0 / TA) - 1;
+    const ty0 = Math.floor(ay0 / TA) - 1;
+    const tx1 = Math.floor(ax1 / TA) + 1;
+    const ty1 = Math.floor(ay1 / TA) + 2;
 
     // 1) chão
     this.mapArt.sync();
-    this.mapArt.drawFloor(ctx, this.ox, this.oy, k, vx0, vy0, vx1, vy1);
-    this.mapArt.drawAnimated(ctx, k, this.ox, this.oy, tx0, ty0, tx1, ty1, this.time);
+    this.mapArt.drawFloor(g, this.ox, this.oy, ax0, ay0, ax1, ay1);
+    this.mapArt.drawAnimated(g, this.ox, this.oy, tx0, ty0, tx1, ty1, this.time);
 
-    // 2) efeitos de chão
-    this.world2();
+    // 2) chão: zonas, armadilhas, marcas, partículas de chão, mira, sombras
     this.drawZones();
     this.drawTraps();
     this.drawMeteorMarks();
-    this.particles.draw(ctx, 'ground');
+    this.particles.draw(g, this.ox, this.oy, 'ground');
     this.drawAimPreview(interp);
     for (const f of w.fighters) if (f.alive && this.isVisible(f)) this.drawGroundMark(f, interp);
     for (const p of w.pickups) this.drawPickupShadow(p);
 
-    // 3) objetos ordenados por profundidade
+    // 3) tudo que tem altura, ordenado por profundidade
     type D = { y: number; fn: () => void };
     const list: D[] = [];
-    for (let ty = Math.max(0, ty0); ty <= Math.min(w.map.h - 1, ty1 + 1); ty++) {
-      list.push({ y: (ty + 1) * TILE - 0.5, fn: () => this.mapArt.drawWallRow(ctx, k, this.ox, this.oy, ty, tx0, tx1, this.time) });
+    for (let ty = Math.max(0, ty0); ty <= Math.min(w.map.h - 1, ty1); ty++) {
+      list.push({ y: (ty + 1) * TILE - 0.5, fn: () => this.mapArt.drawWallRow(g, this.ox, this.oy, ty, tx0, tx1, this.time) });
       for (let tx = Math.max(0, tx0); tx <= Math.min(w.map.w - 1, tx1); tx++) {
         if (w.map.at(tx, ty) !== T.Bush) continue;
         const cx = (tx + 0.5) * TILE;
         const cy = (ty + 0.5) * TILE;
-        let fade = 1;
-        if (me && me.alive && len(me.x - cx, me.y - cy) < 120) fade = 0.42;
-        list.push({ y: ty * TILE + TILE * 0.8, fn: () => this.mapArt.drawBush(ctx, k, this.ox, this.oy, tx, ty, fade, this.time) });
+        const fade = me && me.alive && len(me.x - cx, me.y - cy) < 130 ? 0.45 : 1;
+        list.push({ y: ty * TILE + TILE * 0.8, fn: () => this.mapArt.drawBush(g, this.ox, this.oy, tx, ty, fade, this.time) });
       }
     }
     for (const f of w.fighters) {
       if (!f.alive || !this.isVisible(f)) continue;
       const iy = f.py + (f.y - f.py) * interp;
       list.push({ y: iy, fn: () => this.drawFighter(f, interp) });
-      const v = this.visuals.get(f.id);
-      if (v?.pet) list.push({ y: v.petY, fn: () => this.drawPet(v, f) });
+      if (f.pet) {
+        const v = this.visual(f);
+        list.push({ y: v.petY, fn: () => this.drawPet(v, f) });
+      }
     }
     for (const s of w.summons) if (s.alive) list.push({ y: s.y, fn: () => this.drawSummon(s, interp) });
     for (const p of w.props) if (p.alive) list.push({ y: p.y, fn: () => this.drawProp(p, interp) });
@@ -260,771 +303,592 @@ export class WorldRenderer {
     list.sort((a, b) => a.y - b.y);
     for (const d of list) d.fn();
 
-    // 4) ar: feixes + partículas
-    this.world2();
+    // 4) ar: feixes, partículas
     this.drawBeams();
-    this.particles.draw(ctx, 'air');
+    this.particles.draw(g, this.ox, this.oy, 'air');
 
-    // 5) barras de vida / nomes por cima de tudo
-    for (const f of w.fighters) if (f.alive && this.isVisible(f)) this.drawOverhead(f, interp);
+    // 5) barras de vida (pixel) por cima
+    for (const f of w.fighters) if (f.alive && this.isVisible(f)) this.drawBars(f, interp);
     for (const s of w.summons) if (s.alive && s.def.look.kind !== 'clone') this.drawSummonBar(s);
 
-    // 6) overlays de tela
+    // 6) amplia o buffer pra tela (escala inteira, sem suavizar)
+    const ctx = this.ctx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(this.low, Math.round(-(1 + this.fracX) * this.S), Math.round(-(1 + this.fracY) * this.S), this.lowW * this.S, this.lowH * this.S);
+
+    // 7) por cima em resolução cheia: textos e efeitos de tela
+    this.drawOverlayText(interp);
     if (this.theme.fog !== 'rgba(0,0,0,0)') {
       ctx.fillStyle = this.theme.fog;
-      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      ctx.fillRect(0, 0, this.devW, this.devH);
     }
     this.drawVignette(me);
   }
 
-  /** transformação de mundo */
-  private world2(): void {
-    this.ctx.setTransform(this.k, 0, 0, this.k, this.ox, this.oy);
-  }
-
   private isVisible(f: Fighter): boolean {
     const me = this.world.fighters[this.localId];
-    const team = me ? me.team : -1;
-    return this.world.visibleTo(f, team);
+    return this.world.visibleTo(f, me ? me.team : -1);
   }
 
-  private teamColor(f: { team: number; id?: number }): string {
+  teamColor(f: { team: number; id?: number }): string {
     const me = this.world.fighters[this.localId];
     if (f.id === this.localId) return '#ffe14d';
     if (!me) return '#ff3d4d';
     return f.team === me.team ? '#3db8ff' : '#ff3d4d';
   }
 
-  // -------------------------------------------------------------------------
+  // ------------------------------------------------------------- personagens
 
   private drawGroundMark(f: Fighter, interp: number): void {
-    const ctx = this.ctx;
-    const x = f.px + (f.x - f.px) * interp;
-    const y = f.py + (f.y - f.py) * interp;
-    const sc = f.def.look.scale ?? 1;
-    // sombra
+    const g = this.lg;
+    const x = this.AX(f.px + (f.x - f.px) * interp);
+    const y = this.AY(f.py + (f.py === f.y ? f.y : f.py + (f.y - f.py) * interp));
+    const big = f === this.world.boss ? 2 : 1;
     const zf = 1 - Math.min(0.6, f.z / 200);
-    ctx.fillStyle = 'rgba(6,2,14,0.42)';
-    ctx.beginPath();
-    ctx.ellipse(x, y + 2, 26 * sc * zf, 10 * sc * zf, 0, 0, TAU);
-    ctx.fill();
-    // anel do time
+    g.globalAlpha = 0.45;
+    pixEllipse(g, x, y + 1, 12 * zf * big, 4 * zf * big, '#08040f');
+    g.globalAlpha = 1;
     const col = this.teamColor(f);
-    ctx.strokeStyle = alpha(col, 0.85);
-    ctx.lineWidth = 3.2;
-    ctx.beginPath();
-    ctx.ellipse(x, y + 2, 30 * sc, 12 * sc, 0, 0, TAU);
-    ctx.stroke();
+    pixRing(g, x, y + 1, 15 * big, 6 * big, 1, col);
     if (f.id === this.localId) {
-      // seta de mira no chão
+      // setinha da mira no chão
       const a = f.aim;
-      ctx.fillStyle = alpha(col, 0.9);
-      ctx.beginPath();
-      const ax = x + Math.cos(a) * 40 * sc;
-      const ay = y + 2 + Math.sin(a) * 16 * sc;
-      ctx.moveTo(ax + Math.cos(a) * 8, ay + Math.sin(a) * 4);
-      ctx.lineTo(ax + Math.cos(a + 2.4) * 7, ay + Math.sin(a + 2.4) * 3);
-      ctx.lineTo(ax + Math.cos(a - 2.4) * 7, ay + Math.sin(a - 2.4) * 3);
-      ctx.fill();
+      const sx = x + Math.cos(a) * 20;
+      const sy = y + 1 + Math.sin(a) * 8;
+      pixPoly(g, [sx + Math.cos(a) * 4, sy + Math.sin(a) * 2, sx + Math.cos(a + 2.4) * 3, sy + Math.sin(a + 2.4) * 2, sx + Math.cos(a - 2.4) * 3, sy + Math.sin(a - 2.4) * 2], col);
     }
     if (f.superCharge >= 1) {
-      const p = 0.5 + Math.sin(this.time * 6) * 0.5;
-      ctx.strokeStyle = alpha('#ffd23f', 0.4 + p * 0.5);
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.ellipse(x, y + 2, (34 + p * 4) * sc, (14 + p * 2) * sc, 0, 0, TAU);
-      ctx.stroke();
+      const p = Math.floor(this.time * 6) % 2;
+      pixRing(g, x, y + 1, 17 + p, 7 + p, 1, '#ffd23f');
     }
   }
 
   private drawFighter(f: Fighter, interp: number): void {
     const v = this.visual(f);
-    const ctx = this.ctx;
-    const x = f.px + (f.x - f.px) * interp;
-    const y = f.py + (f.y - f.py) * interp - f.z;
-    const sc = CHAR_SCALE * (f.def.look.scale ?? 1);
-    // aura das raridades altas (atrás do corpo)
+    const g = this.lg;
+    const x = this.AX(f.px + (f.x - f.px) * interp);
+    const y = this.AY(f.py + (f.y - f.py) * interp - f.z);
     const aura = f.def.look.aura;
-    if (aura) this.drawAura(x, y, aura, sc);
-    const sx = (x * this.k + this.ox) | 0;
-    const sy = (y * this.k + this.oy) | 0;
-    const s = sc * this.k;
-    const base: Mat = [s * v.anim.facing, 0, 0, s, sx, sy];
+    if (aura) this.drawAura(x, y, aura);
+    const frame = v.sprite.frame();
     let a = 1;
     const me = this.world.fighters[this.localId];
-    if (f.stealthT > 0) a = me && f.team === me.team ? 0.45 : 0.6;
-    if (f.inBush && me && f.team === me.team) a = Math.min(a, 0.7);
-    if (f.invulnT > 0) a *= 0.55 + Math.sin(this.time * 30) * 0.35;
-    v.sprite.draw(ctx, v.anim.pose, v.anim.solved, { base, view: v.anim.view, flash: v.flash, alpha: a });
-    // efeitos de status por cima
-    this.world2();
-    if (this.world.hasStatus(f, 'stun') || this.world.hasStatus(f, 'freeze')) {
+    if (f.stealthT > 0) a = me && f.team === me.team ? 0.45 : 0.55;
+    if (f.inBush && me && f.team === me.team) a = Math.min(a, 0.75);
+    if (f.invulnT > 0 && Math.floor(this.time * 16) % 2 === 0) a *= 0.4;
+    const sc = f === this.world.boss ? 2 : 1;
+    g.globalAlpha = a;
+    g.setTransform(v.sprite.facing * sc, 0, 0, sc, x, y);
+    g.drawImage(frame as CanvasImageSource, -ORIGIN_X, -ORIGIN_Y);
+    if (v.flash > 0.05) {
+      g.globalAlpha = a * Math.min(1, v.flash);
+      g.drawImage(whiteOf(frame) as CanvasImageSource, -ORIGIN_X, -ORIGIN_Y);
+    }
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.globalAlpha = 1;
+    // efeitos de status
+    const W = this.world;
+    const headY = y - 58 * sc;
+    if (W.hasStatus(f, 'stun') || W.hasStatus(f, 'freeze')) {
+      const fr = W.hasStatus(f, 'freeze');
       for (let i = 0; i < 3; i++) {
         const ang = this.time * 5 + (i * TAU) / 3;
-        ctx.fillStyle = this.world.hasStatus(f, 'freeze') ? '#bdf3ff' : '#ffe14d';
-        star(ctx, x + Math.cos(ang) * 22, y - 104 * (f.def.look.scale ?? 1) + Math.sin(ang) * 6, 5);
+        const sx = Math.round(x + Math.cos(ang) * 10);
+        const sy = Math.round(headY + Math.sin(ang) * 3);
+        pixRect(g, sx - 1, sy, 3, 1, fr ? '#bdf3ff' : '#ffe14d');
+        pixRect(g, sx, sy - 1, 1, 3, fr ? '#bdf3ff' : '#ffe14d');
+      }
+      if (fr) {
+        g.globalAlpha = 0.35;
+        pixRect(g, x - 12, y - 50, 24, 50, '#a0e6ff');
+        g.globalAlpha = 1;
       }
     }
-    if (this.world.hasStatus(f, 'freeze')) {
-      ctx.fillStyle = 'rgba(160,230,255,0.35)';
-      ctx.beginPath();
-      ctx.roundRect(x - 28, y - 96, 56, 98, 10);
-      ctx.fill();
-    }
     if (f.shield > 0) {
-      ctx.strokeStyle = alpha('#bfe6ff', 0.5 + Math.sin(this.time * 8) * 0.2);
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.ellipse(x, y - 44, 40, 56, 0, 0, TAU);
-      ctx.stroke();
+      const p = Math.floor(this.time * 8) % 2;
+      g.globalAlpha = 0.7;
+      pixRing(g, x, y - 26, 18 + p, 28 + p, 1, '#bfe6ff');
+      g.globalAlpha = 1;
     }
     if (Math.random() < 0.25) {
-      if (this.world.hasStatus(f, 'burn')) this.particles.spawn({ kind: 'spark', x: x + (Math.random() - 0.5) * 30, y: y - Math.random() * 70, vy: -120, max: 0.4, size: 3, color: '#ff8a3d' });
-      if (this.world.hasStatus(f, 'poison')) this.particles.spawn({ kind: 'glow', x: x + (Math.random() - 0.5) * 30, y: y - Math.random() * 70, vy: -50, max: 0.5, size: 6, color: '#9ef08a' });
-      if (this.world.hasStatus(f, 'slow')) this.particles.spawn({ kind: 'dust', x: x + (Math.random() - 0.5) * 30, y: f.y, max: 0.4, size: 5, color: 'rgba(120,200,255,1)' });
+      if (W.hasStatus(f, 'burn')) this.particles.spawn({ kind: 'spark', x: f.x + (Math.random() - 0.5) * 30, y: f.y - Math.random() * 90, vy: -120, max: 0.4, size: 3, color: '#ff8a3d' });
+      if (W.hasStatus(f, 'poison')) this.particles.spawn({ kind: 'star', x: f.x + (Math.random() - 0.5) * 30, y: f.y - Math.random() * 90, vy: -50, max: 0.5, size: 3, color: '#9ef08a' });
+      if (W.hasStatus(f, 'slow')) this.particles.spawn({ kind: 'dust', x: f.x + (Math.random() - 0.5) * 30, y: f.y, max: 0.4, size: 6, color: '#78c8ff' });
     }
   }
 
-  private drawAura(x: number, y: number, aura: NonNullable<CharacterDef['look']['aura']>, sc: number): void {
-    const ctx = this.ctx;
-    const t = this.time;
-    const pulse = 0.75 + Math.sin(t * 3) * 0.25;
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.5 * pulse;
-    const g = this.particles.glow(aura.color) as CanvasImageSource;
-    ctx.drawImage(g, x - 60 * sc, y - 120 * sc, 120 * sc, 130 * sc);
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = 'source-over';
+  private drawAura(x: number, y: number, aura: NonNullable<CharacterDef['look']['aura']>): void {
+    const g = this.lg;
+    const pulse = Math.floor(this.time * 4) % 2;
+    g.globalCompositeOperation = 'lighter';
+    g.globalAlpha = 0.45;
+    const img = this.particles.glow(aura.color, 30);
+    g.drawImage(img as CanvasImageSource, x - 28 - pulse, y - 60 - pulse, 56 + pulse * 2, 64 + pulse * 2);
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = 'source-over';
     if (Math.random() < (this.lowQuality ? 0.15 : 0.4)) {
       const c = aura.kind === 'prism' ? (Math.random() < 0.5 ? aura.color : (aura.color2 ?? aura.color)) : aura.color;
       const kind = aura.kind === 'smoke' ? 'smoke' : aura.kind === 'flame' ? 'spark' : 'star';
-      this.particles.spawn({ kind, x: x + (Math.random() - 0.5) * 50 * sc, y: y - Math.random() * 90 * sc, vy: -60 - Math.random() * 60, vx: (Math.random() - 0.5) * 30, max: 0.6 + Math.random() * 0.4, size: aura.kind === 'smoke' ? 8 : 2.5, color: c });
+      const wx = (x - this.ox) * 2;
+      const wy = (y - this.oy) * 2;
+      this.particles.spawn({
+        kind,
+        x: wx + (Math.random() - 0.5) * 50,
+        y: wy - Math.random() * 100,
+        vy: -60 - Math.random() * 60,
+        vx: (Math.random() - 0.5) * 30,
+        max: 0.6 + Math.random() * 0.4,
+        size: aura.kind === 'smoke' ? 10 : 3,
+        color: c,
+      });
     }
   }
 
   private drawPet(v: Visual, f: Fighter): void {
-    if (!v.pet) return;
-    const bob = v.pet.pet.motion === 'hop' ? -Math.abs(Math.sin(this.time * 6)) * 10 : v.pet.pet.motion === 'bounce' ? -Math.abs(Math.sin(this.time * 4)) * 8 : Math.sin(this.time * 3) * 5;
-    const fly = v.pet.pet.motion === 'flap' || v.pet.pet.motion === 'float' || v.pet.pet.motion === 'orbit' ? 46 : 14;
-    const ctx = this.ctx;
-    this.world2();
-    ctx.fillStyle = 'rgba(6,2,14,0.3)';
-    ctx.beginPath();
-    ctx.ellipse(v.petX, v.petY, 12, 5, 0, 0, TAU);
-    ctx.fill();
-    const sx = v.petX * this.k + this.ox;
-    const sy = (v.petY - fly + bob) * this.k + this.oy;
-    v.pet.draw(ctx, sx, sy, this.time, v.petFlip);
-    void f;
+    if (!f.pet) return;
+    const g = this.lg;
+    const fly = f.pet.motion === 'flap' || f.pet.motion === 'float' || f.pet.motion === 'orbit';
+    const bob = Math.round(Math.sin(this.time * 3 + f.id) * 2);
+    const x = this.AX(v.petX);
+    const y = this.AY(v.petY);
+    g.globalAlpha = 0.35;
+    pixEllipse(g, x, y, 6, 2, '#08040f');
+    g.globalAlpha = 1;
+    const fr = petFrame(f.pet, this.time + f.id * 0.37);
+    g.setTransform(v.petFlip ? -1 : 1, 0, 0, 1, x, y - (fly ? 22 : 6) + bob);
+    g.drawImage(fr as CanvasImageSource, -16, -17);
+    g.setTransform(1, 0, 0, 1, 0, 0);
   }
 
-  private drawOverhead(f: Fighter, interp: number): void {
-    const ctx = this.ctx;
-    this.world2();
+  private drawBars(f: Fighter, interp: number): void {
+    const g = this.lg;
     const v = this.visual(f);
-    const x = f.px + (f.x - f.px) * interp;
-    const y = f.py + (f.y - f.py) * interp - f.z - 112 * (f.def.look.scale ?? 1) * (CHAR_SCALE / 0.86);
+    const sc = f === this.world.boss ? 2 : 1;
+    const x = this.AX(f.px + (f.x - f.px) * interp);
+    const y = this.AY(f.py + (f.y - f.py) * interp - f.z) - 62 * sc;
     const isMe = f.id === this.localId;
+    const bw = isMe ? 30 : 26;
+    const bh = 3;
     const col = this.teamColor(f);
-    const bw = isMe ? 78 : 66;
-    const bh = isMe ? 11 : 9;
-    // nome
-    ctx.font = `900 ${isMe ? 14 : 12}px "Lilita One", Impact, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    const name = f.isBot ? `${f.name}` : f.name;
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = 'rgba(10,4,20,0.85)';
-    ctx.strokeText(name, x, y - 4);
-    ctx.fillStyle = isMe ? '#ffe14d' : '#ffffff';
-    ctx.fillText(name, x, y - 4);
-    if (f.isBot) {
-      const tw = ctx.measureText(name).width;
-      ctx.font = '900 9px "Lilita One", sans-serif';
-      ctx.fillStyle = 'rgba(10,4,20,0.75)';
-      ctx.beginPath();
-      ctx.roundRect(x + tw / 2 + 3, y - 16, 24, 11, 3);
-      ctx.fill();
-      ctx.fillStyle = '#9aa6c0';
-      ctx.textAlign = 'left';
-      ctx.fillText('BOT', x + tw / 2 + 6, y - 6);
-      ctx.textAlign = 'center';
-    }
-    if (f.wanted) {
-      ctx.font = '900 16px sans-serif';
-      ctx.fillText('👑', x, y - 20);
-    }
-    // barra de vida
-    ctx.fillStyle = 'rgba(10,4,20,0.85)';
-    ctx.beginPath();
-    ctx.roundRect(x - bw / 2 - 2, y, bw + 4, bh + 4, 4);
-    ctx.fill();
+    const bx = x - (bw >> 1);
+    pixRect(g, bx - 1, y - 1, bw + 2, bh + 2, INK_HEX);
+    pixRect(g, bx, y, bw, bh, '#3a2236');
     const frac = clamp(f.hp / f.maxHp, 0, 1);
     const shown = clamp(v.hpShown / f.maxHp, 0, 1);
-    if (shown > frac) {
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(x - bw / 2, y + 2, bw * shown, bh);
-    }
-    ctx.fillStyle = isMe ? (frac < 0.3 ? '#ff5d4d' : '#5dff7a') : col;
-    ctx.fillRect(x - bw / 2, y + 2, bw * frac, bh);
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
-    ctx.fillRect(x - bw / 2, y + 2, bw * frac, bh * 0.35);
-    if (f.shield > 0) {
-      ctx.fillStyle = 'rgba(191,230,255,0.85)';
-      ctx.fillRect(x - bw / 2, y + 2, bw * clamp(f.shield / f.maxHp, 0, 1), bh * 0.5);
-    }
-    // número da vida
-    ctx.font = `900 ${isMe ? 10 : 9}px "Lilita One", sans-serif`;
-    ctx.textBaseline = 'middle';
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = 'rgba(10,4,20,0.8)';
-    const hpTxt = String(Math.ceil(f.hp));
-    ctx.strokeText(hpTxt, x, y + 2 + bh / 2 + 0.5);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(hpTxt, x, y + 2 + bh / 2 + 0.5);
-    // munição (só o jogador local)
+    if (shown > frac) pixRect(g, bx, y, Math.round(bw * shown), bh, '#ffffff');
+    const hc = isMe ? (frac < 0.3 ? '#ff5d4d' : '#5dff7a') : col;
+    pixRect(g, bx, y, Math.max(frac > 0 ? 1 : 0, Math.round(bw * frac)), bh, hc);
+    pixRect(g, bx, y, Math.round(bw * frac), 1, lighten(hc, 0.35));
+    if (f.shield > 0) pixRect(g, bx, y + bh - 1, Math.round(bw * clamp(f.shield / f.maxHp, 0, 1)), 1, '#bfe6ff');
     if (isMe) {
-      const segW = (bw - (f.maxAmmo - 1) * 3) / f.maxAmmo;
-      for (let i = 0; i < f.maxAmmo; i++) {
+      const n = f.maxAmmo;
+      const segW = Math.floor((bw - (n - 1)) / n);
+      for (let i = 0; i < n; i++) {
         const fill = clamp(f.ammo - i, 0, 1);
-        const sx = x - bw / 2 + i * (segW + 3);
-        ctx.fillStyle = 'rgba(10,4,20,0.85)';
-        ctx.fillRect(sx - 1, y + bh + 6, segW + 2, 6);
-        ctx.fillStyle = fill >= 1 ? '#ffb02e' : alpha('#ffb02e', 0.45);
-        ctx.fillRect(sx, y + bh + 7, segW * fill, 4);
+        const sx = bx + i * (segW + 1);
+        pixRect(g, sx - 1, y + bh + 1, segW + 2, 4, INK_HEX);
+        pixRect(g, sx, y + bh + 2, Math.round(segW * fill), 2, fill >= 1 ? '#ffb02e' : '#8a5a1a');
       }
     }
   }
 
-  // -------------------------------------------------------------------------
+  /** nomes, BOT, coroa de procurado e números de dano (fonte pixel, resolução cheia) */
+  private drawOverlayText(interp: number): void {
+    const ctx = this.ctx;
+    const S = this.S;
+    const n = Math.max(1, Math.round(S / 2));
+    const toDev = (ax: number, ay: number): [number, number] => [Math.round((ax - 1 - this.fracX) * S), Math.round((ay - 1 - this.fracY) * S)];
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    const outlined = (text: string, x: number, y: number, size: number, color: string) => {
+      ctx.font = `${size}px ${PIXEL_FONT}`;
+      const o = Math.max(1, Math.round(size / 8));
+      ctx.fillStyle = INK_HEX;
+      for (const [dx, dy] of [
+        [-o, 0],
+        [o, 0],
+        [0, -o],
+        [0, o],
+        [-o, -o],
+        [o, o],
+        [-o, o],
+        [o, -o],
+      ])
+        ctx.fillText(text, x + dx!, y + dy!);
+      ctx.fillStyle = color;
+      ctx.fillText(text, x, y);
+    };
+    for (const f of this.world.fighters) {
+      if (!f.alive || !this.isVisible(f)) continue;
+      const sc = f === this.world.boss ? 2 : 1;
+      const ax = this.AX(f.px + (f.x - f.px) * interp);
+      const ay = this.AY(f.py + (f.y - f.py) * interp - f.z) - 62 * sc - 3;
+      const [dx, dy] = toDev(ax, ay);
+      const isMe = f.id === this.localId;
+      const size = 8 * n;
+      const label = f.isBot ? `${f.name} ·BOT` : f.name;
+      outlined(label, dx, dy, size, isMe ? '#ffe14d' : f.isBot ? '#c8d0e0' : '#ffffff');
+      if (f.wanted) outlined('♛', dx, dy - size - 2 * n, size * 1.5, '#ffd23f');
+    }
+    for (const p of this.particles.list) {
+      if (!p.alive || p.kind !== 'text') continue;
+      const t = p.life / p.max;
+      const rise = (1 - t) * 34;
+      const ax = Math.round(p.x / 2) + this.ox;
+      const ay = Math.round((p.y - rise) / 2) + this.oy;
+      const [dx, dy] = toDev(ax, ay);
+      const pop = t > 0.85 ? 1.3 : 1;
+      const size = Math.round((p.size / 2.2) * n * pop) * 1;
+      ctx.globalAlpha = Math.min(1, t * 2.5);
+      outlined(p.text, dx, dy, Math.max(8, size - (size % n)), p.color);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // ---------------------------------------------------------------- mira
 
   private drawAimPreview(interp: number): void {
     const aim = this.aim;
     const me = this.world.fighters[this.localId];
     if (!aim || !me || !me.alive) return;
-    const ctx = this.ctx;
-    const x = me.px + (me.x - me.px) * interp;
-    const y = me.py + (me.y - me.py) * interp;
+    const g = this.lg;
+    const wx = me.px + (me.x - me.px) * interp;
+    const wy = me.py + (me.y - me.py) * interp;
+    const x = this.AX(wx);
+    const y = this.AY(wy);
     const ab = aim.ability;
     const col = aim.kind === 'super' ? '#ffd23f' : aim.kind === 'skill' ? '#3df2ff' : '#ffffff';
     const ang = Math.atan2(aim.ay, aim.ax);
-    ctx.fillStyle = alpha(col, 0.22);
-    ctx.strokeStyle = alpha(col, 0.75);
-    ctx.lineWidth = 2.5;
+    const ca = Math.cos(ang);
+    const sa = Math.sin(ang);
+    const fillA = 0.22;
     if (ab.indicator === 'line') {
-      const w = (ab.indicatorSize ?? 20) * 1.2;
-      // corta na parede (tiro reto)
-      let len2 = ab.range;
+      let L = ab.range;
       const lob = ab.effects.some((e) => e.kind === 'projectile' && e.proj.lob);
       if (!lob) {
-        const hit = this.world.map.rayHit(x, y, x + Math.cos(ang) * ab.range, y + Math.sin(ang) * ab.range);
-        if (hit) len2 = Math.max(30, len(hit.x - x, hit.y - y));
+        const hit = this.world.map.rayHit(wx, wy, wx + ca * ab.range, wy + sa * ab.range);
+        if (hit) L = Math.max(30, len(hit.x - wx, hit.y - wy));
       }
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(ang);
-      ctx.beginPath();
-      ctx.roundRect(0, -w / 2, len2, w, w / 2);
-      ctx.fill();
-      ctx.stroke();
-      ctx.restore();
+      const hw = Math.max(3, ((ab.indicatorSize ?? 20) * 1.2) / 4);
+      const L2 = L / 2;
+      const pts = [x - sa * hw, y + ca * hw, x + ca * L2 - sa * hw, y + sa * L2 + ca * hw, x + ca * L2 + sa * hw, y + sa * L2 - ca * hw, x + sa * hw, y - ca * hw];
+      g.globalAlpha = fillA;
+      pixPoly(g, pts, col);
+      g.globalAlpha = 0.85;
+      pixLine(g, pts[0]!, pts[1]!, pts[2]!, pts[3]!, col);
+      pixLine(g, pts[6]!, pts[7]!, pts[4]!, pts[5]!, col);
+      pixLine(g, pts[2]!, pts[3]!, pts[4]!, pts[5]!, col);
+      g.globalAlpha = 1;
     } else if (ab.indicator === 'cone') {
       const spread = ((ab.indicatorSize ?? 30) * Math.PI) / 180;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.arc(x, y, ab.range, ang - spread / 2, ang + spread / 2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-    } else if (ab.indicator === 'circle') {
-      const r = ab.indicatorSize ?? 100;
-      if (ab.aim === 'self') {
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, TAU);
-        ctx.fill();
-        ctx.stroke();
-      } else {
-        const d = Math.max(40, ab.range * clamp(aim.ad, 0.1, 1));
-        const tx = x + Math.cos(ang) * d;
-        const ty = y + Math.sin(ang) * d;
-        ctx.setLineDash([10, 8]);
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(tx, ty);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.arc(tx, ty, r, 0, TAU);
-        ctx.fill();
-        ctx.stroke();
-        ctx.strokeStyle = alpha(col, 0.35);
-        ctx.beginPath();
-        ctx.arc(x, y, ab.range, 0, TAU);
-        ctx.stroke();
+      const R = ab.range / 2;
+      const pts = [x, y];
+      for (let i = 0; i <= 10; i++) {
+        const a = ang - spread / 2 + (spread * i) / 10;
+        pts.push(x + Math.cos(a) * R, y + Math.sin(a) * R);
       }
+      g.globalAlpha = fillA;
+      pixPoly(g, pts, col);
+      g.globalAlpha = 0.85;
+      for (let i = 2; i + 3 < pts.length; i += 2) pixLine(g, pts[i]!, pts[i + 1]!, pts[i + 2]!, pts[i + 3]!, col);
+      pixLine(g, x, y, pts[2]!, pts[3]!, col);
+      pixLine(g, x, y, pts[pts.length - 2]!, pts[pts.length - 1]!, col);
+      g.globalAlpha = 1;
+    } else if (ab.indicator === 'circle') {
+      const r = (ab.indicatorSize ?? 100) / 2;
+      let cx = x;
+      let cy = y;
+      if (ab.aim !== 'self') {
+        const d = Math.max(40, ab.range * clamp(aim.ad, 0.1, 1)) / 2;
+        cx = Math.round(x + ca * d);
+        cy = Math.round(y + sa * d);
+        g.globalAlpha = 0.5;
+        for (let k = 0; k < d; k += 6) pixRect(g, Math.round(x + ca * k), Math.round(y + sa * k), 2, 2, col);
+        pixRing(g, x, y, ab.range / 2, ab.range / 2, 1, col);
+        g.globalAlpha = 1;
+      }
+      g.globalAlpha = fillA;
+      pixEllipse(g, cx, cy, r, r * 0.8, col);
+      g.globalAlpha = 0.9;
+      pixRing(g, cx, cy, r, r * 0.8, 1, col);
+      g.globalAlpha = 1;
     } else if (ab.aim === 'self') {
-      ctx.beginPath();
-      ctx.arc(x, y, 46, 0, TAU);
-      ctx.stroke();
+      g.globalAlpha = 0.8;
+      pixRing(g, x, y, 22, 16, 1, col);
+      g.globalAlpha = 1;
     }
   }
 
+  // ------------------------------------------------------- zonas/armadilhas
+
   private drawZones(): void {
-    const ctx = this.ctx;
+    const g = this.lg;
     for (const z of this.world.zones) {
       const col = z.look.color ?? zoneColor(z.look.kind);
-      const life = clamp(z.t / Math.max(0.1, z.duration), 0, 1);
-      const r = z.radius * (life > 0.92 ? 1 - (life - 0.92) * 4 : 1);
-      ctx.fillStyle = alpha(col, 0.18 + Math.sin(this.time * 4) * 0.04);
-      ctx.strokeStyle = alpha(col, 0.7);
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(z.x, z.y, r, 0, TAU);
-      ctx.fill();
-      ctx.stroke();
-      // padrão animado
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(z.x, z.y, r, 0, TAU);
-      ctx.clip();
-      ctx.strokeStyle = alpha(col, 0.35);
-      ctx.lineWidth = 2;
-      const t = this.time;
+      const x = this.AX(z.x);
+      const y = this.AY(z.y);
+      const r = z.radius / 2;
+      g.globalAlpha = 0.22;
+      pixEllipse(g, x, y, r, r * 0.8, col);
+      g.globalAlpha = 0.35;
+      pixDither(g, x - Math.floor(r * 0.5), y - Math.floor(r * 0.4), Math.floor(r), Math.floor(r * 0.8), col, Math.floor(this.time * 4) & 1);
+      g.globalAlpha = 0.9;
+      pixRing(g, x, y, r, r * 0.8, 1, col);
+      g.globalAlpha = 1;
+      // pontinhos girando
       for (let i = 0; i < 6; i++) {
-        const a = t * (z.look.kind === 'void' ? 1.4 : 0.6) + (i * TAU) / 6;
-        const rr = ((t * 30 + i * 30) % r) || 1;
-        ctx.beginPath();
-        if (z.look.kind === 'void' || z.look.kind === 'electric') ctx.arc(z.x, z.y, rr, a, a + 1.4);
-        else ctx.arc(z.x + Math.cos(a) * r * 0.5, z.y + Math.sin(a) * r * 0.4, 6 + (i % 3) * 3, 0, TAU);
-        ctx.stroke();
+        const a = this.time * (z.look.kind === 'void' ? 1.6 : 0.8) + (i * TAU) / 6;
+        pixRect(g, Math.round(x + Math.cos(a) * r * 0.7), Math.round(y + Math.sin(a) * r * 0.55), 2, 2, lighten(col, 0.3));
       }
-      ctx.restore();
-      if (Math.random() < 0.3) {
+      if (Math.random() < 0.25) {
         const a = Math.random() * TAU;
-        const d = Math.random() * r;
-        this.particles.spawn({ kind: z.look.kind === 'smoke' ? 'smoke' : 'glow', x: z.x + Math.cos(a) * d, y: z.y + Math.sin(a) * d * 0.8, vy: -40, max: 0.7, size: z.look.kind === 'smoke' ? 14 : 7, color: z.look.kind === 'smoke' ? 'rgba(120,110,130,1)' : col });
+        const d = Math.random() * z.radius;
+        this.particles.spawn({
+          kind: z.look.kind === 'smoke' ? 'smoke' : 'star',
+          x: z.x + Math.cos(a) * d,
+          y: z.y + Math.sin(a) * d * 0.8,
+          vy: -40,
+          max: 0.7,
+          size: z.look.kind === 'smoke' ? 14 : 3,
+          color: z.look.kind === 'smoke' ? '#7a6e86' : col,
+        });
       }
     }
   }
 
   private drawTraps(): void {
-    const ctx = this.ctx;
+    const g = this.lg;
     const me = this.world.fighters[this.localId];
     for (const tr of this.world.traps) {
       if (!me || tr.team !== me.team) continue;
-      ctx.strokeStyle = alpha('#ffd23f', 0.6);
-      ctx.fillStyle = alpha('#ffd23f', 0.12);
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(tr.x, tr.y, tr.radius, 0, TAU);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = '#3a3f4d';
+      const x = this.AX(tr.x);
+      const y = this.AY(tr.y);
+      g.globalAlpha = 0.6;
+      pixRing(g, x, y, tr.radius / 2, tr.radius / 2.6, 1, '#ffd23f');
+      g.globalAlpha = 1;
       for (let i = 0; i < 6; i++) {
         const a = (i * TAU) / 6;
-        ctx.beginPath();
-        ctx.moveTo(tr.x + Math.cos(a) * 10, tr.y + Math.sin(a) * 10);
-        ctx.lineTo(tr.x + Math.cos(a + 0.3) * 20, tr.y + Math.sin(a + 0.3) * 20);
-        ctx.lineTo(tr.x + Math.cos(a - 0.3) * 20, tr.y + Math.sin(a - 0.3) * 20);
-        ctx.fill();
+        pixLine(g, x + Math.cos(a) * 3, y + Math.sin(a) * 2, x + Math.cos(a) * 8, y + Math.sin(a) * 6, '#5d6678');
       }
+      pixRect(g, x - 1, y - 1, 3, 3, '#ff3d4d');
     }
   }
 
   private drawMeteorMarks(): void {
-    const ctx = this.ctx;
+    const g = this.lg;
     for (const m of this.fx.meteorMarks) {
       const left = m.at - this.world.time;
       const p = clamp(1 - left / 1.4, 0, 1);
-      ctx.strokeStyle = alpha('#ff3d3d', 0.85);
-      ctx.fillStyle = alpha('#ff3d3d', 0.12 + p * 0.25);
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(m.x, m.y, 140, 0, TAU);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(m.x, m.y, 140 * p, 0, TAU);
-      ctx.fill();
-      // meteoro caindo
-      const h = (1 - p) * 700;
-      ctx.drawImage(this.particles.glow('#ff8a3d') as CanvasImageSource, m.x - 40 + h * 0.4, m.y - 40 - h, 80, 80);
+      const x = this.AX(m.x);
+      const y = this.AY(m.y);
+      g.globalAlpha = 0.9;
+      pixRing(g, x, y, 70, 56, 1, '#ff3d3d');
+      g.globalAlpha = 0.25 + p * 0.25;
+      pixEllipse(g, x, y, 70 * p, 56 * p, '#ff3d3d');
+      g.globalAlpha = 1;
+      const h = (1 - p) * 300;
+      const img = this.particles.glow('#ff8a3d', 16);
+      g.drawImage(img as CanvasImageSource, x - 16 + h * 0.4, y - 16 - h);
+      pixEllipse(g, x + h * 0.4, y - h, 6, 6, '#5a2a1a');
     }
   }
 
   private drawBeams(): void {
-    const ctx = this.ctx;
+    const g = this.lg;
     for (const b of this.world.beams) {
       const o = this.world.fighters[b.owner];
       if (!o) continue;
-      const sx = o.x + Math.cos(o.aim) * 30;
-      const sy = o.y - 44 + Math.sin(o.aim) * 30;
-      const ex = b.ex;
-      const ey = b.ey - 30;
-      const jitter = Math.sin(this.time * 60) * 3;
-      ctx.lineCap = 'round';
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.strokeStyle = alpha(b.color, 0.35);
-      ctx.lineWidth = b.width * 1.6 + jitter;
-      ctx.beginPath();
-      ctx.moveTo(sx, sy);
-      ctx.lineTo(ex, ey);
-      ctx.stroke();
-      ctx.strokeStyle = alpha(b.color, 0.85);
-      ctx.lineWidth = b.width * 0.7;
-      ctx.stroke();
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = b.width * 0.25;
-      ctx.stroke();
-      ctx.globalCompositeOperation = 'source-over';
-      if (Math.random() < 0.6) this.particles.burst(ex, ey + 30, 2, b.color, 260, 'spark');
+      const sx = this.AX(o.x + Math.cos(o.aim) * 30);
+      const sy = this.AY(o.y - 50 + Math.sin(o.aim) * 30);
+      const ex = this.AX(b.ex);
+      const ey = this.AY(b.ey - 40);
+      const w = Math.max(3, Math.round(b.width / 2));
+      const j = Math.floor(this.time * 30) % 2;
+      g.globalAlpha = 0.45;
+      pixLine(g, sx, sy, ex, ey, b.color, w + 2 + j);
+      g.globalAlpha = 1;
+      pixLine(g, sx, sy, ex, ey, b.color, Math.max(2, w - 2));
+      pixLine(g, sx, sy, ex, ey, '#ffffff', Math.max(1, Math.floor(w / 3)));
+      if (Math.random() < 0.6) this.particles.burst(b.ex, b.ey, 2, b.color, 260, 'spark');
     }
   }
 
-  private drawProj(p: import('../sim/types').Projectile, interp: number): void {
-    const ctx = this.ctx;
-    this.world2();
-    const x = p.px + (p.x - p.px) * interp;
-    const y = p.py + (p.y - p.py) * interp;
+  // ------------------------------------------------------- tiros / objetos
+
+  private drawProj(p: Projectile, interp: number): void {
+    const g = this.lg;
+    const wx = p.px + (p.x - p.px) * interp;
+    const wy = p.py + (p.y - p.py) * interp;
     const look = p.def.look;
-    const z = p.lob ? p.z : 34;
-    // sombra
-    ctx.fillStyle = 'rgba(6,2,14,0.3)';
-    ctx.beginPath();
-    ctx.ellipse(x, y, Math.max(5, p.def.radius * 0.8), Math.max(2, p.def.radius * 0.35), 0, 0, TAU);
-    ctx.fill();
+    const z = p.lob ? p.z : 40;
+    const x = this.AX(wx);
+    const y = this.AY(wy);
+    g.globalAlpha = 0.35;
+    pixEllipse(g, x, y, Math.max(2, p.def.radius / 2.5), Math.max(1, p.def.radius / 5), '#08040f');
+    g.globalAlpha = 1;
     const ang = Math.atan2(p.vy, p.vx);
-    drawProjectile(ctx, look, x, y - z, p.def.radius, ang, this.time + p.id, this.lowQuality ? null : (this.particles.glow(look.color) as CanvasImageSource));
-    // rastro
+    const yy = this.AY(wy - z);
+    if (!this.lowQuality) {
+      g.globalCompositeOperation = 'lighter';
+      g.globalAlpha = 0.5;
+      const r = Math.max(6, Math.round(p.def.radius * 0.7));
+      g.drawImage(this.particles.glow(look.color, 12) as CanvasImageSource, x - r, yy - r, r * 2, r * 2);
+      g.globalAlpha = 1;
+      g.globalCompositeOperation = 'source-over';
+    }
+    const spr = projSprite(look, p.def.radius, ang, Math.floor(this.time * 12 + p.id));
+    if (look.spin && look.shape !== 'coin') {
+      const a = Math.round(this.time * 10 + p.id) * (Math.PI / 2);
+      g.setTransform(Math.round(Math.cos(a)), Math.round(Math.sin(a)), -Math.round(Math.sin(a)), Math.round(Math.cos(a)), x, yy);
+      g.drawImage(spr as CanvasImageSource, -PROJ_SPR / 2, -PROJ_SPR / 2);
+      g.setTransform(1, 0, 0, 1, 0, 0);
+    } else g.drawImage(spr as CanvasImageSource, x - PROJ_SPR / 2, yy - PROJ_SPR / 2);
     const tr = look.trail ?? 'none';
     if (tr !== 'none' && Math.random() < (this.lowQuality ? 0.3 : 0.7)) {
-      if (tr === 'smoke') this.particles.spawn({ kind: 'smoke', x, y: y - z, size: 5, grow: 18, max: 0.4, color: 'rgba(120,110,130,1)', big: true });
-      else if (tr === 'fire') this.particles.spawn({ kind: 'glow', x, y: y - z, size: 10, max: 0.25, color: '#ff8a3d' });
-      else if (tr === 'void') this.particles.spawn({ kind: 'star', x, y: y - z, vx: (Math.random() - 0.5) * 60, vy: (Math.random() - 0.5) * 60, size: 2.5, max: 0.35, color: Math.random() < 0.5 ? '#ff3df2' : '#3df2ff' });
-      else this.particles.spawn({ kind: 'glow', x, y: y - z, size: 6, max: 0.18, color: look.color });
+      if (tr === 'smoke') this.particles.spawn({ kind: 'smoke', x: wx, y: wy - z, size: 6, grow: 16, max: 0.4, color: '#7a6e86', big: true });
+      else if (tr === 'fire') this.particles.spawn({ kind: 'spark', x: wx, y: wy - z, size: 4, max: 0.25, color: '#ff8a3d', vx: (Math.random() - 0.5) * 60, vy: (Math.random() - 0.5) * 60 });
+      else if (tr === 'void')
+        this.particles.spawn({
+          kind: 'star',
+          x: wx,
+          y: wy - z,
+          vx: (Math.random() - 0.5) * 60,
+          vy: (Math.random() - 0.5) * 60,
+          size: 3,
+          max: 0.35,
+          color: Math.random() < 0.5 ? '#ff3df2' : '#3df2ff',
+        });
+      else this.particles.spawn({ kind: 'spark', x: wx, y: wy - z, size: 3, max: 0.18, color: look.color });
     }
   }
 
-  private propSprite(kind: string): Canvas {
-    let s = this.propSprites.get(kind);
+  private spr(key: string, w: number, h: number, paint: (g: CanvasRenderingContext2D) => void): Canvas {
+    let s = this.sprCache.get(key);
     if (!s) {
-      const k = this.k;
-      s = makeCanvas(72 * k, 80 * k);
-      const g = s.getContext('2d') as CanvasRenderingContext2D;
-      g.setTransform(k, 0, 0, k, 36 * k, 60 * k);
-      g.lineJoin = 'round';
-      const ink = '#140a1c';
-      if (kind === 'crate') {
-        g.fillStyle = ink;
-        g.fillRect(-27, -50, 54, 54);
-        g.fillStyle = '#8a5a2e';
-        g.fillRect(-24, -20, 48, 21);
-        g.fillStyle = '#c08a4a';
-        g.fillRect(-24, -47, 48, 27);
-        g.strokeStyle = '#6a3e1a';
-        g.lineWidth = 3;
-        g.strokeRect(-21, -44, 42, 21);
-        g.beginPath();
-        g.moveTo(-21, -44);
-        g.lineTo(21, -23);
-        g.stroke();
-        g.fillStyle = 'rgba(255,255,255,0.15)';
-        g.fillRect(-24, -47, 48, 4);
-      } else if (kind === 'barrel') {
-        g.fillStyle = ink;
-        g.beginPath();
-        g.roundRect(-22, -56, 44, 60, 10);
-        g.fill();
-        const grd = g.createLinearGradient(-20, 0, 20, 0);
-        grd.addColorStop(0, '#8a1a10');
-        grd.addColorStop(0.4, '#e04a2a');
-        grd.addColorStop(1, '#6a1008');
-        g.fillStyle = grd;
-        g.beginPath();
-        g.roundRect(-19, -53, 38, 54, 8);
-        g.fill();
-        g.fillStyle = '#ffd23f';
-        g.beginPath();
-        g.moveTo(0, -38);
-        g.lineTo(9, -22);
-        g.lineTo(-9, -22);
-        g.closePath();
-        g.fill();
-        g.fillStyle = ink;
-        g.fillRect(-1.5, -34, 3, 7);
-        g.fillRect(-1.5, -26, 3, 2.5);
-        g.fillStyle = '#c0392b';
-        g.beginPath();
-        g.ellipse(0, -52, 17, 6, 0, 0, TAU);
-        g.fill();
-        g.strokeStyle = 'rgba(0,0,0,0.3)';
-        g.lineWidth = 2;
-        g.beginPath();
-        g.moveTo(-19, -12);
-        g.lineTo(19, -12);
-        g.stroke();
-      } else {
-        g.fillStyle = ink;
-        g.beginPath();
-        g.ellipse(0, -14, 24, 17, 0, 0, TAU);
-        g.fill();
-        g.fillStyle = '#2a2a33';
-        g.beginPath();
-        g.ellipse(0, -15, 21, 14, 0, 0, TAU);
-        g.fill();
-        g.fillStyle = '#4a4a55';
-        g.beginPath();
-        g.ellipse(0, -18, 21, 10, 0, 0, TAU);
-        g.fill();
-        g.fillStyle = '#16161c';
-        g.beginPath();
-        g.ellipse(0, -18, 9, 5, 0, 0, TAU);
-        g.fill();
-      }
-      this.propSprites.set(kind, s);
+      s = newCanvas(w, h);
+      paint(s.getContext('2d') as CanvasRenderingContext2D);
+      this.sprCache.set(key, s);
     }
     return s;
   }
 
   private drawProp(p: Prop, interp: number): void {
-    const ctx = this.ctx;
-    const x = p.px + (p.x - p.px) * interp;
-    const y = p.py + (p.y - p.py) * interp;
-    this.world2();
-    ctx.fillStyle = 'rgba(6,2,14,0.35)';
-    ctx.beginPath();
-    ctx.ellipse(x + 4, y + 2, p.radius * 1.05, p.radius * 0.45, 0, 0, TAU);
-    ctx.fill();
-    const spr = this.propSprite(p.kind);
-    const sx = x * this.k + this.ox;
-    const sy = (y - p.z) * this.k + this.oy;
-    const tilt = clamp(p.vx * 0.0008 + Math.sin(p.rot) * 0.06, -0.5, 0.5);
-    ctx.setTransform(Math.cos(tilt), Math.sin(tilt), -Math.sin(tilt), Math.cos(tilt), sx, sy);
-    ctx.drawImage(spr as CanvasImageSource, -36 * this.k, -60 * this.k);
+    const g = this.lg;
+    const x = this.AX(p.px + (p.x - p.px) * interp);
+    const y = this.AY(p.py + (p.y - p.py) * interp);
+    g.globalAlpha = 0.4;
+    pixEllipse(g, x + 2, y + 1, p.radius / 2 + 1, p.radius / 5 + 1, '#08040f');
+    g.globalAlpha = 1;
+    const s = this.spr(`prop:${p.kind}`, 32, 36, (c) => paintProp(c, p.kind));
+    const tilt = Math.abs(p.vx) > 120 ? (Math.floor(this.time * 10) % 2 ? 1 : -1) : 0;
+    g.drawImage(s as CanvasImageSource, x - 16 + tilt, this.AY(p.y - p.z) - 30);
   }
 
   private drawPickupShadow(p: Pickup): void {
-    const ctx = this.ctx;
-    ctx.fillStyle = 'rgba(6,2,14,0.3)';
-    ctx.beginPath();
-    ctx.ellipse(p.x, p.y + 4, 14, 6, 0, 0, TAU);
-    ctx.fill();
+    const g = this.lg;
+    const x = this.AX(p.x);
+    const y = this.AY(p.y);
+    g.globalAlpha = 0.35;
+    pixEllipse(g, x, y + 2, 7, 3, '#08040f');
+    g.globalAlpha = 1;
     if (p.kind === 'skull') {
       const me = this.world.fighters[this.localId];
       const col = me && p.team === me.team ? '#3db8ff' : '#ff3d4d';
-      ctx.strokeStyle = alpha(col, 0.6 + Math.sin(this.time * 6) * 0.3);
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.ellipse(p.x, p.y + 4, 22, 9, 0, 0, TAU);
-      ctx.stroke();
+      if (Math.floor(this.time * 6) % 2) pixRing(g, x, y + 2, 11, 5, 1, col);
     }
   }
 
   private drawPickup(p: Pickup): void {
-    const ctx = this.ctx;
-    this.world2();
-    const bob = Math.sin(this.time * 4 + p.id) * 5;
-    const y = p.y - 24 - p.z + bob;
-    const blink = p.t < 3 ? (Math.sin(this.time * 20) > 0 ? 1 : 0.35) : 1;
-    ctx.globalAlpha = blink;
-    if (p.kind === 'skull') {
-      ctx.drawImage(this.particles.glow('#efe6d2') as CanvasImageSource, p.x - 30, y - 30, 60, 60);
-      skullIcon(ctx, p.x, y, 13, '#efe6d2');
-    } else if (p.kind === 'heal') {
-      ctx.drawImage(this.particles.glow('#5dffa0') as CanvasImageSource, p.x - 30, y - 30, 60, 60);
-      ctx.fillStyle = '#140a1c';
-      ctx.beginPath();
-      ctx.roundRect(p.x - 15, y - 15, 30, 30, 8);
-      ctx.fill();
-      ctx.fillStyle = '#f7f7fb';
-      ctx.beginPath();
-      ctx.roundRect(p.x - 12, y - 12, 24, 24, 6);
-      ctx.fill();
-      ctx.fillStyle = '#ff3d5c';
-      ctx.fillRect(p.x - 3, y - 8, 6, 16);
-      ctx.fillRect(p.x - 8, y - 3, 16, 6);
-    } else if (p.kind === 'power') {
-      ctx.drawImage(this.particles.glow('#b77bff') as CanvasImageSource, p.x - 34, y - 34, 68, 68);
-      ctx.fillStyle = '#140a1c';
-      star(ctx, p.x, y, 17);
-      ctx.fillStyle = '#d6a8ff';
-      star(ctx, p.x, y, 13);
-    } else {
-      ctx.drawImage(this.particles.glow('#ffd23f') as CanvasImageSource, p.x - 22, y - 22, 44, 44);
-      const sc = Math.abs(Math.cos(this.time * 5 + p.id)) * 0.8 + 0.2;
-      ctx.save();
-      ctx.translate(p.x, y);
-      ctx.scale(sc, 1);
-      ctx.fillStyle = '#140a1c';
-      ctx.beginPath();
-      ctx.arc(0, 0, 11, 0, TAU);
-      ctx.fill();
-      ctx.fillStyle = '#ffd23f';
-      ctx.beginPath();
-      ctx.arc(0, 0, 8.5, 0, TAU);
-      ctx.fill();
-      skullIcon(ctx, 0, 0, 5, '#8a5a00');
-      ctx.restore();
-    }
-    ctx.globalAlpha = 1;
+    const g = this.lg;
+    const bob = Math.round(Math.sin(this.time * 4 + p.id) * 2);
+    const x = this.AX(p.x);
+    const y = this.AY(p.y - 24 - p.z) + bob;
+    if (p.t < 3 && Math.floor(this.time * 10) % 2) return;
+    const s = this.spr(`pick:${p.kind}:${p.kind === 'coin' ? Math.floor(this.time * 8 + p.id) % 4 : 0}`, 20, 20, (c) => paintPickup(c, p.kind, Math.floor(this.time * 8 + p.id) % 4));
+    const glowC = p.kind === 'skull' ? '#efe6d2' : p.kind === 'heal' ? '#5dffa0' : p.kind === 'power' ? '#b77bff' : '#ffd23f';
+    g.globalCompositeOperation = 'lighter';
+    g.globalAlpha = 0.35;
+    g.drawImage(this.particles.glow(glowC, 14) as CanvasImageSource, x - 14, y - 14);
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = 'source-over';
+    g.drawImage(s as CanvasImageSource, x - 10, y - 10);
   }
 
   private drawSummon(s: Summon, interp: number): void {
-    const ctx = this.ctx;
-    const x = s.px + (s.x - s.px) * interp;
-    const y = s.py + (s.y - s.py) * interp;
+    const g = this.lg;
+    const x = this.AX(s.px + (s.x - s.px) * interp);
+    const y = this.AY(s.py + (s.y - s.py) * interp);
     const owner = this.world.fighters[s.owner];
-    this.world2();
-    ctx.fillStyle = 'rgba(6,2,14,0.35)';
-    ctx.beginPath();
-    ctx.ellipse(x, y + 2, 22, 9, 0, 0, TAU);
-    ctx.fill();
-    ctx.strokeStyle = alpha(this.teamColor({ team: s.team }), 0.7);
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.ellipse(x, y + 2, 25, 10, 0, 0, TAU);
-    ctx.stroke();
+    g.globalAlpha = 0.4;
+    pixEllipse(g, x, y + 1, 10, 4, '#08040f');
+    g.globalAlpha = 1;
+    pixRing(g, x, y + 1, 12, 5, 1, this.teamColor({ team: s.team }));
     const kind = s.def.look.kind;
     const c = s.def.look.color;
     if (kind === 'clone' && owner) {
       const v = this.visual(owner);
-      const sc = CHAR_SCALE * this.k;
-      const facing = s.vx >= 0 ? 1 : -1;
-      v.sprite.draw(ctx, v.anim.pose, v.anim.solved, { base: [sc * facing, 0, 0, sc, x * this.k + this.ox, y * this.k + this.oy], view: 'front', alpha: 0.85 });
+      const frame = v.sprite.frame();
+      g.globalAlpha = 0.8;
+      g.setTransform(s.vx >= 0 ? 1 : -1, 0, 0, 1, x, y);
+      g.drawImage(frame as CanvasImageSource, -ORIGIN_X, -ORIGIN_Y);
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.globalAlpha = 1;
       return;
     }
-    if (kind === 'skeleton' || kind === 'minion') {
-      const key = `minion:${c}`;
-      let spr = this.summonSprites.get(key);
-      if (!spr) {
-        spr = new CharacterSprite(
-          {
-            species: 'skeleton',
-            skin: '#efe6d2',
-            body: 'slim',
-            hair: { style: 'none', color: '#000' },
-            eyes: { style: 'glow', color: c === '#efe6d2' ? '#ff3df2' : c },
-            top: { style: 'tank', color: '#2a2433' },
-            pants: { style: 'shorts', color: '#2a2433' },
-            shoes: { style: 'skate', color: '#2a2433' },
-            weapon: { kind: 'bat', color: '#c9a274' },
-          },
-          CHAR_SCALE * 0.62 * this.k,
-        );
-        this.summonSprites.set(key, spr);
-      }
-      let an = this.summonAnims.get(s.id);
-      if (!an) {
-        an = new Animator({ idle: 'bounce', run: 'sprint', attack: 'swing', victory: 'laugh' });
-        an.setState('run');
-        this.summonAnims.set(s.id, an);
-      }
-      an.lookAt(Math.cos(s.aim), Math.sin(s.aim), false);
-      an.update(1 / 60);
-      const sc = CHAR_SCALE * 0.62 * this.k;
-      spr.draw(ctx, an.pose, an.solved, { base: [sc * an.facing, 0, 0, sc, x * this.k + this.ox, y * this.k + this.oy], view: 'front' });
-      return;
-    }
-    // torreta / totem / caixa de som / drone
-    const pulse = 0.6 + Math.sin(this.time * 5 + s.id) * 0.4;
-    ctx.drawImage(this.particles.glow(c) as CanvasImageSource, x - 30, y - 70, 60, 60);
-    ctx.fillStyle = '#140a1c';
-    ctx.beginPath();
-    ctx.roundRect(x - 18, y - 38, 36, 40, 7);
-    ctx.fill();
-    ctx.fillStyle = darken(c, 0.45);
-    ctx.beginPath();
-    ctx.roundRect(x - 15, y - 35, 30, 34, 5);
-    ctx.fill();
+    const f = Math.floor(this.time * 6 + s.id) % 2;
+    const spr = this.spr(`summon:${kind}:${c}:${f}`, 28, 36, (cx) => paintSummon(cx, kind, c, s.def.look.color2 ?? '#ffffff', f));
+    g.drawImage(spr as CanvasImageSource, x - 14, y - 34);
     if (kind === 'turret') {
-      ctx.save();
-      ctx.translate(x, y - 40);
-      ctx.rotate(s.aim);
-      ctx.fillStyle = '#140a1c';
-      ctx.fillRect(-4, -7, 34, 14);
-      ctx.fillStyle = lighten(c, 0.2);
-      ctx.fillRect(-2, -5, 30, 10);
-      ctx.restore();
-      ctx.fillStyle = c;
-      ctx.beginPath();
-      ctx.arc(x, y - 40, 11, 0, TAU);
-      ctx.fill();
-    } else if (kind === 'speaker') {
-      ctx.fillStyle = '#1b1a22';
-      ctx.beginPath();
-      ctx.arc(x, y - 18, 10 + pulse * 2, 0, TAU);
-      ctx.fill();
-      ctx.fillStyle = c;
-      ctx.beginPath();
-      ctx.arc(x, y - 18, 4, 0, TAU);
-      ctx.fill();
-      ctx.strokeStyle = alpha(c, 0.5 * pulse);
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(x, y - 18, 22 + pulse * 10, 0, TAU);
-      ctx.stroke();
-    } else {
-      // totem / glifo
-      ctx.fillStyle = c;
-      ctx.save();
-      ctx.translate(x, y - 56);
-      ctx.rotate(this.time * 2);
-      ctx.fillRect(-10, -10, 20, 20);
-      ctx.restore();
-      ctx.strokeStyle = s.def.look.color2 ?? '#ffffff';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(x - 8, y - 30, 16, 20);
+      const a = s.aim;
+      pixLine(g, x, y - 22, x + Math.cos(a) * 10, y - 22 + Math.sin(a) * 6, INK_HEX, 3);
+      pixLine(g, x, y - 22, x + Math.cos(a) * 9, y - 22 + Math.sin(a) * 5, lighten(c, 0.2), 1);
     }
   }
 
   private drawSummonBar(s: Summon): void {
-    const ctx = this.ctx;
-    this.world2();
-    const y = s.y - (s.def.look.kind === 'skeleton' || s.def.look.kind === 'minion' ? 70 : 84);
-    ctx.fillStyle = 'rgba(10,4,20,0.8)';
-    ctx.fillRect(s.x - 22, y, 44, 6);
-    ctx.fillStyle = this.teamColor({ team: s.team });
-    ctx.fillRect(s.x - 21, y + 1, 42 * clamp(s.hp / s.maxHp, 0, 1), 4);
+    const g = this.lg;
+    const x = this.AX(s.x);
+    const y = this.AY(s.y) - 40;
+    pixRect(g, x - 11, y - 1, 22, 4, INK_HEX);
+    pixRect(g, x - 10, y, Math.round(20 * clamp(s.hp / s.maxHp, 0, 1)), 2, this.teamColor({ team: s.team }));
   }
 
   private drawDeathSkull(s: Fx['deathSkulls'][number]): void {
-    const ctx = this.ctx;
-    this.world2();
-    const a = clamp(s.t / 0.6, 0, 1);
-    ctx.globalAlpha = a;
-    ctx.fillStyle = 'rgba(6,2,14,0.3)';
-    ctx.beginPath();
-    ctx.ellipse(s.x, s.y, 14, 6, 0, 0, TAU);
-    ctx.fill();
-    ctx.save();
-    ctx.translate(s.x, s.y - 16 - s.z);
-    ctx.rotate(s.rot);
-    skullIcon(ctx, 0, 0, 16, '#efe6d2');
-    ctx.restore();
-    ctx.globalAlpha = 1;
+    const g = this.lg;
+    if (s.t < 0.6 && Math.floor(this.time * 12) % 2) return;
+    const spr = this.spr('deathskull', 20, 20, (c) => paintPickup(c, 'skull', 0));
+    const x = this.AX(s.x);
+    const y = this.AY(s.y - 16 - s.z);
+    g.globalAlpha = 0.35;
+    pixEllipse(g, this.AX(s.x), this.AY(s.y), 6, 2, '#08040f');
+    g.globalAlpha = 1;
+    g.drawImage(spr as CanvasImageSource, x - 10, y - 10);
   }
+
+  // ------------------------------------------------------------- tela cheia
 
   private vignette: Canvas | null = null;
   private drawVignette(me: Fighter | undefined): void {
     const ctx = this.ctx;
-    const W = this.canvas.width;
-    const H = this.canvas.height;
-    if (!this.vignette || this.vignette.width !== W) {
-      this.vignette = makeCanvas(W, H);
+    const W = this.devW;
+    const H = this.devH;
+    if (!this.vignette || this.vignette.width !== W || this.vignette.height !== H) {
+      this.vignette = newCanvas(W, H);
       const g = this.vignette.getContext('2d') as CanvasRenderingContext2D;
-      const grd = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
+      const grd = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.38, W / 2, H / 2, Math.max(W, H) * 0.78);
       grd.addColorStop(0, 'rgba(0,0,0,0)');
-      grd.addColorStop(1, 'rgba(6,0,16,0.55)');
+      grd.addColorStop(1, 'rgba(6,0,16,0.5)');
       g.fillStyle = grd;
       g.fillRect(0, 0, W, H);
     }
     ctx.drawImage(this.vignette as CanvasImageSource, 0, 0);
     if (me && me.alive && me.hp < me.maxHp * 0.3) {
-      ctx.fillStyle = `rgba(255,20,50,${0.12 + Math.sin(this.time * 6) * 0.07})`;
+      ctx.fillStyle = `rgba(255,20,50,${Math.floor(this.time * 3) % 2 ? 0.16 : 0.07})`;
       ctx.fillRect(0, 0, W, H);
     }
     if (this.fx.flashT > 0) {
-      ctx.fillStyle = alpha(this.fx.flashColor, this.fx.flashT * 1.6);
+      ctx.fillStyle = alpha(this.fx.flashColor, Math.min(0.4, this.fx.flashT * 1.8));
       ctx.fillRect(0, 0, W, H);
     }
     if (me && !me.alive && !this.world.over) {
@@ -1033,57 +897,118 @@ export class WorldRenderer {
     }
   }
 
-  get rarityColor(): (r: keyof typeof RARITY) => string {
-    return (r) => RARITY[r].color;
-  }
-
-  /** tamanho do canvas em px CSS (pro HUD) */
   get size(): { w: number; h: number } {
     return { w: this.cssW, h: this.cssH };
   }
 
   dispose(): void {
-    for (const s of this.spriteCache.values()) s.dispose();
-    this.spriteCache.clear();
     this.visuals.clear();
-  }
-
-  /** usado pelo renderer do pet no menu */
-  static petSprite(p: PetDef, ppu: number): PetSprite {
-    return new PetSprite(p, ppu);
+    this.sprCache.clear();
   }
 }
 
-function star(ctx: CanvasRenderingContext2D, x: number, y: number, r: number): void {
-  ctx.beginPath();
-  for (let i = 0; i < 10; i++) {
-    const rr = i % 2 ? r * 0.45 : r;
-    const a = -Math.PI / 2 + (i * Math.PI) / 5;
-    ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+// ---------------------------------------------------------------------------
+// Pequenos sprites de objetos (pixel)
+// ---------------------------------------------------------------------------
+
+function paintProp(g: CanvasRenderingContext2D, kind: string): void {
+  const ink = INK_HEX;
+  if (kind === 'crate') {
+    pixRect(g, 3, 6, 26, 28, ink);
+    pixRect(g, 4, 7, 24, 12, '#c08a4a');
+    pixRect(g, 4, 19, 24, 14, '#8a5a2e');
+    pixRect(g, 4, 7, 24, 1, '#e0b070');
+    pixRect(g, 6, 9, 20, 1, '#6a3e1a');
+    pixRect(g, 6, 16, 20, 1, '#6a3e1a');
+    pixLine(g, 6, 9, 25, 16, '#6a3e1a');
+    pixRect(g, 4, 19, 24, 1, '#5a3010');
+    for (let x = 8; x < 28; x += 6) pixRect(g, x, 21, 1, 11, '#6a3e1a');
+  } else if (kind === 'barrel') {
+    pixRect(g, 7, 4, 18, 30, ink);
+    pixRect(g, 6, 6, 20, 26, ink);
+    pixRect(g, 8, 5, 16, 28, '#c0392b');
+    pixRect(g, 7, 7, 18, 24, '#c0392b');
+    pixRect(g, 8, 7, 3, 24, '#e05a40');
+    pixRect(g, 21, 7, 3, 24, '#8a1a10');
+    pixRect(g, 7, 12, 18, 1, '#5a0a08');
+    pixRect(g, 7, 26, 18, 1, '#5a0a08');
+    pixEllipse(g, 16, 6, 8, 2, '#e05a40');
+    pixPoly(g, [16, 14, 20, 21, 12, 21], '#ffd23f');
+    pixRect(g, 15, 16, 2, 3, ink);
+    pixRect(g, 15, 20, 2, 1, ink);
+  } else {
+    pixEllipse(g, 16, 26, 13, 8, ink);
+    pixEllipse(g, 16, 25, 12, 7, '#2a2a33');
+    pixEllipse(g, 16, 23, 12, 5, '#4a4a55');
+    pixEllipse(g, 16, 23, 5, 2, '#16161c');
   }
-  ctx.closePath();
-  ctx.fill();
 }
 
-export function skullIcon(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string): void {
-  ctx.fillStyle = '#140a1c';
-  ctx.beginPath();
-  ctx.arc(x, y - r * 0.1, r * 1.12, 0, TAU);
-  ctx.fill();
-  ctx.fillRect(x - r * 0.62, y + r * 0.3, r * 1.24, r * 0.8);
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(x, y - r * 0.15, r * 0.92, 0, TAU);
-  ctx.fill();
-  ctx.fillRect(x - r * 0.5, y + r * 0.35, r * 1, r * 0.6);
-  ctx.fillStyle = '#140a1c';
-  ctx.beginPath();
-  ctx.arc(x - r * 0.36, y - r * 0.12, r * 0.26, 0, TAU);
-  ctx.arc(x + r * 0.36, y - r * 0.12, r * 0.26, 0, TAU);
-  ctx.fill();
-  ctx.fillRect(x - r * 0.06, y + r * 0.2, r * 0.12, r * 0.2);
-  ctx.fillRect(x - r * 0.3, y + r * 0.55, r * 0.1, r * 0.35);
-  ctx.fillRect(x + r * 0.2, y + r * 0.55, r * 0.1, r * 0.35);
+function paintPickup(g: CanvasRenderingContext2D, kind: string, f: number): void {
+  const ink = INK_HEX;
+  if (kind === 'skull') {
+    pixEllipse(g, 10, 9, 7, 6.5, ink);
+    pixRect(g, 5, 11, 10, 7, ink);
+    pixEllipse(g, 10, 9, 6, 5.5, '#efe6d2');
+    pixRect(g, 6, 12, 8, 5, '#efe6d2');
+    pixRect(g, 6, 8, 3, 3, '#1c1028');
+    pixRect(g, 11, 8, 3, 3, '#1c1028');
+    pixRect(g, 9, 12, 2, 1, '#1c1028');
+    for (let x = 6; x < 14; x += 2) pixRect(g, x, 15, 1, 2, '#9a8a6a');
+    pixRect(g, 6, 5, 2, 1, '#ffffff');
+  } else if (kind === 'heal') {
+    pixRect(g, 3, 3, 14, 14, ink);
+    pixRect(g, 4, 4, 12, 12, '#f7f7fb');
+    pixRect(g, 4, 14, 12, 2, '#c8c8d8');
+    pixRect(g, 8, 6, 4, 8, '#ff3d5c');
+    pixRect(g, 6, 8, 8, 4, '#ff3d5c');
+  } else if (kind === 'power') {
+    pixPoly(g, [10, 1, 13, 7, 19, 8, 14, 12, 16, 19, 10, 15, 4, 19, 6, 12, 1, 8, 7, 7], ink);
+    pixPoly(g, [10, 3, 12, 8, 17, 9, 13, 12, 14, 17, 10, 14, 6, 17, 7, 12, 3, 9, 8, 8], '#d6a8ff');
+    pixRect(g, 8, 8, 2, 2, '#ffffff');
+  } else {
+    const w = [7, 5, 2, 5][f]!;
+    pixEllipse(g, 10, 10, w + 1, 8, ink);
+    pixEllipse(g, 10, 10, w, 7, '#ffd23f');
+    if (w > 3) pixRect(g, 9, 6, 2, 8, '#c98a00');
+  }
 }
 
-export { WALL_H };
+function paintSummon(g: CanvasRenderingContext2D, kind: string, c: string, c2: string, f: number): void {
+  const ink = INK_HEX;
+  if (kind === 'skeleton' || kind === 'minion') {
+    // esqueletinho capanga
+    const by = f ? 1 : 0;
+    pixEllipse(g, 14, 9 + by, 7, 6.5, ink);
+    pixEllipse(g, 14, 9 + by, 6, 5.5, '#efe6d2');
+    pixRect(g, 10, 8 + by, 3, 3, '#1c1028');
+    pixRect(g, 16, 8 + by, 3, 3, '#1c1028');
+    pixRect(g, 11, 9 + by, 1, 1, c === '#efe6d2' ? '#ff3df2' : c);
+    pixRect(g, 17, 9 + by, 1, 1, c === '#efe6d2' ? '#ff3df2' : c);
+    pixRect(g, 10, 15, 9, 10, ink);
+    pixRect(g, 11, 16, 7, 8, '#2a2433');
+    pixRect(g, 13, 17, 3, 1, '#efe6d2');
+    pixRect(g, 13, 19, 3, 1, '#efe6d2');
+    pixRect(g, 10, 25, 3, 8 - by, ink);
+    pixRect(g, 16, 25, 3, 7 + by, ink);
+    pixRect(g, 11, 25, 1, 6 - by, '#efe6d2');
+    pixRect(g, 17, 25, 1, 5 + by, '#efe6d2');
+    return;
+  }
+  // torre / totem / caixa de som
+  pixRect(g, 6, 14, 16, 21, ink);
+  pixRect(g, 7, 15, 14, 19, darken(c, 0.5));
+  pixRect(g, 7, 15, 14, 2, darken(c, 0.25));
+  if (kind === 'speaker') {
+    pixEllipse(g, 14, 24, 5 + f, 5 + f, '#1b1a22');
+    pixEllipse(g, 14, 24, 2, 2, c);
+  } else if (kind === 'turret') {
+    pixEllipse(g, 14, 12, 6, 5, ink);
+    pixEllipse(g, 14, 12, 5, 4, c);
+  } else {
+    pixPoly(g, [14, 2 + f, 19, 8, 14, 14 - f, 9, 8], ink);
+    pixPoly(g, [14, 4 + f, 17, 8, 14, 12 - f, 11, 8], c);
+    pixRect(g, 10, 20, 8, 2, c2);
+    pixRect(g, 10, 26, 8, 2, c2);
+  }
+}

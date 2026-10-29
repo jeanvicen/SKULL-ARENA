@@ -51,7 +51,14 @@ export default defineCharacter({
     pose: 'cast',
     sfx: 'coin_shot',
     cooldown: 0.38,
-    effects: [{ kind: 'projectile', count: 3, spread: 16, proj: proj({ damage: 470, speed: 1350, range: 660, radius: 12, bounces: 2, homing: 1.6, look: look('coin', '#ffd23f', { color2: '#ff3df2', spin: true, trail: 'void' }) }) }],
+    effects: [
+      {
+        kind: 'projectile',
+        count: 3,
+        spread: 16,
+        proj: proj({ damage: 470, speed: 1350, range: 660, radius: 12, bounces: 2, homing: 1.6, look: look('coin', '#ffd23f', { color2: '#ff3df2', spin: true, trail: 'void' }) }),
+      },
+    ],
   },
   skills: [
     { ...skill.blink({ name: 'Reescrever', dist: 360, cd: 6, dmg: 950 }), desc: 'Reescreve a própria posição: teleporta e detona o lugar onde aparece.' },
@@ -74,7 +81,14 @@ export default defineCharacter({
       { kind: 'buff', stat: 'armor', mult: 1.35, duration: 3 },
     ],
   },
-  passive: { name: 'Direitos de Autor', desc: 'Regenera 130/s, recebe 10% menos dano, cura 1200 ao eliminar e carrega o super 15% mais rápido.', regen: 130, armor: 0.1, killHeal: 1200, superChargeMult: 1.15 },
+  passive: {
+    name: 'Direitos de Autor',
+    desc: 'Regenera 130/s, recebe 10% menos dano, cura 1200 ao eliminar e carrega o super 15% mais rápido.',
+    regen: 130,
+    armor: 0.1,
+    killHeal: 1200,
+    superChargeMult: 1.15,
+  },
   look: {
     species: 'human',
     skin: '#e8c4a8',

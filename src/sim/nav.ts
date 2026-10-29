@@ -168,9 +168,7 @@ export class NavGrid {
     const w = this.w;
     const cx = i % w;
     const cy = (i / w) | 0;
-    for (let r = 1; r < 8; r++)
-      for (let dy = -r; dy <= r; dy++)
-        for (let dx = -r; dx <= r; dx++) if (this.walkable(cx + dx, cy + dy)) return (cy + dy) * w + cx + dx;
+    for (let r = 1; r < 8; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (this.walkable(cx + dx, cy + dy)) return (cy + dy) * w + cx + dx;
     return -1;
   }
 }

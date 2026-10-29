@@ -125,7 +125,15 @@ function runEffect(w: World, f: Fighter, e: EffectDef, angle: number, tx: number
       const x = e.at === 'self' ? f.x : tx;
       const y = e.at === 'self' ? f.y : ty;
       w.events.push({ type: 'explode', x, y, r: e.radius, color: e.fx ?? (e.heal ? '#5dffa0' : '#ffb347'), big: e.radius > 140 });
-      w.areaDamage(x, y, e.radius, (e.damage ?? 0) * dmgMult, f, f.team, { knock: e.knockback, status: e.status, isSuper, heal: e.heal, pull: e.pull, wallDamage: e.wallDamage, propForce: (e.knockback ?? 200) * 1.6 });
+      w.areaDamage(x, y, e.radius, (e.damage ?? 0) * dmgMult, f, f.team, {
+        knock: e.knockback,
+        status: e.status,
+        isSuper,
+        heal: e.heal,
+        pull: e.pull,
+        wallDamage: e.wallDamage,
+        propForce: (e.knockback ?? 200) * 1.6,
+      });
       if (e.heal && e.at === 'self') w.heal(f, e.heal, f);
       break;
     }
@@ -177,10 +185,27 @@ function runEffect(w: World, f: Fighter, e: EffectDef, angle: number, tx: number
       for (let i = 0; i < n; i++) {
         const bx = e.at === 'self' ? f.x : tx;
         const by = e.at === 'self' ? f.y : ty;
-        const off = n > 1 ? ((i / n) * Math.PI * 2) : 0;
+        const off = n > 1 ? (i / n) * Math.PI * 2 : 0;
         const pos = w.map.nearestFree(bx + Math.cos(off) * (n > 1 ? 50 : 0), by + Math.sin(off) * (n > 1 ? 50 : 0), 20);
         const hp = e.unit.hp * f.dmgMult;
-        w.summons.push({ id: w.uid(), owner: f.id, team: f.team, def: e.unit, x: pos.x, y: pos.y, px: pos.x, py: pos.y, hp, maxHp: hp, t: e.unit.duration, atkT: 0.4, aim: angle, alive: true, vx: 0, vy: 0 });
+        w.summons.push({
+          id: w.uid(),
+          owner: f.id,
+          team: f.team,
+          def: e.unit,
+          x: pos.x,
+          y: pos.y,
+          px: pos.x,
+          py: pos.y,
+          hp,
+          maxHp: hp,
+          t: e.unit.duration,
+          atkT: 0.4,
+          aim: angle,
+          alive: true,
+          vx: 0,
+          vy: 0,
+        });
         w.events.push({ type: 'summon', id: f.id, x: pos.x, y: pos.y });
       }
       break;
@@ -233,7 +258,24 @@ function runEffect(w: World, f: Fighter, e: EffectDef, angle: number, tx: number
         radius: 24,
         look: { kind: 'clone' as const, color: '#b78bff' },
       };
-      w.summons.push({ id: w.uid(), owner: f.id, team: f.team, def, x: f.x, y: f.y, px: f.x, py: f.y, hp: e.hp, maxHp: e.hp, t: e.duration, atkT: 99, aim: angle, alive: true, vx: Math.cos(angle) * f.def.stats.speed, vy: Math.sin(angle) * f.def.stats.speed });
+      w.summons.push({
+        id: w.uid(),
+        owner: f.id,
+        team: f.team,
+        def,
+        x: f.x,
+        y: f.y,
+        px: f.x,
+        py: f.y,
+        hp: e.hp,
+        maxHp: e.hp,
+        t: e.duration,
+        atkT: 99,
+        aim: angle,
+        alive: true,
+        vx: Math.cos(angle) * f.def.stats.speed,
+        vy: Math.sin(angle) * f.def.stats.speed,
+      });
       f.stealthT = Math.max(f.stealthT, 1.2);
       w.events.push({ type: 'summon', id: f.id, x: f.x, y: f.y });
       break;

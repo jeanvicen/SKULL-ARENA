@@ -36,7 +36,14 @@ export const atk = {
       pose: 'shoot',
       sfx: o.sfx ?? 'pistol',
       cooldown: 0.42,
-      effects: [{ kind: 'projectile', burst: o.n ?? 3, burstDelay: 0.07, proj: proj({ damage: o.dmg, speed: 1500, range: o.range ?? 560, radius: 9, look: look(o.shape ?? 'bullet', o.color ?? '#ffe08a', { trail: 'spark' }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          burst: o.n ?? 3,
+          burstDelay: 0.07,
+          proj: proj({ damage: o.dmg, speed: 1500, range: o.range ?? 560, radius: 9, look: look(o.shape ?? 'bullet', o.color ?? '#ffe08a', { trail: 'spark' }) }),
+        },
+      ],
     };
   },
   /** espingarda: leque de balas, forte de perto */
@@ -54,7 +61,22 @@ export const atk = {
       pose: 'shoot',
       sfx: o.sfx ?? 'shotgun',
       cooldown: 0.5,
-      effects: [{ kind: 'projectile', count: n, spread: o.spread ?? 34, proj: proj({ damage: o.dmg, speed: 1300, range: o.range ?? 330, radius: 10, falloff: 0.6, knockback: o.knock ?? 60, look: look(o.shape ?? 'bullet', o.color ?? '#ffcf6b', { trail: 'spark' }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          count: n,
+          spread: o.spread ?? 34,
+          proj: proj({
+            damage: o.dmg,
+            speed: 1300,
+            range: o.range ?? 330,
+            radius: 10,
+            falloff: 0.6,
+            knockback: o.knock ?? 60,
+            look: look(o.shape ?? 'bullet', o.color ?? '#ffcf6b', { trail: 'spark' }),
+          }),
+        },
+      ],
     };
   },
   /** tiro único de longe que fica mais forte com a distância */
@@ -71,7 +93,20 @@ export const atk = {
       pose: 'shoot',
       sfx: o.sfx ?? 'sniper',
       cooldown: 0.6,
-      effects: [{ kind: 'projectile', proj: proj({ damage: o.dmg, speed: 2100, range: o.range ?? 820, radius: 11, ramp: 0.45, pierce: o.pierce ? 2 : 0, look: look(o.shape ?? 'bolt', o.color ?? '#9ef0ff', { trail: 'glow', size: 1.2 }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          proj: proj({
+            damage: o.dmg,
+            speed: 2100,
+            range: o.range ?? 820,
+            radius: 11,
+            ramp: 0.45,
+            pierce: o.pierce ? 2 : 0,
+            look: look(o.shape ?? 'bolt', o.color ?? '#9ef0ff', { trail: 'glow', size: 1.2 }),
+          }),
+        },
+      ],
     };
   },
   /** arremesso por cima das paredes que explode */
@@ -88,7 +123,20 @@ export const atk = {
       pose: 'throw',
       sfx: o.sfx ?? 'throw',
       cooldown: 0.55,
-      effects: [{ kind: 'projectile', proj: proj({ damage: o.dmg, speed: 900, range: o.range ?? 520, radius: 14, lob: true, explode: { radius: o.radius ?? 90, damage: o.dmg, knockback: 160, zone: o.zone, status: o.status }, look: look(o.shape ?? 'skull', o.color ?? '#ff9d3d', { spin: true, trail: 'smoke' }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          proj: proj({
+            damage: o.dmg,
+            speed: 900,
+            range: o.range ?? 520,
+            radius: 14,
+            lob: true,
+            explode: { radius: o.radius ?? 90, damage: o.dmg, knockback: 160, zone: o.zone, status: o.status },
+            look: look(o.shape ?? 'skull', o.color ?? '#ff9d3d', { spin: true, trail: 'smoke' }),
+          }),
+        },
+      ],
     };
   },
   /** golpe corpo a corpo em arco */
@@ -123,7 +171,20 @@ export const atk = {
       pose: 'throw',
       sfx: o.sfx ?? 'whoosh',
       cooldown: 0.55,
-      effects: [{ kind: 'projectile', proj: proj({ damage: o.dmg, speed: 950, range: o.range ?? 480, radius: 16, boomerang: true, pierce: true, look: look(o.shape ?? 'blade', o.color ?? '#d9e2f2', { spin: true, trail: 'glow' }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          proj: proj({
+            damage: o.dmg,
+            speed: 950,
+            range: o.range ?? 480,
+            radius: 16,
+            boomerang: true,
+            pierce: true,
+            look: look(o.shape ?? 'blade', o.color ?? '#d9e2f2', { spin: true, trail: 'glow' }),
+          }),
+        },
+      ],
     };
   },
   /** projétil que pula entre inimigos */
@@ -140,7 +201,19 @@ export const atk = {
       pose: 'cast',
       sfx: o.sfx ?? 'zap',
       cooldown: 0.5,
-      effects: [{ kind: 'projectile', proj: proj({ damage: o.dmg, speed: 1600, range: o.range ?? 520, radius: 12, chain: { count: o.jumps ?? 2, range: 260, falloff: 0.7 }, look: look('bolt', o.color ?? '#7df9ff', { trail: 'glow' }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          proj: proj({
+            damage: o.dmg,
+            speed: 1600,
+            range: o.range ?? 520,
+            radius: 12,
+            chain: { count: o.jumps ?? 2, range: 260, falloff: 0.7 },
+            look: look('bolt', o.color ?? '#7df9ff', { trail: 'glow' }),
+          }),
+        },
+      ],
     };
   },
   /** ondas que atravessam (som, vento, energia) */
@@ -158,7 +231,14 @@ export const atk = {
       pose: 'play',
       sfx: o.sfx ?? 'wave',
       cooldown: 0.5,
-      effects: [{ kind: 'projectile', count: n, spread: o.spread ?? 24, proj: proj({ damage: o.dmg, speed: 900, range: o.range ?? 480, radius: 22, pierce: true, heal: o.heal, look: look(o.shape ?? 'wave', o.color ?? '#7dffcf', { trail: 'glow', size: 1.2 }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          count: n,
+          spread: o.spread ?? 24,
+          proj: proj({ damage: o.dmg, speed: 900, range: o.range ?? 480, radius: 22, pierce: true, heal: o.heal, look: look(o.shape ?? 'wave', o.color ?? '#7dffcf', { trail: 'glow', size: 1.2 }) }),
+        },
+      ],
     };
   },
   /** orbes teleguiados lentos */
@@ -176,7 +256,14 @@ export const atk = {
       pose: 'cast',
       sfx: o.sfx ?? 'magic',
       cooldown: 0.5,
-      effects: [{ kind: 'projectile', count: n, spread: 28, proj: proj({ damage: o.dmg, speed: 760, range: o.range ?? 520, radius: 13, homing: 3.2, look: look(o.shape ?? 'orb', o.color ?? '#c58bff', { trail: 'glow' }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          count: n,
+          spread: 28,
+          proj: proj({ damage: o.dmg, speed: 760, range: o.range ?? 520, radius: 13, homing: 3.2, look: look(o.shape ?? 'orb', o.color ?? '#c58bff', { trail: 'glow' }) }),
+        },
+      ],
     };
   },
   /** jato curto contínuo (lança-chamas, spray) */
@@ -193,7 +280,16 @@ export const atk = {
       pose: 'shoot',
       sfx: o.sfx ?? 'flame',
       cooldown: 0.45,
-      effects: [{ kind: 'projectile', count: 4, spread: 22, burst: 2, burstDelay: 0.09, proj: proj({ damage: o.dmg, speed: 820, range: o.range ?? 280, radius: 16, pierce: true, status: o.status, look: look(o.shape ?? 'fire', o.color ?? '#ff8a3d', { trail: 'fire' }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          count: 4,
+          spread: 22,
+          burst: 2,
+          burstDelay: 0.09,
+          proj: proj({ damage: o.dmg, speed: 820, range: o.range ?? 280, radius: 16, pierce: true, status: o.status, look: look(o.shape ?? 'fire', o.color ?? '#ff8a3d', { trail: 'fire' }) }),
+        },
+      ],
     };
   },
   /** tiros ricocheteando nas paredes */
@@ -210,7 +306,14 @@ export const atk = {
       pose: 'shoot',
       sfx: o.sfx ?? 'pistol',
       cooldown: 0.42,
-      effects: [{ kind: 'projectile', count: o.n ?? 2, spread: 8, proj: proj({ damage: o.dmg, speed: 1250, range: o.range ?? 600, radius: 10, bounces: 2, look: look(o.shape ?? 'coin', o.color ?? '#ffd23f', { spin: true, trail: 'spark' }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          count: o.n ?? 2,
+          spread: 8,
+          proj: proj({ damage: o.dmg, speed: 1250, range: o.range ?? 600, radius: 10, bounces: 2, look: look(o.shape ?? 'coin', o.color ?? '#ffd23f', { spin: true, trail: 'spark' }) }),
+        },
+      ],
     };
   },
   /** cartas/lâminas em leque fino de longe */
@@ -228,7 +331,14 @@ export const atk = {
       pose: 'throw',
       sfx: o.sfx ?? 'throw_light',
       cooldown: 0.45,
-      effects: [{ kind: 'projectile', count: n, spread: 20, proj: proj({ damage: o.dmg, speed: 1300, range: o.range ?? 600, radius: 10, status: o.status, look: look(o.shape ?? 'card', o.color ?? '#f7f4ec', { spin: true }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          count: n,
+          spread: 20,
+          proj: proj({ damage: o.dmg, speed: 1300, range: o.range ?? 600, radius: 10, status: o.status, look: look(o.shape ?? 'card', o.color ?? '#f7f4ec', { spin: true }) }),
+        },
+      ],
     };
   },
   /** soco rápido de curto alcance com empurrão */
@@ -277,22 +387,97 @@ export const skill = {
   blink(o: { name?: string; dist?: number; cd?: number; dmg?: number } = {}): AbilityDef {
     const effects: AbilityDef['effects'] = [{ kind: 'blink', distance: o.dist ?? 280 }];
     if (o.dmg) effects.push({ kind: 'aoe', at: 'self', radius: 110, damage: o.dmg, knockback: 200, fx: '#b77bff' });
-    return { id: 'sk_blink', name: o.name ?? 'Teleporte', desc: o.dmg ? 'Teleporta e explode ao chegar.' : 'Teleporta na direção mirada (atravessa paredes finas).', icon: '✨', cooldown: o.cd ?? 8, aim: 'direction', range: o.dist ?? 280, indicator: 'line', indicatorSize: 30, pose: 'cast', sfx: 'blink', effects };
+    return {
+      id: 'sk_blink',
+      name: o.name ?? 'Teleporte',
+      desc: o.dmg ? 'Teleporta e explode ao chegar.' : 'Teleporta na direção mirada (atravessa paredes finas).',
+      icon: '✨',
+      cooldown: o.cd ?? 8,
+      aim: 'direction',
+      range: o.dist ?? 280,
+      indicator: 'line',
+      indicatorSize: 30,
+      pose: 'cast',
+      sfx: 'blink',
+      effects,
+    };
   },
   heal(o: { name?: string; amount: number; radius?: number; cd?: number }): AbilityDef {
-    return { id: 'sk_heal', name: o.name ?? 'Pulso de Cura', desc: `Cura ${o.amount} de vida (você${o.radius ? ' e aliados perto' : ''}).`, icon: '💚', cooldown: o.cd ?? 10, aim: 'self', range: o.radius ?? 0, indicator: o.radius ? 'circle' : 'none', indicatorSize: o.radius, pose: 'cast', sfx: 'heal', effects: [{ kind: 'heal', amount: o.amount, radius: o.radius }] };
+    return {
+      id: 'sk_heal',
+      name: o.name ?? 'Pulso de Cura',
+      desc: `Cura ${o.amount} de vida (você${o.radius ? ' e aliados perto' : ''}).`,
+      icon: '💚',
+      cooldown: o.cd ?? 10,
+      aim: 'self',
+      range: o.radius ?? 0,
+      indicator: o.radius ? 'circle' : 'none',
+      indicatorSize: o.radius,
+      pose: 'cast',
+      sfx: 'heal',
+      effects: [{ kind: 'heal', amount: o.amount, radius: o.radius }],
+    };
   },
   shield(o: { name?: string; amount: number; dur?: number; radius?: number; cd?: number }): AbilityDef {
-    return { id: 'sk_shield', name: o.name ?? 'Escudo', desc: `Escudo de ${o.amount} por ${o.dur ?? 4}s${o.radius ? ' pra você e aliados perto' : ''}.`, icon: '🛡️', cooldown: o.cd ?? 10, aim: 'self', range: o.radius ?? 0, indicator: o.radius ? 'circle' : 'none', indicatorSize: o.radius, pose: 'cast', sfx: 'shield', effects: [{ kind: 'shield', amount: o.amount, duration: o.dur ?? 4, radius: o.radius }] };
+    return {
+      id: 'sk_shield',
+      name: o.name ?? 'Escudo',
+      desc: `Escudo de ${o.amount} por ${o.dur ?? 4}s${o.radius ? ' pra você e aliados perto' : ''}.`,
+      icon: '🛡️',
+      cooldown: o.cd ?? 10,
+      aim: 'self',
+      range: o.radius ?? 0,
+      indicator: o.radius ? 'circle' : 'none',
+      indicatorSize: o.radius,
+      pose: 'cast',
+      sfx: 'shield',
+      effects: [{ kind: 'shield', amount: o.amount, duration: o.dur ?? 4, radius: o.radius }],
+    };
   },
   haste(o: { name?: string; mult?: number; dur?: number; radius?: number; cd?: number } = {}): AbilityDef {
-    return { id: 'sk_haste', name: o.name ?? 'Turbo', desc: `+${Math.round(((o.mult ?? 1.4) - 1) * 100)}% de velocidade por ${o.dur ?? 3}s.`, icon: '⚡', cooldown: o.cd ?? 9, aim: 'self', range: o.radius ?? 0, indicator: 'none', pose: 'cast', sfx: 'buff', effects: [{ kind: 'buff', stat: 'speed', mult: o.mult ?? 1.4, duration: o.dur ?? 3, radius: o.radius }] };
+    return {
+      id: 'sk_haste',
+      name: o.name ?? 'Turbo',
+      desc: `+${Math.round(((o.mult ?? 1.4) - 1) * 100)}% de velocidade por ${o.dur ?? 3}s.`,
+      icon: '⚡',
+      cooldown: o.cd ?? 9,
+      aim: 'self',
+      range: o.radius ?? 0,
+      indicator: 'none',
+      pose: 'cast',
+      sfx: 'buff',
+      effects: [{ kind: 'buff', stat: 'speed', mult: o.mult ?? 1.4, duration: o.dur ?? 3, radius: o.radius }],
+    };
   },
   rage(o: { name?: string; mult?: number; dur?: number; radius?: number; cd?: number } = {}): AbilityDef {
-    return { id: 'sk_rage', name: o.name ?? 'Fúria', desc: `+${Math.round(((o.mult ?? 1.3) - 1) * 100)}% de dano por ${o.dur ?? 4}s.`, icon: '😤', cooldown: o.cd ?? 11, aim: 'self', range: o.radius ?? 0, indicator: 'none', pose: 'cast', sfx: 'buff', effects: [{ kind: 'buff', stat: 'damage', mult: o.mult ?? 1.3, duration: o.dur ?? 4, radius: o.radius }] };
+    return {
+      id: 'sk_rage',
+      name: o.name ?? 'Fúria',
+      desc: `+${Math.round(((o.mult ?? 1.3) - 1) * 100)}% de dano por ${o.dur ?? 4}s.`,
+      icon: '😤',
+      cooldown: o.cd ?? 11,
+      aim: 'self',
+      range: o.radius ?? 0,
+      indicator: 'none',
+      pose: 'cast',
+      sfx: 'buff',
+      effects: [{ kind: 'buff', stat: 'damage', mult: o.mult ?? 1.3, duration: o.dur ?? 4, radius: o.radius }],
+    };
   },
   armor(o: { name?: string; mult?: number; dur?: number; cd?: number } = {}): AbilityDef {
-    return { id: 'sk_armor', name: o.name ?? 'Casca Dura', desc: `Reduz ${Math.round(((o.mult ?? 1.4) - 1) * 100)}% do dano recebido por ${o.dur ?? 3}s.`, icon: '🪨', cooldown: o.cd ?? 11, aim: 'self', range: 0, indicator: 'none', pose: 'cast', sfx: 'shield', effects: [{ kind: 'buff', stat: 'armor', mult: o.mult ?? 1.4, duration: o.dur ?? 3 }] };
+    return {
+      id: 'sk_armor',
+      name: o.name ?? 'Casca Dura',
+      desc: `Reduz ${Math.round(((o.mult ?? 1.4) - 1) * 100)}% do dano recebido por ${o.dur ?? 3}s.`,
+      icon: '🪨',
+      cooldown: o.cd ?? 11,
+      aim: 'self',
+      range: 0,
+      indicator: 'none',
+      pose: 'cast',
+      sfx: 'shield',
+      effects: [{ kind: 'buff', stat: 'armor', mult: o.mult ?? 1.4, duration: o.dur ?? 3 }],
+    };
   },
   grenade(o: { name?: string; dmg: number; radius?: number; range?: number; cd?: number; color?: string; status?: StatusApply; shape?: ProjLook['shape'] }): AbilityDef {
     return {
@@ -307,7 +492,20 @@ export const skill = {
       indicatorSize: o.radius ?? 110,
       pose: 'throw',
       sfx: 'throw',
-      effects: [{ kind: 'projectile', proj: proj({ damage: o.dmg, speed: 850, range: o.range ?? 480, radius: 14, lob: true, explode: { radius: o.radius ?? 110, damage: o.dmg, knockback: 280, status: o.status }, look: look(o.shape ?? 'skull', o.color ?? '#ff6a3d', { spin: true, trail: 'smoke', size: 1.3 }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          proj: proj({
+            damage: o.dmg,
+            speed: 850,
+            range: o.range ?? 480,
+            radius: 14,
+            lob: true,
+            explode: { radius: o.radius ?? 110, damage: o.dmg, knockback: 280, status: o.status },
+            look: look(o.shape ?? 'skull', o.color ?? '#ff6a3d', { spin: true, trail: 'smoke', size: 1.3 }),
+          }),
+        },
+      ],
     };
   },
   nova(o: { name?: string; dmg: number; radius?: number; status?: StatusApply; knock?: number; cd?: number; color?: string; pull?: number }): AbilityDef {
@@ -326,7 +524,19 @@ export const skill = {
       effects: [{ kind: 'aoe', at: 'self', radius: o.radius ?? 160, damage: o.dmg, status: o.status, knockback: o.knock ?? (o.pull ? 0 : 340), pull: o.pull, fx: o.color, wallDamage: 1 }],
     };
   },
-  zone(o: { name?: string; radius?: number; dur?: number; dps?: number; hps?: number; status?: StatusApply; kind: ZoneEffect['look']['kind']; color: string; range?: number; cd?: number; atSelf?: boolean }): AbilityDef {
+  zone(o: {
+    name?: string;
+    radius?: number;
+    dur?: number;
+    dps?: number;
+    hps?: number;
+    status?: StatusApply;
+    kind: ZoneEffect['look']['kind'];
+    color: string;
+    range?: number;
+    cd?: number;
+    atSelf?: boolean;
+  }): AbilityDef {
     const atSelf = !!o.atSelf;
     return {
       id: 'sk_zone',
@@ -351,10 +561,27 @@ export const skill = {
       duration: o.dur ?? 9,
       speed: 0,
       radius: 22,
-      attack: { projectile: proj({ damage: o.dmg, speed: 1300, range: o.range ?? 520, radius: 9, look: look('bullet', o.color ?? '#7df9ff', { trail: 'glow' }) }), interval: o.interval ?? 0.7, range: o.range ?? 520 },
+      attack: {
+        projectile: proj({ damage: o.dmg, speed: 1300, range: o.range ?? 520, radius: 9, look: look('bullet', o.color ?? '#7df9ff', { trail: 'glow' }) }),
+        interval: o.interval ?? 0.7,
+        range: o.range ?? 520,
+      },
       look: { kind: o.kind ?? 'turret', color: o.color ?? '#7df9ff' },
     };
-    return { id: 'sk_turret', name: o.name ?? 'Torreta', desc: `Coloca uma torreta que atira sozinha por ${unit.duration}s.`, icon: '🗼', cooldown: o.cd ?? 12, aim: 'point', range: 220, indicator: 'circle', indicatorSize: 40, pose: 'throw', sfx: 'deploy', effects: [{ kind: 'summon', at: 'target', unit }] };
+    return {
+      id: 'sk_turret',
+      name: o.name ?? 'Torreta',
+      desc: `Coloca uma torreta que atira sozinha por ${unit.duration}s.`,
+      icon: '🗼',
+      cooldown: o.cd ?? 12,
+      aim: 'point',
+      range: 220,
+      indicator: 'circle',
+      indicatorSize: 40,
+      pose: 'throw',
+      sfx: 'deploy',
+      effects: [{ kind: 'summon', at: 'target', unit }],
+    };
   },
   minions(o: { name?: string; n?: number; hp?: number; dmg: number; dur?: number; cd?: number; color?: string; kind?: SummonDef['look']['kind'] }): AbilityDef {
     const unit: SummonDef = {
@@ -367,17 +594,77 @@ export const skill = {
       attack: { projectile: proj({ damage: o.dmg, speed: 900, range: 140, radius: 14, look: look('bone', o.color ?? '#efe6d2') }), interval: 0.6, range: 140 },
       look: { kind: o.kind ?? 'skeleton', color: o.color ?? '#efe6d2' },
     };
-    return { id: 'sk_minions', name: o.name ?? 'Capangas', desc: `Invoca ${o.n ?? 2} capangas que perseguem inimigos.`, icon: '💀', cooldown: o.cd ?? 13, aim: 'self', range: 0, indicator: 'none', pose: 'cast', sfx: 'summon', effects: [{ kind: 'summon', at: 'self', unit, count: o.n ?? 2 }] };
+    return {
+      id: 'sk_minions',
+      name: o.name ?? 'Capangas',
+      desc: `Invoca ${o.n ?? 2} capangas que perseguem inimigos.`,
+      icon: '💀',
+      cooldown: o.cd ?? 13,
+      aim: 'self',
+      range: 0,
+      indicator: 'none',
+      pose: 'cast',
+      sfx: 'summon',
+      effects: [{ kind: 'summon', at: 'self', unit, count: o.n ?? 2 }],
+    };
   },
   healTotem(o: { name?: string; hps: number; radius?: number; dur?: number; cd?: number; color?: string }): AbilityDef {
-    const unit: SummonDef = { id: 'totem', name: o.name ?? 'Totem', hp: 1400, duration: o.dur ?? 8, speed: 0, radius: 20, healAura: { radius: o.radius ?? 200, hps: o.hps }, look: { kind: 'speaker', color: o.color ?? '#5dffa0' } };
-    return { id: 'sk_totem', name: o.name ?? 'Totem de Cura', desc: `Coloca um totem que cura ${o.hps}/s em volta.`, icon: '📻', cooldown: o.cd ?? 14, aim: 'point', range: 200, indicator: 'circle', indicatorSize: o.radius ?? 200, pose: 'throw', sfx: 'deploy', effects: [{ kind: 'summon', at: 'target', unit }] };
+    const unit: SummonDef = {
+      id: 'totem',
+      name: o.name ?? 'Totem',
+      hp: 1400,
+      duration: o.dur ?? 8,
+      speed: 0,
+      radius: 20,
+      healAura: { radius: o.radius ?? 200, hps: o.hps },
+      look: { kind: 'speaker', color: o.color ?? '#5dffa0' },
+    };
+    return {
+      id: 'sk_totem',
+      name: o.name ?? 'Totem de Cura',
+      desc: `Coloca um totem que cura ${o.hps}/s em volta.`,
+      icon: '📻',
+      cooldown: o.cd ?? 14,
+      aim: 'point',
+      range: 200,
+      indicator: 'circle',
+      indicatorSize: o.radius ?? 200,
+      pose: 'throw',
+      sfx: 'deploy',
+      effects: [{ kind: 'summon', at: 'target', unit }],
+    };
   },
   wall(o: { name?: string; len?: number; hp?: number; dur?: number; cd?: number } = {}): AbilityDef {
-    return { id: 'sk_wall', name: o.name ?? 'Barricada', desc: `Levanta uma parede temporária por ${o.dur ?? 6}s.`, icon: '🧱', cooldown: o.cd ?? 12, aim: 'point', range: 300, indicator: 'line', indicatorSize: o.len ?? 192, pose: 'slam', sfx: 'wall', effects: [{ kind: 'wall', at: 'target', length: o.len ?? 192, hp: o.hp ?? 2000, duration: o.dur ?? 6 }] };
+    return {
+      id: 'sk_wall',
+      name: o.name ?? 'Barricada',
+      desc: `Levanta uma parede temporária por ${o.dur ?? 6}s.`,
+      icon: '🧱',
+      cooldown: o.cd ?? 12,
+      aim: 'point',
+      range: 300,
+      indicator: 'line',
+      indicatorSize: o.len ?? 192,
+      pose: 'slam',
+      sfx: 'wall',
+      effects: [{ kind: 'wall', at: 'target', length: o.len ?? 192, hp: o.hp ?? 2000, duration: o.dur ?? 6 }],
+    };
   },
   trap(o: { name?: string; dmg: number; n?: number; status?: StatusApply; cd?: number; dur?: number }): AbilityDef {
-    return { id: 'sk_trap', name: o.name ?? 'Armadilha', desc: `Esconde ${o.n ?? 1} armadilha(s) no chão${o.status ? ' que prendem o inimigo' : ''}.`, icon: '🪤', cooldown: o.cd ?? 9, aim: 'point', range: 320, indicator: 'circle', indicatorSize: 40, pose: 'throw', sfx: 'deploy', effects: [{ kind: 'trap', at: 'target', radius: 34, damage: o.dmg, status: o.status, duration: o.dur ?? 14, count: o.n ?? 1 }] };
+    return {
+      id: 'sk_trap',
+      name: o.name ?? 'Armadilha',
+      desc: `Esconde ${o.n ?? 1} armadilha(s) no chão${o.status ? ' que prendem o inimigo' : ''}.`,
+      icon: '🪤',
+      cooldown: o.cd ?? 9,
+      aim: 'point',
+      range: 320,
+      indicator: 'circle',
+      indicatorSize: 40,
+      pose: 'throw',
+      sfx: 'deploy',
+      effects: [{ kind: 'trap', at: 'target', radius: 34, damage: o.dmg, status: o.status, duration: o.dur ?? 14, count: o.n ?? 1 }],
+    };
   },
   hook(o: { name?: string; dmg: number; range?: number; cd?: number; color?: string }): AbilityDef {
     return {
@@ -392,14 +679,55 @@ export const skill = {
       indicatorSize: 20,
       pose: 'throw',
       sfx: 'chain',
-      effects: [{ kind: 'projectile', proj: proj({ damage: o.dmg, speed: 1500, range: o.range ?? 520, radius: 14, pull: 900, status: { kind: 'slow', duration: 1, power: 0.4 }, look: look('blade', o.color ?? '#c9ccd6', { trail: 'spark' }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          proj: proj({
+            damage: o.dmg,
+            speed: 1500,
+            range: o.range ?? 520,
+            radius: 14,
+            pull: 900,
+            status: { kind: 'slow', duration: 1, power: 0.4 },
+            look: look('blade', o.color ?? '#c9ccd6', { trail: 'spark' }),
+          }),
+        },
+      ],
     };
   },
   stealth(o: { name?: string; dur?: number; cd?: number } = {}): AbilityDef {
-    return { id: 'sk_stealth', name: o.name ?? 'Sumir', desc: `Fica invisível por ${o.dur ?? 3}s (inimigo colado ainda te vê).`, icon: '👻', cooldown: o.cd ?? 12, aim: 'self', range: 0, indicator: 'none', pose: 'cast', sfx: 'stealth', effects: [{ kind: 'stealth', duration: o.dur ?? 3 }, { kind: 'buff', stat: 'speed', mult: 1.2, duration: o.dur ?? 3 }] };
+    return {
+      id: 'sk_stealth',
+      name: o.name ?? 'Sumir',
+      desc: `Fica invisível por ${o.dur ?? 3}s (inimigo colado ainda te vê).`,
+      icon: '👻',
+      cooldown: o.cd ?? 12,
+      aim: 'self',
+      range: 0,
+      indicator: 'none',
+      pose: 'cast',
+      sfx: 'stealth',
+      effects: [
+        { kind: 'stealth', duration: o.dur ?? 3 },
+        { kind: 'buff', stat: 'speed', mult: 1.2, duration: o.dur ?? 3 },
+      ],
+    };
   },
   clone(o: { name?: string; hp?: number; dur?: number; cd?: number } = {}): AbilityDef {
-    return { id: 'sk_clone', name: o.name ?? 'Clone', desc: 'Solta um clone que corre na direção mirada enquanto você some.', icon: '🪞', cooldown: o.cd ?? 12, aim: 'direction', range: 400, indicator: 'line', indicatorSize: 30, pose: 'cast', sfx: 'stealth', effects: [{ kind: 'clone', duration: o.dur ?? 4, hp: o.hp ?? 1200 }] };
+    return {
+      id: 'sk_clone',
+      name: o.name ?? 'Clone',
+      desc: 'Solta um clone que corre na direção mirada enquanto você some.',
+      icon: '🪞',
+      cooldown: o.cd ?? 12,
+      aim: 'direction',
+      range: 400,
+      indicator: 'line',
+      indicatorSize: 30,
+      pose: 'cast',
+      sfx: 'stealth',
+      effects: [{ kind: 'clone', duration: o.dur ?? 4, hp: o.hp ?? 1200 }],
+    };
   },
   barrage(o: { name?: string; dmg: number; n?: number; range?: number; cd?: number; color?: string; shape?: ProjLook['shape'] }): AbilityDef {
     return {
@@ -414,11 +742,32 @@ export const skill = {
       indicatorSize: 18,
       pose: 'shoot',
       sfx: 'barrage',
-      effects: [{ kind: 'projectile', burst: o.n ?? 8, burstDelay: 0.06, spread: 16, proj: proj({ damage: o.dmg, speed: 1300, range: o.range ?? 560, radius: 11, look: look(o.shape ?? 'bullet', o.color ?? '#ffd23f', { trail: 'smoke' }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          burst: o.n ?? 8,
+          burstDelay: 0.06,
+          spread: 16,
+          proj: proj({ damage: o.dmg, speed: 1300, range: o.range ?? 560, radius: 11, look: look(o.shape ?? 'bullet', o.color ?? '#ffd23f', { trail: 'smoke' }) }),
+        },
+      ],
     };
   },
   laser(o: { name?: string; dps: number; len?: number; dur?: number; cd?: number; color?: string; status?: StatusApply }): AbilityDef {
-    return { id: 'sk_laser', name: o.name ?? 'Laser', desc: `Feixe contínuo por ${o.dur ?? 1.5}s que segue sua mira.`, icon: '🔦', cooldown: o.cd ?? 11, aim: 'direction', range: o.len ?? 600, indicator: 'line', indicatorSize: 28, pose: 'cast', sfx: 'laser', effects: [{ kind: 'beam', length: o.len ?? 600, width: 34, duration: o.dur ?? 1.5, dps: o.dps, color: o.color ?? '#ff3df2', status: o.status }] };
+    return {
+      id: 'sk_laser',
+      name: o.name ?? 'Laser',
+      desc: `Feixe contínuo por ${o.dur ?? 1.5}s que segue sua mira.`,
+      icon: '🔦',
+      cooldown: o.cd ?? 11,
+      aim: 'direction',
+      range: o.len ?? 600,
+      indicator: 'line',
+      indicatorSize: 28,
+      pose: 'cast',
+      sfx: 'laser',
+      effects: [{ kind: 'beam', length: o.len ?? 600, width: 34, duration: o.dur ?? 1.5, dps: o.dps, color: o.color ?? '#ff3df2', status: o.status }],
+    };
   },
   blades(o: { name?: string; dmg: number; n?: number; radius?: number; dur?: number; cd?: number; color?: string; shape?: ProjLook['shape'] }): AbilityDef {
     return {
@@ -433,22 +782,83 @@ export const skill = {
       indicatorSize: o.radius ?? 90,
       pose: 'cast',
       sfx: 'whoosh',
-      effects: [{ kind: 'orbit', count: o.n ?? 3, radius: o.radius ?? 90, duration: o.dur ?? 4, proj: proj({ damage: o.dmg, speed: 0, range: 1e9, radius: 16, look: look(o.shape ?? 'blade', o.color ?? '#d9e2f2', { spin: true, trail: 'glow' }) }) }],
+      effects: [
+        {
+          kind: 'orbit',
+          count: o.n ?? 3,
+          radius: o.radius ?? 90,
+          duration: o.dur ?? 4,
+          proj: proj({ damage: o.dmg, speed: 0, range: 1e9, radius: 16, look: look(o.shape ?? 'blade', o.color ?? '#d9e2f2', { spin: true, trail: 'glow' }) }),
+        },
+      ],
     };
   },
   rewind(o: { name?: string; secs?: number; heal?: number; cd?: number } = {}): AbilityDef {
-    return { id: 'sk_rewind', name: o.name ?? 'Voltar no Tempo', desc: `Volta pra onde estava ${o.secs ?? 3}s atrás, com a vida daquela hora.`, icon: '⏪', cooldown: o.cd ?? 16, aim: 'self', range: 0, indicator: 'none', pose: 'cast', sfx: 'rewind', effects: [{ kind: 'rewind', seconds: o.secs ?? 3, heal: o.heal }] };
+    return {
+      id: 'sk_rewind',
+      name: o.name ?? 'Voltar no Tempo',
+      desc: `Volta pra onde estava ${o.secs ?? 3}s atrás, com a vida daquela hora.`,
+      icon: '⏪',
+      cooldown: o.cd ?? 16,
+      aim: 'self',
+      range: 0,
+      indicator: 'none',
+      pose: 'cast',
+      sfx: 'rewind',
+      effects: [{ kind: 'rewind', seconds: o.secs ?? 3, heal: o.heal }],
+    };
   },
   cleanse(o: { name?: string; radius?: number; cd?: number; heal?: number } = {}): AbilityDef {
     const effects: AbilityDef['effects'] = [{ kind: 'cleanse', radius: o.radius ?? 220 }];
     if (o.heal) effects.push({ kind: 'heal', amount: o.heal, radius: o.radius ?? 220 });
-    return { id: 'sk_cleanse', name: o.name ?? 'Purificar', desc: 'Remove lentidão, veneno e atordoamento de você e aliados perto.', icon: '✨', cooldown: o.cd ?? 12, aim: 'self', range: o.radius ?? 220, indicator: 'circle', indicatorSize: o.radius ?? 220, pose: 'cast', sfx: 'heal', effects };
+    return {
+      id: 'sk_cleanse',
+      name: o.name ?? 'Purificar',
+      desc: 'Remove lentidão, veneno e atordoamento de você e aliados perto.',
+      icon: '✨',
+      cooldown: o.cd ?? 12,
+      aim: 'self',
+      range: o.radius ?? 220,
+      indicator: 'circle',
+      indicatorSize: o.radius ?? 220,
+      pose: 'cast',
+      sfx: 'heal',
+      effects,
+    };
   },
   reload(o: { name?: string; cd?: number } = {}): AbilityDef {
-    return { id: 'sk_reload', name: o.name ?? 'Recarga Rápida', desc: 'Recarrega toda a munição na hora e acelera a recarga.', icon: '🔄', cooldown: o.cd ?? 10, aim: 'self', range: 0, indicator: 'none', pose: 'cast', sfx: 'reload', effects: [{ kind: 'ammo', amount: 9 }, { kind: 'buff', stat: 'reload', mult: 1.8, duration: 3 }] };
+    return {
+      id: 'sk_reload',
+      name: o.name ?? 'Recarga Rápida',
+      desc: 'Recarrega toda a munição na hora e acelera a recarga.',
+      icon: '🔄',
+      cooldown: o.cd ?? 10,
+      aim: 'self',
+      range: 0,
+      indicator: 'none',
+      pose: 'cast',
+      sfx: 'reload',
+      effects: [
+        { kind: 'ammo', amount: 9 },
+        { kind: 'buff', stat: 'reload', mult: 1.8, duration: 3 },
+      ],
+    };
   },
   freeze(o: { name?: string; dmg: number; radius?: number; dur?: number; cd?: number }): AbilityDef {
-    return { id: 'sk_freeze', name: o.name ?? 'Congelar', desc: 'Explosão de gelo que congela quem estiver perto.', icon: '❄️', cooldown: o.cd ?? 12, aim: 'self', range: o.radius ?? 150, indicator: 'circle', indicatorSize: o.radius ?? 150, pose: 'slam', sfx: 'freeze', effects: [{ kind: 'aoe', at: 'self', radius: o.radius ?? 150, damage: o.dmg, status: { kind: 'freeze', duration: o.dur ?? 1.2 }, fx: '#9ef0ff' }] };
+    return {
+      id: 'sk_freeze',
+      name: o.name ?? 'Congelar',
+      desc: 'Explosão de gelo que congela quem estiver perto.',
+      icon: '❄️',
+      cooldown: o.cd ?? 12,
+      aim: 'self',
+      range: o.radius ?? 150,
+      indicator: 'circle',
+      indicatorSize: o.radius ?? 150,
+      pose: 'slam',
+      sfx: 'freeze',
+      effects: [{ kind: 'aoe', at: 'self', radius: o.radius ?? 150, damage: o.dmg, status: { kind: 'freeze', duration: o.dur ?? 1.2 }, fx: '#9ef0ff' }],
+    };
   },
 };
 
@@ -460,8 +870,21 @@ export const sup = {
   rain(o: { name: string; dmg: number; radius?: number; range?: number; color?: string; shape?: ProjLook['shape']; n?: number }): AbilityDef {
     const n = o.n ?? 6;
     const effects: AbilityDef['effects'] = [];
-    for (let i = 0; i < n; i++) effects.push({ kind: 'aoe', at: 'target', radius: o.radius ?? 150, damage: o.dmg / n, knockback: 60, delay: 0.25 + i * 0.12, fx: o.color ?? '#ffd23f', wallDamage: 0.8 });
-    return { id: 'sp_rain', name: o.name, desc: `Chuva de ataques numa área grande (${o.dmg} de dano total).`, icon: '🌧️', aim: 'point', range: o.range ?? 620, indicator: 'circle', indicatorSize: o.radius ?? 150, pose: 'cast', sfx: 'super_rain', effects };
+    for (let i = 0; i < n; i++)
+      effects.push({ kind: 'aoe', at: 'target', radius: o.radius ?? 150, damage: o.dmg / n, knockback: 60, delay: 0.25 + i * 0.12, fx: o.color ?? '#ffd23f', wallDamage: 0.8 });
+    return {
+      id: 'sp_rain',
+      name: o.name,
+      desc: `Chuva de ataques numa área grande (${o.dmg} de dano total).`,
+      icon: '🌧️',
+      aim: 'point',
+      range: o.range ?? 620,
+      indicator: 'circle',
+      indicatorSize: o.radius ?? 150,
+      pose: 'cast',
+      sfx: 'super_rain',
+      effects,
+    };
   },
   bigShot(o: { name: string; dmg: number; range?: number; color?: string; shape?: ProjLook['shape']; radius?: number; pierce?: boolean; explode?: number }): AbilityDef {
     return {
@@ -475,7 +898,22 @@ export const sup = {
       indicatorSize: (o.radius ?? 30) * 2,
       pose: 'shoot',
       sfx: 'super_shot',
-      effects: [{ kind: 'projectile', proj: proj({ damage: o.dmg, speed: 1250, range: o.range ?? 760, radius: o.radius ?? 30, pierce: o.pierce ?? true, knockback: 300, wallDamage: 3, explode: o.explode ? { radius: o.explode, damage: o.dmg * 0.6, knockback: 400 } : undefined, look: look(o.shape ?? 'skull', o.color ?? '#ff3d6e', { size: 2.2, trail: 'fire' }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          proj: proj({
+            damage: o.dmg,
+            speed: 1250,
+            range: o.range ?? 760,
+            radius: o.radius ?? 30,
+            pierce: o.pierce ?? true,
+            knockback: 300,
+            wallDamage: 3,
+            explode: o.explode ? { radius: o.explode, damage: o.dmg * 0.6, knockback: 400 } : undefined,
+            look: look(o.shape ?? 'skull', o.color ?? '#ff3d6e', { size: 2.2, trail: 'fire' }),
+          }),
+        },
+      ],
     };
   },
   quake(o: { name: string; dmg: number; radius?: number; status?: StatusApply; color?: string }): AbilityDef {
@@ -492,7 +930,17 @@ export const sup = {
       sfx: 'super_slam',
       effects: [
         { kind: 'leap', duration: 0.45 },
-        { kind: 'aoe', at: 'target', radius: o.radius ?? 200, damage: o.dmg, knockback: 520, status: o.status ?? { kind: 'stun', duration: 0.9 }, fx: o.color ?? '#ffb347', delay: 0.46, wallDamage: 2.5 },
+        {
+          kind: 'aoe',
+          at: 'target',
+          radius: o.radius ?? 200,
+          damage: o.dmg,
+          knockback: 520,
+          status: o.status ?? { kind: 'stun', duration: 0.9 },
+          fx: o.color ?? '#ffb347',
+          delay: 0.46,
+          wallDamage: 2.5,
+        },
       ],
     };
   },
@@ -514,10 +962,34 @@ export const sup = {
   healField(o: { name: string; hps: number; radius?: number; dur?: number; dmg?: number }): AbilityDef {
     const effects: AbilityDef['effects'] = [{ kind: 'zone', at: 'target', radius: o.radius ?? 220, duration: o.dur ?? 5, hps: o.hps, look: { color: '#5dffa0', kind: 'music' } }];
     if (o.dmg) effects.push({ kind: 'aoe', at: 'target', radius: o.radius ?? 220, damage: o.dmg, knockback: 420, fx: '#5dffa0' });
-    return { id: 'sp_heal', name: o.name, desc: `Área enorme de cura (${o.hps}/s)${o.dmg ? ' que empurra os inimigos pra longe' : ''}.`, icon: '💖', aim: 'point', range: 420, indicator: 'circle', indicatorSize: o.radius ?? 220, pose: 'play', sfx: 'super_heal', effects };
+    return {
+      id: 'sp_heal',
+      name: o.name,
+      desc: `Área enorme de cura (${o.hps}/s)${o.dmg ? ' que empurra os inimigos pra longe' : ''}.`,
+      icon: '💖',
+      aim: 'point',
+      range: 420,
+      indicator: 'circle',
+      indicatorSize: o.radius ?? 220,
+      pose: 'play',
+      sfx: 'super_heal',
+      effects,
+    };
   },
   storm(o: { name: string; dps: number; radius?: number; dur?: number; status?: StatusApply; kind: ZoneEffect['look']['kind']; color: string }): AbilityDef {
-    return { id: 'sp_storm', name: o.name, desc: `Tempestade gigante por ${o.dur ?? 5}s que causa ${o.dps}/s.`, icon: '🌪️', aim: 'point', range: 560, indicator: 'circle', indicatorSize: o.radius ?? 230, pose: 'cast', sfx: 'super_storm', effects: [{ kind: 'zone', at: 'target', radius: o.radius ?? 230, duration: o.dur ?? 5, dps: o.dps, status: o.status, look: { color: o.color, kind: o.kind } }] };
+    return {
+      id: 'sp_storm',
+      name: o.name,
+      desc: `Tempestade gigante por ${o.dur ?? 5}s que causa ${o.dps}/s.`,
+      icon: '🌪️',
+      aim: 'point',
+      range: 560,
+      indicator: 'circle',
+      indicatorSize: o.radius ?? 230,
+      pose: 'cast',
+      sfx: 'super_storm',
+      effects: [{ kind: 'zone', at: 'target', radius: o.radius ?? 230, duration: o.dur ?? 5, dps: o.dps, status: o.status, look: { color: o.color, kind: o.kind } }],
+    };
   },
   army(o: { name: string; n?: number; dmg: number; hp?: number; color?: string; kind?: SummonDef['look']['kind'] }): AbilityDef {
     const s = skill.minions({ name: 'Exército', n: o.n ?? 4, dmg: o.dmg, hp: o.hp ?? 1300, dur: 14, color: o.color, kind: o.kind });
@@ -576,7 +1048,20 @@ export const sup = {
       indicatorSize: o.radius ?? 190,
       pose: 'throw',
       sfx: 'super_nuke',
-      effects: [{ kind: 'projectile', proj: proj({ damage: o.dmg, speed: 780, range: o.range ?? 620, radius: 22, lob: true, explode: { radius: o.radius ?? 190, damage: o.dmg, knockback: 520, zone: { radius: (o.radius ?? 190) * 0.8, duration: 3, dps: 380, look: { color: '#ff6a2a', kind: 'fire' } } }, look: look('skull', o.color ?? '#ff3d3d', { size: 2.4, spin: true, trail: 'fire' }) }) }],
+      effects: [
+        {
+          kind: 'projectile',
+          proj: proj({
+            damage: o.dmg,
+            speed: 780,
+            range: o.range ?? 620,
+            radius: 22,
+            lob: true,
+            explode: { radius: o.radius ?? 190, damage: o.dmg, knockback: 520, zone: { radius: (o.radius ?? 190) * 0.8, duration: 3, dps: 380, look: { color: '#ff6a2a', kind: 'fire' } } },
+            look: look('skull', o.color ?? '#ff3d3d', { size: 2.4, spin: true, trail: 'fire' }),
+          }),
+        },
+      ],
     };
   },
   frenzy(o: { name: string; dur?: number }): AbilityDef {

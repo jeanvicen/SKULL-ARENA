@@ -12,13 +12,7 @@ const cache = new Map<string, number[]>();
 export function ramp(base: string): number[] {
   let r = cache.get(base);
   if (!r) {
-    r = [
-      rgba(mix(mix(base, '#120a26', 0.55), '#000000', 0.15)),
-      rgba(mix(base, '#1d1245', 0.32)),
-      rgba(base),
-      rgba(mix(base, '#fff3d6', 0.22)),
-      rgba(mix(base, '#ffffff', 0.5)),
-    ];
+    r = [rgba(mix(mix(base, '#120a26', 0.55), '#000000', 0.15)), rgba(mix(base, '#1d1245', 0.32)), rgba(base), rgba(mix(base, '#fff3d6', 0.22)), rgba(mix(base, '#ffffff', 0.5))];
     cache.set(base, r);
   }
   return r;

@@ -1,10 +1,12 @@
 import { alpha, lighten } from '../art/color';
-import { makeCanvas } from '../art/sprite';
+import { newCanvas } from '../pixel/buffer';
+import { pixEllipse, pixRing } from './pix';
 
 /**
- * PARTÍCULAS (pool fixo, sem lixo de memória)
+ * PARTÍCULAS EM PIXEL ART (pool fixo, sem lixo de memória)
+ * Guardam posição em px de MUNDO; desenham em pixels de arte (quadradinhos nítidos).
  * Tipos: faísca, fumaça, destroço (com gravidade e quique), anel, brilho, texto
- * flutuante (dano), estilhaço, moeda, confete, osso.
+ * flutuante (dano), estilhaço, moeda, confete, osso, poeira, estrela.
  */
 
 export type PKind = 'spark' | 'smoke' | 'debris' | 'ring' | 'glow' | 'text' | 'shard' | 'coin' | 'confetti' | 'bone' | 'dust' | 'star';
@@ -37,8 +39,8 @@ type Canvas = HTMLCanvasElement | OffscreenCanvas;
 export class Particles {
   readonly list: Particle[] = [];
   private glowCache = new Map<string, Canvas>();
+  private cursor = 0;
   count = 0;
-  /** qualidade (0.5 em aparelho fraco) */
   quality = 1;
 
   constructor() {
@@ -50,33 +52,30 @@ export class Particles {
     if (this.quality < 1 && p.kind !== 'text' && Math.random() > this.quality) return null;
     for (let i = 0; i < MAX; i++) {
       const q = this.list[(this.cursor + i) % MAX]!;
-      if (!q.alive) {
-        this.cursor = (this.cursor + i + 1) % MAX;
-        q.kind = p.kind;
-        q.x = p.x;
-        q.y = p.y;
-        q.z = p.z ?? 0;
-        q.vx = p.vx ?? 0;
-        q.vy = p.vy ?? 0;
-        q.vz = p.vz ?? 0;
-        q.life = q.max = p.max ?? p.life ?? 0.6;
-        q.size = p.size ?? 4;
-        q.grow = p.grow ?? 0;
-        q.color = p.color ?? '#ffffff';
-        q.rot = p.rot ?? Math.random() * Math.PI * 2;
-        q.vr = p.vr ?? 0;
-        q.grav = p.grav ?? 0;
-        q.drag = p.drag ?? 0;
-        q.text = p.text ?? '';
-        q.big = p.big ?? false;
-        q.alive = true;
-        return q;
-      }
+      if (q.alive) continue;
+      this.cursor = (this.cursor + i + 1) % MAX;
+      q.kind = p.kind;
+      q.x = p.x;
+      q.y = p.y;
+      q.z = p.z ?? 0;
+      q.vx = p.vx ?? 0;
+      q.vy = p.vy ?? 0;
+      q.vz = p.vz ?? 0;
+      q.life = q.max = p.max ?? p.life ?? 0.6;
+      q.size = p.size ?? 4;
+      q.grow = p.grow ?? 0;
+      q.color = p.color ?? '#ffffff';
+      q.rot = p.rot ?? Math.random() * Math.PI * 2;
+      q.vr = p.vr ?? 0;
+      q.grav = p.grav ?? 0;
+      q.drag = p.drag ?? 0;
+      q.text = p.text ?? '';
+      q.big = p.big ?? false;
+      q.alive = true;
+      return q;
     }
     return null;
   }
-
-  private cursor = 0;
 
   burst(x: number, y: number, n: number, color: string, speed = 260, kind: PKind = 'spark', o: Partial<Particle> = {}): void {
     for (let i = 0; i < n; i++) {
@@ -126,69 +125,74 @@ export class Particles {
     this.count = c;
   }
 
-  glow(color: string): Canvas {
-    let g = this.glowCache.get(color);
+  /** brilho "pixelado" (gradiente desenhado em baixa resolução) */
+  glow(color: string, r = 12): Canvas {
+    const key = `${color}|${r}`;
+    let g = this.glowCache.get(key);
     if (!g) {
-      g = makeCanvas(64, 64);
+      g = newCanvas(r * 2, r * 2);
       const x = g.getContext('2d') as CanvasRenderingContext2D;
-      const grd = x.createRadialGradient(32, 32, 0, 32, 32, 32);
-      grd.addColorStop(0, alpha(lighten(color, 0.4), 0.95));
-      grd.addColorStop(0.35, alpha(color, 0.55));
-      grd.addColorStop(1, alpha(color, 0));
-      x.fillStyle = grd;
-      x.fillRect(0, 0, 64, 64);
-      this.glowCache.set(color, g);
+      for (let i = r; i > 0; i -= 1) {
+        const t = i / r;
+        x.globalAlpha = 0.16 * (1 - t) + 0.02;
+        pixEllipse(x, r, r, i, i, i < r * 0.35 ? lighten(color, 0.5) : color);
+      }
+      this.glowCache.set(key, g);
     }
     return g;
   }
 
-  /** Desenha as partículas no espaço do mundo (ctx já com transformação de câmera). */
-  draw(ctx: CanvasRenderingContext2D, layer: 'ground' | 'air'): void {
+  /**
+   * Desenha no buffer de pixels. `ox, oy` = deslocamento (px de arte) e o mundo é
+   * dividido por 2 (1 pixel de arte = 2 px de mundo).
+   */
+  draw(g: CanvasRenderingContext2D, ox: number, oy: number, layer: 'ground' | 'air'): void {
     for (const p of this.list) {
-      if (!p.alive) continue;
+      if (!p.alive || p.kind === 'text') continue;
       const ground = p.kind === 'dust' || p.kind === 'ring' || (p.kind === 'smoke' && p.z <= 0 && !p.big);
       if ((layer === 'ground') !== ground) continue;
       const t = p.life / p.max;
-      const y = p.y - p.z;
+      const x = Math.round(p.x / 2 + ox);
+      const y = Math.round((p.y - p.z) / 2 + oy);
+      const s = Math.max(1, Math.round(p.size / 2));
       switch (p.kind) {
         case 'spark':
         case 'star': {
-          ctx.globalCompositeOperation = 'lighter';
-          ctx.strokeStyle = p.color;
-          ctx.globalAlpha = Math.min(1, t * 1.6);
-          ctx.lineWidth = p.size * 0.8;
-          ctx.lineCap = 'round';
-          ctx.beginPath();
-          ctx.moveTo(p.x, y);
-          ctx.lineTo(p.x - p.vx * 0.03, y - p.vy * 0.03);
-          ctx.stroke();
-          ctx.globalCompositeOperation = 'source-over';
+          g.fillStyle = t > 0.5 ? lighten(p.color, 0.35) : p.color;
+          g.fillRect(x, y, s, s);
+          if (p.kind === 'star' && t > 0.4) {
+            g.fillRect(x - 1, y + (s >> 1), s + 2, 1);
+            g.fillRect(x + (s >> 1), y - 1, 1, s + 2);
+          } else {
+            const tx = Math.round(x - (p.vx / 2) * 0.03);
+            const ty = Math.round(y - (p.vy / 2) * 0.03);
+            g.globalAlpha = 0.6;
+            g.fillRect(Math.min(x, tx), Math.min(y, ty), Math.abs(x - tx) + 1, Math.abs(y - ty) + 1);
+            g.globalAlpha = 1;
+          }
           break;
         }
         case 'glow': {
-          ctx.globalCompositeOperation = 'lighter';
-          ctx.globalAlpha = Math.min(1, t * 1.5);
-          const s = p.size;
-          ctx.drawImage(this.glow(p.color) as CanvasImageSource, p.x - s, y - s, s * 2, s * 2);
-          ctx.globalCompositeOperation = 'source-over';
+          const r = Math.max(2, Math.round(p.size / 2));
+          g.globalCompositeOperation = 'lighter';
+          g.globalAlpha = Math.min(1, t * 1.6);
+          const img = this.glow(p.color, Math.min(48, r));
+          g.drawImage(img as CanvasImageSource, x - r, y - r, r * 2, r * 2);
+          g.globalAlpha = 1;
+          g.globalCompositeOperation = 'source-over';
           break;
         }
         case 'smoke':
         case 'dust': {
-          ctx.globalAlpha = t * (p.kind === 'dust' ? 0.35 : 0.5);
-          ctx.fillStyle = p.color;
-          ctx.beginPath();
-          ctx.arc(p.x, y, p.size, 0, Math.PI * 2);
-          ctx.fill();
+          g.globalAlpha = t * (p.kind === 'dust' ? 0.45 : 0.55);
+          pixEllipse(g, x, y, s, s * (p.kind === 'dust' ? 0.6 : 1), p.color);
+          g.globalAlpha = 1;
           break;
         }
         case 'ring': {
-          ctx.globalAlpha = t;
-          ctx.strokeStyle = p.color;
-          ctx.lineWidth = 3 + 6 * t;
-          ctx.beginPath();
-          ctx.ellipse(p.x, p.y, p.size, p.size * 0.72, 0, 0, Math.PI * 2);
-          ctx.stroke();
+          g.globalAlpha = Math.min(1, t * 1.4);
+          pixRing(g, x, y, s, Math.max(1, s * 0.7), t > 0.5 ? 2 : 1, p.color);
+          g.globalAlpha = 1;
           break;
         }
         case 'debris':
@@ -196,66 +200,39 @@ export class Particles {
         case 'bone':
         case 'confetti':
         case 'coin': {
-          ctx.globalAlpha = Math.min(1, t * 3);
+          g.globalAlpha = Math.min(1, t * 3);
           if (p.z > 0) {
-            ctx.fillStyle = 'rgba(0,0,0,0.25)';
-            ctx.beginPath();
-            ctx.ellipse(p.x, p.y, p.size * 0.8, p.size * 0.35, 0, 0, Math.PI * 2);
-            ctx.fill();
+            g.fillStyle = 'rgba(8,4,18,0.35)';
+            g.fillRect(x - 1, Math.round(p.y / 2 + oy), s + 1, 1);
           }
-          ctx.save();
-          ctx.translate(p.x, y);
-          ctx.rotate(p.rot);
-          ctx.fillStyle = p.color;
-          if (p.kind === 'shard') {
-            ctx.beginPath();
-            ctx.moveTo(0, -p.size);
-            ctx.lineTo(p.size * 0.5, p.size);
-            ctx.lineTo(-p.size * 0.5, p.size * 0.6);
-            ctx.fill();
-          } else if (p.kind === 'bone') {
-            ctx.fillRect(-p.size, -p.size * 0.22, p.size * 2, p.size * 0.44);
-            for (const sx of [-p.size, p.size]) {
-              ctx.beginPath();
-              ctx.arc(sx, -p.size * 0.25, p.size * 0.3, 0, Math.PI * 2);
-              ctx.arc(sx, p.size * 0.25, p.size * 0.3, 0, Math.PI * 2);
-              ctx.fill();
-            }
+          const flip = Math.abs(Math.cos(p.rot)) > 0.5;
+          g.fillStyle = '#160d22';
+          if (p.kind === 'bone') {
+            const w = flip ? 5 : 2;
+            const h = flip ? 2 : 5;
+            g.fillRect(x - 1, y - 1, w + 2, h + 2);
+            g.fillStyle = p.color;
+            g.fillRect(x, y, w, h);
+          } else if (p.kind === 'confetti') {
+            g.fillStyle = p.color;
+            g.fillRect(x, y, flip ? 2 : 1, flip ? 1 : 2);
           } else if (p.kind === 'coin') {
-            ctx.scale(Math.abs(Math.cos(p.rot * 2)) + 0.15, 1);
-            ctx.beginPath();
-            ctx.arc(0, 0, p.size, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(0,0,0,0.35)';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
+            g.fillRect(x - 1, y - 1, (flip ? 3 : 1) + 2, 5);
+            g.fillStyle = p.color;
+            g.fillRect(x, y, flip ? 3 : 1, 3);
           } else {
-            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * (p.kind === 'confetti' ? 0.5 : 1));
-            if (p.kind === 'debris') {
-              ctx.fillStyle = 'rgba(0,0,0,0.25)';
-              ctx.fillRect(-p.size / 2, 0, p.size, p.size / 2);
+            g.fillRect(x - 1, y - 1, s + 2, s + 2);
+            g.fillStyle = p.color;
+            g.fillRect(x, y, s, s);
+            if (s > 1) {
+              g.fillStyle = alpha('#000000', 0.3);
+              g.fillRect(x, y + s - 1, s, 1);
             }
           }
-          ctx.restore();
-          break;
-        }
-        case 'text': {
-          const rise = (1 - t) * 34;
-          ctx.globalAlpha = Math.min(1, t * 2.5);
-          const sc = p.big ? 1.25 : 1;
-          const pop = t > 0.85 ? 1 + (t - 0.85) * 3 : 1;
-          ctx.font = `900 ${Math.round(p.size * sc * pop)}px "Lilita One", Impact, sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.lineWidth = 5;
-          ctx.strokeStyle = 'rgba(10,4,20,0.9)';
-          ctx.strokeText(p.text, p.x, y - rise);
-          ctx.fillStyle = p.color;
-          ctx.fillText(p.text, p.x, y - rise);
+          g.globalAlpha = 1;
           break;
         }
       }
     }
-    ctx.globalAlpha = 1;
   }
 }

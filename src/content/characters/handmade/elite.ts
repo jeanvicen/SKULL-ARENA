@@ -24,7 +24,10 @@ export default [
     },
     stats: { hp: 3900, speed: 255, ammo: 3, reload: 1.3 },
     attack: atk.spray({ name: 'Bafo de Chapa', dmg: 210, range: 300, color: '#ff8a3d', status: st.burn(2.5, 260) }),
-    skills: [skill.rage({ name: 'Fúria Infernal', mult: 1.35, dur: 4, cd: 11 }), skill.grenade({ name: 'Molotov da Casa', dmg: 900, radius: 120, color: '#ff6a2a', shape: 'fire', status: st.burn(3, 320), cd: 8 })],
+    skills: [
+      skill.rage({ name: 'Fúria Infernal', mult: 1.35, dur: 4, cd: 11 }),
+      skill.grenade({ name: 'Molotov da Casa', dmg: 900, radius: 120, color: '#ff6a2a', shape: 'fire', status: st.burn(3, 320), cd: 8 }),
+    ],
     super: sup.nuke({ name: 'Pedido Especial', dmg: 2600, radius: 205, color: '#ff3d1d' }),
     passive: { name: 'Pele de Lava', desc: '+20% de dano quando está com pouca vida e reflete 15% do dano corpo a corpo.', lowHpRage: 0.2, thorns: 0.15 },
     look: {
@@ -192,7 +195,11 @@ export default [
     },
     stats: { hp: 3500, speed: 255, ammo: 3, reload: 1.3 },
     attack: atk.chain({ name: 'Desfibrilador', dmg: 560, range: 520, color: '#5dffa0', jumps: 3 }),
-    skills: [skill.healTotem({ name: 'Soro de Campo', hps: 480, radius: 220, dur: 8, cd: 13, color: '#5dffa0' }), skill.shield({ name: 'Campo Estéril', amount: 1500, dur: 4, radius: 240, cd: 12 }), skill.cleanse({ name: 'Antídoto', radius: 260, cd: 10, heal: 500 })],
+    skills: [
+      skill.healTotem({ name: 'Soro de Campo', hps: 480, radius: 220, dur: 8, cd: 13, color: '#5dffa0' }),
+      skill.shield({ name: 'Campo Estéril', amount: 1500, dur: 4, radius: 240, cd: 12 }),
+      skill.cleanse({ name: 'Antídoto', radius: 260, cd: 10, heal: 500 }),
+    ],
     super: sup.healField({ name: 'Código Verde', hps: 1050, radius: 260, dur: 4.5, dmg: 700 }),
     passive: { name: 'Juramento', desc: 'Regenera 100/s.', regen: 100 },
     look: {
@@ -231,7 +238,15 @@ export default [
       curiosidade: 'A coroa é o único objeto da cidade que a lua-caveira reflete.',
     },
     stats: { hp: 4300, speed: 250, ammo: 3, reload: 1.35 },
-    attack: atk.lob({ name: 'Crânio Real', dmg: 1050, radius: 100, range: 580, color: '#ffd23f', shape: 'skull', zone: { radius: 80, duration: 2, dps: 250, look: { color: '#7a3dff', kind: 'void' } } }),
+    attack: atk.lob({
+      name: 'Crânio Real',
+      dmg: 1050,
+      radius: 100,
+      range: 580,
+      color: '#ffd23f',
+      shape: 'skull',
+      zone: { radius: 80, duration: 2, dps: 250, look: { color: '#7a3dff', kind: 'void' } },
+    }),
     skills: [
       skill.nova({ name: 'Ajoelhem', dmg: 700, radius: 210, pull: 520, color: '#ffd23f', cd: 10 }),
       skill.minions({ name: 'Súditos', n: 3, dmg: 300, hp: 1000, cd: 13, color: '#efe6d2' }),
@@ -278,7 +293,11 @@ export default [
     },
     stats: { hp: 3100, speed: 260, ammo: 3, reload: 1.5 },
     attack: atk.sniper({ name: 'Flecha de Luz', dmg: 1350, range: 880, color: '#fff1a8', shape: 'arrow', pierce: true }),
-    skills: [skill.blink({ name: 'Bater de Asas', dist: 320, cd: 7 }), skill.laser({ name: 'Raio Divino', dps: 1700, len: 680, dur: 1.4, cd: 11, color: '#fff1a8' }), skill.trap({ name: 'Pena Sentinela', dmg: 500, n: 2, status: st.mark(5, 0.25), cd: 10 })],
+    skills: [
+      skill.blink({ name: 'Bater de Asas', dist: 320, cd: 7 }),
+      skill.laser({ name: 'Raio Divino', dps: 1700, len: 680, dur: 1.4, cd: 11, color: '#fff1a8' }),
+      skill.trap({ name: 'Pena Sentinela', dmg: 500, n: 2, status: st.mark(5, 0.25), cd: 10 }),
+    ],
     super: sup.megaLaser({ name: 'Meio-Dia', dps: 2600, dur: 2.8, color: '#fff1a8' }),
     passive: { name: 'Visão do Alto', desc: 'Ataques causam até +45% de dano de longe e o super carrega 10% mais rápido.', superChargeMult: 1.1 },
     look: {

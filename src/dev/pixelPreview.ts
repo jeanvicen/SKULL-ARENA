@@ -8,7 +8,11 @@ const scale = Number(params.get('s') ?? 4);
 const state = (params.get('state') ?? 'idle') as BaseState;
 const ids = params.get('ids')?.split(',') ?? ['kaze', 'marreta', 'djkiko', 'vicen_creator', 'pixa', 'ossinho', 'nyx', 'barao_ossudo'];
 const gen = Number(params.get('gen') ?? 0);
-const defs = gen ? allCharacters().filter((c) => !c.handmade).slice(gen - 1, gen - 1 + 10) : ids.map((i) => getCharacter(i));
+const defs = gen
+  ? allCharacters()
+      .filter((c) => !c.handmade)
+      .slice(gen - 1, gen - 1 + 10)
+  : ids.map((i) => getCharacter(i));
 const sprites = defs.map((d) => {
   const s = new CharSprite(d);
   s.setState(state);
@@ -53,7 +57,12 @@ requestAnimationFrame(frame);
 if (params.get('pets')) {
   import('../content/pets').then(({ allPets, HANDMADE_PETS }) => {
     import('../pixel/pets').then(({ petFrame }) => {
-      const list = [...HANDMADE_PETS, ...allPets().filter((p) => !p.handmade).slice(0, 20)];
+      const list = [
+        ...HANDMADE_PETS,
+        ...allPets()
+          .filter((p) => !p.handmade)
+          .slice(0, 20),
+      ];
       let t = 0;
       const draw = () => {
         t += 1 / 60;

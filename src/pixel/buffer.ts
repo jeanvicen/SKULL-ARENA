@@ -13,7 +13,11 @@ export function rgba(hex: string, a = 255): number {
   const hit = cache.get(key);
   if (hit !== undefined) return hit;
   let h = hex.replace('#', '');
-  if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+  if (h.length === 3)
+    h = h
+      .split('')
+      .map((c) => c + c)
+      .join('');
   const n = parseInt(h.slice(0, 6), 16);
   const r = (n >> 16) & 255;
   const g = (n >> 8) & 255;

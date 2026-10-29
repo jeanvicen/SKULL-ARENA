@@ -230,7 +230,14 @@ function endProjectile(w: World, p: Projectile, wall: boolean, explode: boolean)
     const e = def.explode;
     const mult = owner ? p.damage / Math.max(1, def.damage) : 1;
     w.events.push({ type: 'explode', x: p.x, y: p.y, r: e.radius, color: def.look.color, big: e.radius >= 120 });
-    w.areaDamage(p.x, p.y, e.radius, e.damage * mult, owner, p.team, { knock: e.knockback, status: e.status, isSuper: p.isSuper, noCharge: p.noCharge, wallDamage: 1, propForce: (e.knockback ?? 300) * 1.8 });
+    w.areaDamage(p.x, p.y, e.radius, e.damage * mult, owner, p.team, {
+      knock: e.knockback,
+      status: e.status,
+      isSuper: p.isSuper,
+      noCharge: p.noCharge,
+      wallDamage: 1,
+      propForce: (e.knockback ?? 300) * 1.8,
+    });
     if (e.zone && owner) {
       w.zones.push({ ...e.zone, id: w.uid(), owner: owner.id, team: p.team, x: p.x, y: p.y, t: e.zone.duration, tickT: 0, dps: e.zone.dps ? e.zone.dps * mult : undefined });
       w.events.push({ type: 'zone', x: p.x, y: p.y, r: e.zone.radius, kind: e.zone.look.kind });

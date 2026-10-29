@@ -24,6 +24,11 @@ export interface FxHooks {
   killFeed?: (killer: string, victim: string, killerTeam: number, victimTeam: number) => void;
 }
 
+/** nome com a etiqueta BOT (bots sempre identificados) */
+function tagName(f: { name: string; isBot: boolean }): string {
+  return f.isBot ? `${f.name} [BOT]` : f.name;
+}
+
 const STREAK_TEXT: Record<number, string> = { 2: 'ELIMINAÇÃO DUPLA!', 3: 'TRIPLA!', 4: 'MASSACRE!', 5: 'IMPARÁVEL!', 6: 'LENDÁRIO!', 7: 'CAVEIRA SUPREMA!' };
 
 export class Fx {
@@ -60,7 +65,8 @@ export class Fx {
             const my = e.y + Math.sin(e.angle) * 34 - 30;
             const col = firstColor(e.ability) ?? '#ffe08a';
             P.spawn({ kind: 'glow', x: mx, y: my, size: 22, max: 0.1, color: col });
-            for (let i = 0; i < 4; i++) P.spawn({ kind: 'spark', x: mx, y: my, vx: Math.cos(e.angle + (Math.random() - 0.5)) * 380, vy: Math.sin(e.angle + (Math.random() - 0.5)) * 380, max: 0.14, size: 2.5, color: col });
+            for (let i = 0; i < 4; i++)
+              P.spawn({ kind: 'spark', x: mx, y: my, vx: Math.cos(e.angle + (Math.random() - 0.5)) * 380, vy: Math.sin(e.angle + (Math.random() - 0.5)) * 380, max: 0.14, size: 2.5, color: col });
             this.hooks.sound?.(e.ability.sfx ?? 'pistol', e.x, e.y, e.kind === 'super' ? 1 : 0.8);
           }
           if (e.id === this.localId) {
@@ -115,7 +121,7 @@ export class Fx {
             P.burst(e.x, e.y - 50, 14, RARITY[v.def.rarity].color, 380, 'confetti', { grav: 900, vz: 380, max: 1.4, size: 5, drag: 1 });
             P.spawn({ kind: 'ring', x: e.x, y: e.y, size: 70, grow: 160, max: 0.4, color: '#ffffff' });
             if (this.near(e.x, e.y)) this.hooks.sound?.('kill', e.x, e.y, 1);
-            this.hooks.killFeed?.(k?.name ?? '???', v.name, k?.team ?? -1, v.team);
+            this.hooks.killFeed?.(k ? tagName(k) : '???', tagName(v), k?.team ?? -1, v.team);
           }
           if (e.killer === this.localId && v) {
             this.hooks.hitStop?.(70);
@@ -146,7 +152,19 @@ export class Fx {
           P.spawn({ kind: 'glow', x: e.x, y: e.y - 20, size: e.r * 1.6, max: 0.22, color: e.color });
           P.spawn({ kind: 'ring', x: e.x, y: e.y, size: e.r * 0.4, grow: e.r * 3.2, max: 0.35, color: e.color });
           P.burst(e.x, e.y - 20, n, e.color, e.r * 3, 'spark', { max: 0.4 });
-          for (let i = 0; i < (e.big ? 10 : 5); i++) P.spawn({ kind: 'smoke', x: e.x + (Math.random() - 0.5) * e.r, y: e.y - 20 + (Math.random() - 0.5) * e.r * 0.6, vx: (Math.random() - 0.5) * 60, vy: -40 - Math.random() * 40, size: 14 + Math.random() * 16, grow: 30, max: 0.8 + Math.random() * 0.5, color: 'rgba(40,30,50,1)', big: true });
+          for (let i = 0; i < (e.big ? 10 : 5); i++)
+            P.spawn({
+              kind: 'smoke',
+              x: e.x + (Math.random() - 0.5) * e.r,
+              y: e.y - 20 + (Math.random() - 0.5) * e.r * 0.6,
+              vx: (Math.random() - 0.5) * 60,
+              vy: -40 - Math.random() * 40,
+              size: 14 + Math.random() * 16,
+              grow: 30,
+              max: 0.8 + Math.random() * 0.5,
+              color: 'rgba(40,30,50,1)',
+              big: true,
+            });
           const d = Math.hypot(e.x - this.cam.x, e.y - this.cam.y);
           this.cam.addShake(Math.max(0, (e.big ? 16 : 7) * (1 - d / 1100)));
           this.hooks.sound?.(e.big ? 'explosion_big' : 'explosion', e.x, e.y, 1);
@@ -159,7 +177,8 @@ export class Fx {
           if (!this.near(x, y, 1100)) break;
           const col = e.tile === 3 ? this.theme.glass : e.tile === 9 ? '#8a7aa8' : this.theme.brickTop;
           P.burst(x, y - 30, 22, col, 420, e.tile === 3 ? 'shard' : 'debris', { grav: 1500, vz: 480, max: 1.6, size: 7, drag: 1 });
-          for (let i = 0; i < 6; i++) P.spawn({ kind: 'smoke', x: x + (Math.random() - 0.5) * 50, y: y + (Math.random() - 0.5) * 50, vy: -20, size: 18, grow: 26, max: 0.9, color: 'rgba(160,150,170,1)', big: true });
+          for (let i = 0; i < 6; i++)
+            P.spawn({ kind: 'smoke', x: x + (Math.random() - 0.5) * 50, y: y + (Math.random() - 0.5) * 50, vy: -20, size: 18, grow: 26, max: 0.9, color: 'rgba(160,150,170,1)', big: true });
           this.hooks.sound?.(e.tile === 3 ? 'glass_break' : 'wall_break', x, y, 1);
           break;
         }
@@ -208,7 +227,17 @@ export class Fx {
           break;
         case 'land':
           P.spawn({ kind: 'ring', x: e.x, y: e.y, size: 20, grow: 140, max: 0.3, color: 'rgba(255,255,255,0.8)' });
-          for (let i = 0; i < 6; i++) P.spawn({ kind: 'dust', x: e.x + (Math.random() - 0.5) * 40, y: e.y + (Math.random() - 0.5) * 20, vx: (Math.random() - 0.5) * 120, size: 10, grow: 30, max: 0.5, color: 'rgba(220,210,230,1)' });
+          for (let i = 0; i < 6; i++)
+            P.spawn({
+              kind: 'dust',
+              x: e.x + (Math.random() - 0.5) * 40,
+              y: e.y + (Math.random() - 0.5) * 20,
+              vx: (Math.random() - 0.5) * 120,
+              size: 10,
+              grow: 30,
+              max: 0.5,
+              color: 'rgba(220,210,230,1)',
+            });
           this.hooks.sound?.('land', e.x, e.y, 0.7);
           break;
         case 'shield': {

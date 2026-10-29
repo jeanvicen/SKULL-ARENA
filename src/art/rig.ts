@@ -19,24 +19,7 @@
  *   x/y = deslocamento extra (unidades), sx/sy = escala (respirar, esmagar/esticar).
  */
 
-export const BONES = [
-  'root',
-  'hips',
-  'torso',
-  'head',
-  'uArmF',
-  'fArmF',
-  'handF',
-  'uArmB',
-  'fArmB',
-  'handB',
-  'thighF',
-  'shinF',
-  'footF',
-  'thighB',
-  'shinB',
-  'footB',
-] as const;
+export const BONES = ['root', 'hips', 'torso', 'head', 'uArmF', 'fArmF', 'handF', 'uArmB', 'fArmB', 'handB', 'thighF', 'shinF', 'footF', 'thighB', 'shinB', 'footB'] as const;
 
 export type BoneName = (typeof BONES)[number];
 

@@ -30,9 +30,7 @@ function serviceWorker(): Plugin {
       }
       const version = `${pkg.version}-${Date.now().toString(36)}`;
       const template = readFileSync(new URL('./src/sw-template.js', import.meta.url), 'utf8');
-      const source = template
-        .replace('__VERSION__', version)
-        .replace('__PRECACHE__', JSON.stringify(['./', ...files]));
+      const source = template.replace('__VERSION__', version).replace('__PRECACHE__', JSON.stringify(['./', ...files]));
       this.emitFile({ type: 'asset', fileName: 'sw.js', source });
     },
   };

@@ -128,7 +128,8 @@ export function renderPet(pet: PetDef, frame: number): PixelBuffer {
     case 'jelly': {
       const body = p.part(c);
       const w = up ? 1 : -1;
-      if (pet.body === 'ghost') p.poly([-7, 2 + bob, -7, -5 + bob, -4, -9 + bob, 4, -9 + bob, 7, -5 + bob, 7, 6 + bob, 5, 4 + w + bob, 3, 7 + bob, 0, 4 - w + bob, -3, 7 + bob, -5, 4 + w + bob, -7, 6 + bob], body);
+      if (pet.body === 'ghost')
+        p.poly([-7, 2 + bob, -7, -5 + bob, -4, -9 + bob, 4, -9 + bob, 7, -5 + bob, 7, 6 + bob, 5, 4 + w + bob, 3, 7 + bob, 0, 4 - w + bob, -3, 7 + bob, -5, 4 + w + bob, -7, 6 + bob], body);
       else {
         p.poly([-7, 1 + bob, -6, -5 + bob, -3, -8 + bob, 3, -8 + bob, 6, -5 + bob, 7, 1 + bob], body);
         const t = p.part(c2, false);
@@ -314,5 +315,5 @@ export function petFrames(pet: PetDef): Canvas[] {
 /** Quadro do pet no tempo `t` (anima mais rápido se bate asa). */
 export function petFrame(pet: PetDef, t: number): Canvas {
   const fps = pet.motion === 'flap' ? 10 : pet.motion === 'hop' || pet.motion === 'bounce' ? 6 : 4;
-  return petFrames(pet)[Math.floor(t * fps) % 4]!;
+  return petFrames(pet)[((Math.floor(t * fps) % 4) + 4) % 4]!;
 }

@@ -385,7 +385,36 @@ export function renderCharacter(look: Look, pose: Pose, solved: Record<BoneName,
     const flare = s === 'trench' || s === 'robe' ? 3 : s === 'kimono' ? 1.5 : 0;
     if (s === 'tank') P.poly([-3.5, -29, -hw + 3, -27, -hw + 2, -20, -hw + 1.5, -8, -hw + 2, hy, hw - 2, hy, hw - 1, -8, hw, -18, hw - 2, -26, 4.5, -29], id);
     else if (s === 'puffer') P.poly([-4, -30, -hw + 1.5, -28, -hw, -21, -hw - 0.5, -10, -hw + 1, hy, 0, hy + 1.5, hw - 1, hy, hw + 0.5, -10, hw, -21, hw - 1.5, -28, 5, -30], id);
-    else P.poly([-4, -29.5, -hw + 2, -28, -hw, -24, -hw + 0.4, -12, -hw + 0.6 - flare, hy - 1.5, -hw + 2 - flare, hy, hw - 2 + flare, hy, hw - 0.4 + flare, hy - 1.5, hw + 0.4, -12, hw - 0.2, -24, hw - 2.4, -28, 4.5, -29.5], id);
+    else
+      P.poly(
+        [
+          -4,
+          -29.5,
+          -hw + 2,
+          -28,
+          -hw,
+          -24,
+          -hw + 0.4,
+          -12,
+          -hw + 0.6 - flare,
+          hy - 1.5,
+          -hw + 2 - flare,
+          hy,
+          hw - 2 + flare,
+          hy,
+          hw - 0.4 + flare,
+          hy - 1.5,
+          hw + 0.4,
+          -12,
+          hw - 0.2,
+          -24,
+          hw - 2.4,
+          -28,
+          4.5,
+          -29.5,
+        ],
+        id,
+      );
     // gola / capuz caído
     if (s === 'hoodie' && top.hood !== 'up' && front) {
       ids.collar = P.part(mix(top.color, '#1d1245', 0.06), -1, true);
@@ -985,11 +1014,11 @@ function face(P: Painter, look: Look, expr: FaceExpr, ids: Record<string, number
       for (let x = fx - 1; x <= fx + 1; x++) set(x, ey, glow);
       for (let x = ex; x <= ex + 2; x++) set(x, ey, glow);
     } else if (expr === 'happy') {
-      set(fx - 1, ey + 1, glow), set(fx, ey, glow), set(fx + 1, ey + 1, glow);
-      set(ex, ey + 1, glow), set(ex + 1, ey, glow), set(ex + 2, ey + 1, glow);
+      (set(fx - 1, ey + 1, glow), set(fx, ey, glow), set(fx + 1, ey + 1, glow));
+      (set(ex, ey + 1, glow), set(ex + 1, ey, glow), set(ex + 2, ey + 1, glow));
     } else if (expr === 'hurt') {
-      set(fx - 1, ey - 1, glow), set(fx, ey, glow), set(fx + 1, ey + 1, glow), set(fx + 1, ey - 1, glow), set(fx - 1, ey + 1, glow);
-      set(ex, ey - 1, glow), set(ex + 1, ey, glow), set(ex + 2, ey + 1, glow), set(ex + 2, ey - 1, glow), set(ex, ey + 1, glow);
+      (set(fx - 1, ey - 1, glow), set(fx, ey, glow), set(fx + 1, ey + 1, glow), set(fx + 1, ey - 1, glow), set(fx - 1, ey + 1, glow));
+      (set(ex, ey - 1, glow), set(ex + 1, ey, glow), set(ex + 2, ey + 1, glow), set(ex + 2, ey - 1, glow), set(ex, ey + 1, glow));
     } else {
       for (const x of [fx, ex + 1]) {
         set(x, ey, glow);
@@ -1016,7 +1045,7 @@ function face(P: Painter, look: Look, expr: FaceExpr, ids: Record<string, number
       return;
     }
     if (expr === 'hurt') {
-      set(x - 1, y - 1, ink), set(x, y, ink), set(x - 1, y + 1, ink);
+      (set(x - 1, y - 1, ink), set(x, y, ink), set(x - 1, y + 1, ink));
       if (near) set(x + 1, y, ink);
       return;
     }
@@ -1083,22 +1112,22 @@ function face(P: Painter, look: Look, expr: FaceExpr, ids: Record<string, number
   const mouth = look.mouth ?? 'neutral';
   if (ids.mask === undefined) {
     if (expr === 'shout') {
-      set(mx - 1, my, DARK), set(mx, my, DARK), set(mx - 1, my + 1, DARK), set(mx, my + 1, rgba('#ff6f8a'));
+      (set(mx - 1, my, DARK), set(mx, my, DARK), set(mx - 1, my + 1, DARK), set(mx, my + 1, rgba('#ff6f8a')));
     } else if (expr === 'happy' || mouth === 'open') {
-      set(mx - 1, my, DARK), set(mx, my, DARK), set(mx + 1, my, DARK), set(mx, my + 1, rgba('#ff6f8a'));
+      (set(mx - 1, my, DARK), set(mx, my, DARK), set(mx + 1, my, DARK), set(mx, my + 1, rgba('#ff6f8a')));
     } else if (expr === 'hurt' || expr === 'sad' || mouth === 'frown') {
-      set(mx - 1, my + 1, ink), set(mx, my, ink), set(mx + 1, my + 1, ink);
+      (set(mx - 1, my + 1, ink), set(mx, my, ink), set(mx + 1, my + 1, ink));
     } else if (mouth === 'teeth') {
-      set(mx - 1, my, WHITE), set(mx, my, WHITE), set(mx + 1, my, WHITE), set(mx - 1, my + 1, ink), set(mx, my + 1, ink), set(mx + 1, my + 1, ink);
+      (set(mx - 1, my, WHITE), set(mx, my, WHITE), set(mx + 1, my, WHITE), set(mx - 1, my + 1, ink), set(mx, my + 1, ink), set(mx + 1, my + 1, ink));
     } else if (mouth === 'fangs') {
-      set(mx - 1, my, ink), set(mx, my, ink), set(mx + 1, my, ink), set(mx - 1, my + 1, WHITE), set(mx + 1, my + 1, WHITE);
+      (set(mx - 1, my, ink), set(mx, my, ink), set(mx + 1, my, ink), set(mx - 1, my + 1, WHITE), set(mx + 1, my + 1, WHITE));
     } else if (mouth === 'stitch') {
       for (let x = -1; x <= 2; x++) set(mx + x, my, ink);
-      set(mx, my - 1, ink), set(mx, my + 1, ink);
+      (set(mx, my - 1, ink), set(mx, my + 1, ink));
     } else if (mouth === 'smirk' || expr === 'smug') {
-      set(mx - 1, my, ink), set(mx, my, ink), set(mx + 1, my - 1, ink);
+      (set(mx - 1, my, ink), set(mx, my, ink), set(mx + 1, my - 1, ink));
     } else {
-      set(mx - 1, my, ink), set(mx, my, ink);
+      (set(mx - 1, my, ink), set(mx, my, ink));
     }
   }
   // acessórios de rosto
@@ -1116,11 +1145,11 @@ function face(P: Painter, look: Look, expr: FaceExpr, ids: Record<string, number
       put(ex + 1, ey - 1, rgba(dark ? '#7a6cff' : '#d6faff'));
     } else if (a.glasses === 'goggles') {
       for (let x = fx - 1; x <= ex + 2; x++) put(x, ey - 4);
-      put(fx, ey - 5), put(ex, ey - 5), put(ex + 1, ey - 5);
+      (put(fx, ey - 5), put(ex, ey - 5), put(ex + 1, ey - 5));
     } else {
       // armação fina (meio-aro): barra em cima, ponte e cantos
       for (let x = ex - 1; x <= ex + 2; x++) put(x, ey - 2);
-      put(ex + 2, ey - 1), put(ex + 2, ey), put(ex - 1, ey + 1), put(ex + 2, ey + 1);
+      (put(ex + 2, ey - 1), put(ex + 2, ey), put(ex - 1, ey + 1), put(ex + 2, ey + 1));
       for (let x = fx; x <= fx + 1; x++) put(x, ey - 2);
       put(fx + 2, ey - 1);
       put(fx - 1, ey - 1);

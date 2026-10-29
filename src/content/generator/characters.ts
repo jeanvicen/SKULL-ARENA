@@ -116,7 +116,16 @@ const WEAPONS_BY_ROLE: Record<RoleId, WeaponKind[]> = {
 
 type Element = 'fire' | 'poison' | 'ice' | 'electric' | 'void' | 'holy' | 'blood' | 'neutral';
 const ELEMENT_COLOR: Record<Element, string> = { fire: '#ff8a3d', poison: '#9ef08a', ice: '#9ef0ff', electric: '#7df9ff', void: '#b77bff', holy: '#fff1a8', blood: '#ff3d5c', neutral: '#ffe08a' };
-const ELEMENT_ZONE: Record<Element, 'fire' | 'poison' | 'ice' | 'electric' | 'void' | 'holy' | 'smoke'> = { fire: 'fire', poison: 'poison', ice: 'ice', electric: 'electric', void: 'void', holy: 'holy', blood: 'void', neutral: 'smoke' };
+const ELEMENT_ZONE: Record<Element, 'fire' | 'poison' | 'ice' | 'electric' | 'void' | 'holy' | 'smoke'> = {
+  fire: 'fire',
+  poison: 'poison',
+  ice: 'ice',
+  electric: 'electric',
+  void: 'void',
+  holy: 'holy',
+  blood: 'void',
+  neutral: 'smoke',
+};
 const ELEMENT_STATUS: Record<Element, StatusApply | undefined> = {
   fire: st.burn(2.5, 260),
   poison: st.poison(3, 240),
@@ -200,20 +209,34 @@ function makeLook(rng: Rng, sp: Species, role: RoleId, rarity: RarityId, element
             : ['hoodie', 'oversized_tee', 'tracksuit', 'varsity', 'ribbed_tee', 'turtleneck_jacket', 'puffer', 'tank'];
   const topStyle = rng.pick(tops);
   const pantsStyle: PantsStyle = rng.pick(
-    topStyle === 'kimono' || topStyle === 'robe' ? ['hakama', 'baggy', 'wide_jeans'] : gender === 'f' ? ['baggy', 'cargo', 'wide_jeans', 'skirt', 'track', 'shorts'] : ['baggy', 'baggy', 'cargo', 'wide_jeans', 'track', 'shorts'],
+    topStyle === 'kimono' || topStyle === 'robe'
+      ? ['hakama', 'baggy', 'wide_jeans']
+      : gender === 'f'
+        ? ['baggy', 'cargo', 'wide_jeans', 'skirt', 'track', 'shorts']
+        : ['baggy', 'baggy', 'cargo', 'wide_jeans', 'track', 'shorts'],
   );
   const shoes: ShoeStyle = rng.pick(role === 'tanque' ? ['boots', 'chunky', 'hightop'] : ['chunky', 'chunky', 'hightop', 'skate', 'runner', 'boots', 'slides']);
   const prints: PrintKind[] = ['skull', 'text', 'stripe', 'flame', 'star', 'cross', 'bolt', 'heart', 'eye', 'rune', 'none', 'none'];
   const print = rng.pick(prints);
   const texts = ['SKULL', 'RIP', 'VOID', '13', 'NEON', 'ZN', 'OSSO', 'MORTE', 'LAJE', 'K.O.', 'F*', '99'];
-  const eyesStyle = sp === 'skeleton' ? rng.pick(['glow', 'hollow'] as const) : sp === 'robot' ? 'visor' : sp === 'void' || sp === 'ghost' ? rng.pick(['glow', 'hollow', 'round'] as const) : rng.pick(['sleepy', 'sharp', 'round', 'wide', 'lazy', 'sleepy', 'sharp'] as const);
+  const eyesStyle =
+    sp === 'skeleton'
+      ? rng.pick(['glow', 'hollow'] as const)
+      : sp === 'robot'
+        ? 'visor'
+        : sp === 'void' || sp === 'ghost'
+          ? rng.pick(['glow', 'hollow', 'round'] as const)
+          : rng.pick(['sleepy', 'sharp', 'round', 'wide', 'lazy', 'sleepy', 'sharp'] as const);
   const elemC = ELEMENT_COLOR[element];
   const look: Look = {
     species: sp,
     skin,
     body,
     hair: { style: hairStyle, color: sp === 'void' ? '#0c0814' : rng.pick(HAIR_COLORS), color2: elemC },
-    eyes: { style: eyesStyle, color: sp === 'skeleton' || sp === 'robot' || sp === 'void' || sp === 'ghost' ? elemC : rng.pick(['#2a1a12', '#3b2a1e', '#2b6a8a', '#3a8f6a', '#5a4a6e', '#8a5a2e', elemC]) },
+    eyes: {
+      style: eyesStyle,
+      color: sp === 'skeleton' || sp === 'robot' || sp === 'void' || sp === 'ghost' ? elemC : rng.pick(['#2a1a12', '#3b2a1e', '#2b6a8a', '#3a8f6a', '#5a4a6e', '#8a5a2e', elemC]),
+    },
     brows: rng.pick(['flat', 'angry', 'sad', 'raised', 'flat'] as const),
     mouth: sp === 'vampire' || sp === 'demon' ? 'fangs' : sp === 'zombie' ? rng.pick(['stitch', 'neutral'] as const) : rng.pick(['neutral', 'smirk', 'frown', 'teeth', 'neutral', 'smirk'] as const),
     face: {
@@ -314,12 +337,16 @@ function attackFor(rng: Rng, role: RoleId, w: WeaponKind, el: Element, dmg: numb
     case 'dual_pistols':
       return atk.burst({ name: nm('burst'), dmg: dmg / 4, n: 4, color, range: rng.int(500, 580) });
     case 'rifle':
-      return rng.chance(0.5) ? atk.burst({ name: nm('burst'), dmg: dmg / 5, n: 5, color, range: rng.int(600, 700) }) : atk.ricochet({ name: nm('ricochet'), dmg: dmg / 2, color, n: 2, shape: 'bullet' });
+      return rng.chance(0.5)
+        ? atk.burst({ name: nm('burst'), dmg: dmg / 5, n: 5, color, range: rng.int(600, 700) })
+        : atk.ricochet({ name: nm('ricochet'), dmg: dmg / 2, color, n: 2, shape: 'bullet' });
     case 'cards':
       return rng.chance(0.5) ? atk.fan({ name: nm('fan'), dmg: dmg / 3, color, n: 3, shape: 'card', status }) : atk.ricochet({ name: nm('ricochet'), dmg: dmg / 2, color, shape: 'card' });
     case 'yoyo':
     case 'skateboard':
-      return role === 'assassino' && w === 'skateboard' ? atk.melee({ name: nm('melee'), dmg, range: 145 }) : atk.boomerang({ name: nm('boomerang'), dmg: dmg / 1.6, color, shape: w === 'yoyo' ? 'orb' : 'blade' });
+      return role === 'assassino' && w === 'skateboard'
+        ? atk.melee({ name: nm('melee'), dmg, range: 145 })
+        : atk.boomerang({ name: nm('boomerang'), dmg: dmg / 1.6, color, shape: w === 'yoyo' ? 'orb' : 'blade' });
     case 'mic':
     case 'guitar':
     case 'boombox':
@@ -604,12 +631,18 @@ function makeBio(rng: Rng, name: string, sp: Species, role: RoleId, gender: Gend
     case 'robot':
       origem = 'Fábrica de Ossos, linha de montagem 3';
       idade = `Modelo ${rng.int(1990, 2025)}, revisão ${rng.int(2, 60)}`;
-      p1 = g(`${name} foi fabricad{o|a} ${rng.pick(W.ROBOT_JOB)}, ${rng.pick(W.ROBOT_TWIST)}. Desde então, anda pela cidade testando tudo o que é proibido pra um robô: rir, chorar e perder a paciência.`, gender);
+      p1 = g(
+        `${name} foi fabricad{o|a} ${rng.pick(W.ROBOT_JOB)}, ${rng.pick(W.ROBOT_TWIST)}. Desde então, anda pela cidade testando tudo o que é proibido pra um robô: rir, chorar e perder a paciência.`,
+        gender,
+      );
       break;
     case 'alien':
       origem = rng.pick(W.PLANETS);
       idade = `${rng.int(80, 900)} ciclos (jovem, pros padrões de lá)`;
-      p1 = g(`${name} chegou a Necrópolis ${rng.pick(W.ALIEN_ARRIVAL)}. Achou o planeta barulhento, sujo e absolutamente fascinante — principalmente as tomadas, os fliperamas e o pastel de queijo. Decidiu ficar sem avisar ninguém em casa.`, gender);
+      p1 = g(
+        `${name} chegou a Necrópolis ${rng.pick(W.ALIEN_ARRIVAL)}. Achou o planeta barulhento, sujo e absolutamente fascinante — principalmente as tomadas, os fliperamas e o pastel de queijo. Decidiu ficar sem avisar ninguém em casa.`,
+        gender,
+      );
       break;
     case 'demon':
       origem = rng.pick(W.UNDERWORLDS);
@@ -619,7 +652,10 @@ function makeBio(rng: Rng, name: string, sp: Species, role: RoleId, gender: Gend
     case 'ghost':
       idade = `${rng.int(12, 40)} anos (desde ${rng.int(1950, 2005)})`;
       origem = rng.pick(W.GHOST_HAUNT);
-      p1 = g(`${name} assombra ${origem} há décadas, desde a noite em que morreu de susto num apagão. Por anos, ajudou os vivos sem que eles percebessem: apagava luzes pra salvar quem se escondia e soprava respostas de prova no ouvido dos alunos.`, gender);
+      p1 = g(
+        `${name} assombra ${origem} há décadas, desde a noite em que morreu de susto num apagão. Por anos, ajudou os vivos sem que eles percebessem: apagava luzes pra salvar quem se escondia e soprava respostas de prova no ouvido dos alunos.`,
+        gender,
+      );
       break;
     case 'vampire':
       idade = `${rng.int(150, 700)} anos`;
@@ -631,12 +667,18 @@ function makeBio(rng: Rng, name: string, sp: Species, role: RoleId, gender: Gend
       break;
     case 'lizard':
       origem = 'Galerias de Esgoto do Porto Ferrugem';
-      p1 = g(`${name} nasceu human{o|a} nas galerias de esgoto, onde os vazamentos da Fábrica de Ossos brilham em verde. As escamas vieram aos poucos, depois os olhos de fenda. Aprendeu a ver no escuro e a sentir o calor de quem se aproxima.`, gender);
+      p1 = g(
+        `${name} nasceu human{o|a} nas galerias de esgoto, onde os vazamentos da Fábrica de Ossos brilham em verde. As escamas vieram aos poucos, depois os olhos de fenda. Aprendeu a ver no escuro e a sentir o calor de quem se aproxima.`,
+        gender,
+      );
       break;
     case 'void':
       origem = 'O Vazio entre as linhas do código';
       idade = 'Impossível medir';
-      p1 = g(`${name} veio do Vazio — o espaço preto entre os mapas da arena, onde o código não chega. Saiu por uma rachadura no chão do Distrito Neon e trouxe junto um pouco daquela escuridão estrelada na pele.`, gender);
+      p1 = g(
+        `${name} veio do Vazio — o espaço preto entre os mapas da arena, onde o código não chega. Saiu por uma rachadura no chão do Distrito Neon e trouxe junto um pouco daquela escuridão estrelada na pele.`,
+        gender,
+      );
       break;
     default: {
       const ev = rng.pick(W.EVENT_HUMAN).replace('{n}', String(rng.int(8, 16)));
@@ -692,12 +734,15 @@ export function generateCharacters(count: number, reservedNames: string[]): Char
     const rarity = rarityFor(i);
     const tier = RARITY[rarity].tier;
     const role = rng.weighted(ROLES, ROLE_W);
-    const species = rng.weighted(SPECIES, SPECIES_W.map((w, k) => (SPECIES[k] === 'void' ? (tier >= 4 ? 6 : 0) : w)));
+    const species = rng.weighted(
+      SPECIES,
+      SPECIES_W.map((w, k) => (SPECIES[k] === 'void' ? (tier >= 4 ? 6 : 0) : w)),
+    );
     const gender: Gender = rng.chance(0.5) ? 'm' : 'f';
     const element = elementFor(rng, species);
     const name = makeName(rng, species, gender, used);
     const look = makeLook(rng, species, role, rarity, element, gender);
-    const color = ELEMENT_COLOR[element] === '#ffe08a' ? look.top.color2 ?? '#ffe08a' : ELEMENT_COLOR[element];
+    const color = ELEMENT_COLOR[element] === '#ffe08a' ? (look.top.color2 ?? '#ffe08a') : ELEMENT_COLOR[element];
     const base = ROLE_BASE[role];
     const dmg = base.dmg * rng.range(0.92, 1.08);
     const attack = attackFor(rng, role, look.weapon.kind, element, dmg, color);
@@ -728,7 +773,18 @@ export function generateCharacters(count: number, reservedNames: string[]): Char
       passive,
       look,
       anim: animFor(rng, role, look.weapon.kind, species),
-      voice: species === 'robot' ? 'robot' : species === 'skeleton' ? 'skull' : species === 'demon' || species === 'zombie' || species === 'lizard' ? 'monster' : species === 'alien' ? 'cute' : gender === 'm' ? 'male' : 'female',
+      voice:
+        species === 'robot'
+          ? 'robot'
+          : species === 'skeleton'
+            ? 'skull'
+            : species === 'demon' || species === 'zombie' || species === 'lizard'
+              ? 'monster'
+              : species === 'alien'
+                ? 'cute'
+                : gender === 'm'
+                  ? 'male'
+                  : 'female',
       unlock: { kind: 'chest' },
       handmade: false,
     });
@@ -737,4 +793,16 @@ export function generateCharacters(count: number, reservedNames: string[]): Char
     out.push(def);
   }
   return out;
+}
+
+/**
+ * Visual aleatório (usado no Estúdio: botão "🎲 Visual aleatório").
+ * Mesma semente = mesmo visual. Copie o resultado pro seu personagem.
+ */
+export function randomLook(seed: number, role: RoleId = 'atacante', rarity: RarityId = 'raro'): { look: Look; anim: AnimStyle } {
+  const rng = new Rng(`studio-${seed}`);
+  const species = rng.weighted(SPECIES, SPECIES_W);
+  const gender: Gender = rng.chance(0.5) ? 'm' : 'f';
+  const look = makeLook(rng, species, role, rarity, elementFor(rng, species), gender);
+  return { look, anim: animFor(rng, role, look.weapon.kind, species) };
 }

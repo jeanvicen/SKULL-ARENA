@@ -212,7 +212,20 @@ export class World {
   }
 
   addPickup(kind: PickupKind, x: number, y: number, team = -1, killerTeam = -1, value = 1): Pickup {
-    const p: Pickup = { id: this.uid(), kind, x, y, team, killerTeam, t: kind === 'skull' ? 16 : kind === 'coin' ? 20 : 30, value, z: 0, vz: 260, vx: this.rng.range(-80, 80), vy: this.rng.range(-80, 80) };
+    const p: Pickup = {
+      id: this.uid(),
+      kind,
+      x,
+      y,
+      team,
+      killerTeam,
+      t: kind === 'skull' ? 16 : kind === 'coin' ? 20 : 30,
+      value,
+      z: 0,
+      vz: 260,
+      vx: this.rng.range(-80, 80),
+      vy: this.rng.range(-80, 80),
+    };
     this.pickups.push(p);
     return p;
   }
@@ -536,7 +549,14 @@ export class World {
         if (target) {
           f.petSparkT = spark.interval;
           const a = Math.atan2(target.y - f.y, target.x - f.x);
-          this.spawnProjectile(f, f.x - Math.cos(a) * 30, f.y - 34, a, { speed: 900, range: spark.range + 60, radius: 10, damage: spark.damage, homing: 6, look: { shape: 'orb', color: f.pet!.colors[2], trail: 'glow', size: 0.7 } }, { noCharge: true });
+          this.spawnProjectile(
+            f,
+            f.x - Math.cos(a) * 30,
+            f.y - 34,
+            a,
+            { speed: 900, range: spark.range + 60, radius: 10, damage: spark.damage, homing: 6, look: { shape: 'orb', color: f.pet!.colors[2], trail: 'glow', size: 0.7 } },
+            { noCharge: true },
+          );
         } else f.petSparkT = 0.5;
       }
     }
@@ -1405,9 +1425,7 @@ export class World {
   /** Posição final no FFA (1 = primeiro) */
   placement(f: Fighter): number {
     if (this.mode.teams !== 0) return this.winner === f.team ? 1 : 2;
-    const sorted = this.fighters
-      .slice()
-      .sort((a, b) => (this.scores[b.team] ?? 0) - (this.scores[a.team] ?? 0) || b.stats.kills - a.stats.kills || a.stats.deaths - b.stats.deaths);
+    const sorted = this.fighters.slice().sort((a, b) => (this.scores[b.team] ?? 0) - (this.scores[a.team] ?? 0) || b.stats.kills - a.stats.kills || a.stats.deaths - b.stats.deaths);
     return sorted.indexOf(f) + 1;
   }
 }

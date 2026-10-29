@@ -93,10 +93,11 @@ export class Hud {
     } else if (w.mode.teams === 0) {
       const ranked = w.fighters.slice().sort((x, y) => (w.scores[y.team] ?? 0) - (w.scores[x.team] ?? 0) || y.stats.kills - x.stats.kills);
       const pos = me ? ranked.indexOf(me) + 1 : 0;
-      key = ranked
-        .slice(0, 3)
-        .map((f) => `${f.id}:${w.scores[f.team]}`)
-        .join('|') + `#${pos}:${me ? w.scores[me.team] : 0}`;
+      key =
+        ranked
+          .slice(0, 3)
+          .map((f) => `${f.id}:${w.scores[f.team]}`)
+          .join('|') + `#${pos}:${me ? w.scores[me.team] : 0}`;
       html =
         ranked
           .slice(0, 3)
