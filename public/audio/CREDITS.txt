@@ -1,0 +1,148 @@
+SKULL ARENA — créditos de áudio
+================================
+Todos os sons e músicas são CC0 (domínio público): uso livre, inclusive comercial,
+sem obrigação de crédito. Mesmo assim, valeu demais a quem gravou:
+
+• Kenney (kenney.nl) — Impact Sounds, Interface Sounds, UI Audio, RPG Audio, Sci-fi Sounds,
+  Music Jingles, Voiceover Pack: Fighter (via github.com/jupixels/game-sounds e
+  github.com/lavenderdotpet/CC0-Public-Domain-Sounds)
+• Team Forbidden — Warfork (assets CC0): armas, itens, dor/pulo, músicas "fvi-*"
+• Pacotes "25 CC0 bang SFX", "75 CC0 breaking/falling/hit SFX", "80 CC0 RPG SFX" e
+  "100 CC0 wood/metal SFX" (OpenGameArt, coletados em lavenderdotpet/CC0-Public-Domain-Sounds)
+• Ben Burnes / Abstraction Music — Retail Therapy Sample Pack, Micro Pack Organic Wooshes
+• Tabasco (OpenGameArt "Gunshot Sounds") — tiros de rifle
+• qubodup (Freesound) — artilharia/obus
+• nooly (Freesound) — sirene antiaérea
+• vitalezzz (OpenGameArt) — "Virtual Rush" (música de batalha)
+• Sudocolon (OpenGameArt) — "Vicegrip of Pursuit" (música do chefão)
+
+Arquivo → fonte:
+  pistol_1.mp3  ←  L:25-CC0-bang-sfx/shot_01.ogg
+  pistol_2.mp3  ←  L:25-CC0-bang-sfx/shot_02.ogg
+  pistol_3.mp3  ←  L:warfork-cc0/sounds/weapons/machinegun_fire.ogg
+  shotgun_1.mp3  ←  L:warfork-cc0/sounds/weapons/riotgun_fire_strong.ogg
+  shotgun_2.mp3  ←  L:25-CC0-bang-sfx/cannon_01.ogg
+  sniper_1.mp3  ←  J:ww2/rifle_shot_01.mp3
+  sniper_2.mp3  ←  J:ww2/rifle_shot_03.mp3
+  laser_1.mp3  ←  J:scifi/laser_small_01.mp3
+  laser_2.mp3  ←  J:scifi/laser_small_02.mp3
+  laser_3.mp3  ←  J:scifi/laser_small_03.mp3
+  zap_1.mp3  ←  L:warfork-cc0/sounds/weapons/electrobolt_strong.ogg
+  zap_2.mp3  ←  L:warfork-cc0/sounds/weapons/electrobolt_hit.ogg
+  magic_1.mp3  ←  L:80-CC0-RPG-SFX/spell_01.ogg
+  magic_2.mp3  ←  L:80-CC0-RPG-SFX/spell_02.ogg
+  magic_3.mp3  ←  L:warfork-cc0/sounds/weapons/plasmagun_strong1.ogg
+  flame_1.mp3  ←  L:80-CC0-RPG-SFX/spell_fire_01.ogg
+  flame_2.mp3  ←  L:80-CC0-RPG-SFX/spell_fire_03.ogg
+  throw_1.mp3  ←  L:Micro Pack - Organic Wooshes/Swish 1.wav
+  throw_2.mp3  ←  L:Micro Pack - Organic Wooshes/Swish 3.wav
+  whoosh_1.mp3  ←  L:Micro Pack - Organic Wooshes/Classic Swish 1.wav
+  whoosh_2.mp3  ←  L:Micro Pack - Organic Wooshes/Classic Swish 2.wav
+  whoosh_3.mp3  ←  L:Micro Pack - Organic Wooshes/Swish 5.wav
+  punch_1.mp3  ←  J:impacts/punch_medium_01.mp3
+  punch_2.mp3  ←  J:impacts/punch_medium_02.mp3
+  punch_3.mp3  ←  J:impacts/punch_medium_03.mp3
+  wave_1.mp3  ←  J:scifi/force_field_03.mp3
+  wave_2.mp3  ←  J:scifi/laser_large_02.mp3
+  coin_1.mp3  ←  L:80-CC0-RPG-SFX/item_coins_01.ogg
+  coin_2.mp3  ←  L:80-CC0-RPG-SFX/item_coins_02.ogg
+  coin_3.mp3  ←  J:rpg/coins_01.mp3
+  reload_1.mp3  ←  J:rpg/metal_click_01.mp3
+  reload_2.mp3  ←  J:rpg/metal_latch_01.mp3
+  dash_1.mp3  ←  L:Micro Pack - Organic Wooshes/Twirl 1.wav
+  dash_2.mp3  ←  L:Micro Pack - Organic Wooshes/Twirl 2.wav
+  blink_1.mp3  ←  L:warfork-cc0/sounds/world/tele_in.ogg
+  blink_2.mp3  ←  J:arcade/phaser_up_03.mp3
+  heal_1.mp3  ←  L:warfork-cc0/sounds/items/health_25.ogg
+  heal_2.mp3  ←  L:warfork-cc0/sounds/items/regen_pickup.ogg
+  shield_1.mp3  ←  J:scifi/force_field_01.mp3
+  shield_2.mp3  ←  L:warfork-cc0/sounds/items/armor_yellow.ogg
+  powerup_1.mp3  ←  L:warfork-cc0/sounds/items/quad_pickup.ogg
+  powerup_2.mp3  ←  J:arcade/power_up_11.mp3
+  deploy_1.mp3  ←  L:100-CC0-wood-metal-SFX/metal_open_01.ogg
+  deploy_2.mp3  ←  J:rpg/metal_latch_01.mp3
+  summon_1.mp3  ←  L:80-CC0-RPG-SFX/creature_roar_01.ogg
+  summon_2.mp3  ←  L:80-CC0-RPG-SFX/creature_monster_02.ogg
+  freeze_1.mp3  ←  L:75-cc0-breaking-falling-hit-sfx/bfh1_glass_breaking_03.ogg
+  freeze_2.mp3  ←  J:impacts/glass_medium_02.mp3
+  rewind_1.mp3  ←  L:Micro Pack - Organic Wooshes/Twirl 3.wav
+  zone_1.mp3  ←  J:scifi/slime_01.mp3
+  zone_2.mp3  ←  L:80-CC0-RPG-SFX/creature_slime_02.ogg
+  super_1.mp3  ←  L:warfork-cc0/sounds/weapons/bladegun_strong_fire.ogg
+  super_2.mp3  ←  L:warfork-cc0/sounds/weapons/instagun_strong.ogg
+  super_3.mp3  ←  L:warfork-cc0/sounds/weapons/rocket_fire_strong.ogg
+  super_laser_1.mp3  ←  L:warfork-cc0/sounds/weapons/laser_strong_fire.ogg
+  slam_1.mp3  ←  J:impacts/punch_heavy_03.mp3
+  slam_2.mp3  ←  L:75-cc0-breaking-falling-hit-sfx/bfh1_rock_hit_01.ogg
+  hit_1.mp3  ←  L:warfork-cc0/sounds/misc/hit_0.wav
+  hit_2.mp3  ←  L:warfork-cc0/sounds/misc/hit_1.wav
+  hit_3.mp3  ←  J:impacts/soft_heavy_01.mp3
+  hit_crit_1.mp3  ←  J:impacts/punch_heavy_01.mp3
+  hit_crit_2.mp3  ←  J:impacts/punch_heavy_02.mp3
+  hit_wall_1.mp3  ←  L:warfork-cc0/sounds/weapons/ric1.ogg
+  hit_wall_2.mp3  ←  L:warfork-cc0/sounds/weapons/ric2.ogg
+  hurt_1.mp3  ←  L:warfork-cc0/sounds/players/male/pain25.ogg
+  hurt_2.mp3  ←  L:warfork-cc0/sounds/players/male/pain50.ogg
+  hurt_3.mp3  ←  L:warfork-cc0/sounds/players/female/pain50.ogg
+  kill_1.mp3  ←  L:warfork-cc0/sounds/misc/kill.wav
+  kill_2.mp3  ←  L:75-cc0-breaking-falling-hit-sfx/bfh1_breaking_02.ogg
+  explosion_1.mp3  ←  L:warfork-cc0/sounds/weapons/gren_strong_explosion1.ogg
+  explosion_2.mp3  ←  L:warfork-cc0/sounds/weapons/gren_strong_explosion2.ogg
+  explosion_3.mp3  ←  L:warfork-cc0/sounds/weapons/rocket_strong_explosion.ogg
+  explosion_big_1.mp3  ←  J:ww2/artillery_04.mp3
+  explosion_big_2.mp3  ←  J:ww2/howitzer_02.mp3
+  wall_break_1.mp3  ←  L:75-cc0-breaking-falling-hit-sfx/bfh1_rock_breaking_01.ogg
+  wall_break_2.mp3  ←  L:75-cc0-breaking-falling-hit-sfx/bfh1_rock_breaking_02.ogg
+  glass_1.mp3  ←  L:75-cc0-breaking-falling-hit-sfx/bfh1_glass_breaking_01.ogg
+  glass_2.mp3  ←  L:75-cc0-breaking-falling-hit-sfx/bfh1_glass_breaking_02.ogg
+  wood_break_1.mp3  ←  L:75-cc0-breaking-falling-hit-sfx/bfh1_wood_breaking_01.ogg
+  wood_break_2.mp3  ←  L:75-cc0-breaking-falling-hit-sfx/bfh1_wood_breaking_02.ogg
+  wood_hit_1.mp3  ←  L:100-CC0-wood-metal-SFX/wood_hit_01.ogg
+  wood_hit_2.mp3  ←  L:100-CC0-wood-metal-SFX/wood_hit_04.ogg
+  metal_1.mp3  ←  L:75-cc0-breaking-falling-hit-sfx/bfh1_metal_hit_01.ogg
+  metal_2.mp3  ←  L:75-cc0-breaking-falling-hit-sfx/bfh1_metal_hit_02.ogg
+  jump_1.mp3  ←  L:warfork-cc0/sounds/players/male/jump_1.ogg
+  jump_2.mp3  ←  L:warfork-cc0/sounds/players/female/jump_1.ogg
+  land_1.mp3  ←  J:impacts/soft_medium_01.mp3
+  land_2.mp3  ←  J:impacts/soft_medium_02.mp3
+  pickup_1.mp3  ←  L:warfork-cc0/sounds/items/ammo_pickup.ogg
+  pickup_2.mp3  ←  L:warfork-cc0/sounds/items/shell_pickup.ogg
+  skull_pickup_1.mp3  ←  L:75-cc0-breaking-falling-hit-sfx/bfh1_misc_02.ogg
+  skull_pickup_2.mp3  ←  L:80-CC0-RPG-SFX/item_stone_02.ogg
+  respawn_1.mp3  ←  L:warfork-cc0/sounds/world/player_respawn.ogg
+  super_ready_1.mp3  ←  L:warfork-cc0/sounds/items/quad_spawn.ogg
+  score_good_1.mp3  ←  J:arcade/two_tone_01.mp3
+  score_bad_1.mp3  ←  J:arcade/low_down_01.mp3
+  meteor_1.mp3  ←  L:warfork-cc0/sounds/weapons/rocket_fly_strong.ogg
+  wanted_1.mp3  ←  J:ww2/air_raid_siren_02.mp3
+  vo_3.mp3  ←  L:kenney_voiceoverfighter/Audio/3.ogg
+  vo_2.mp3  ←  L:kenney_voiceoverfighter/Audio/2.ogg
+  vo_1.mp3  ←  L:kenney_voiceoverfighter/Audio/1.ogg
+  vo_fight.mp3  ←  L:kenney_voiceoverfighter/Audio/fight.ogg
+  vo_combo.mp3  ←  L:kenney_voiceoverfighter/Audio/combo.ogg
+  vo_multikill.mp3  ←  L:kenney_voiceoverfighter/Audio/multi_kill.ogg
+  vo_victory.mp3  ←  L:kenney_voiceoverfighter/Audio/you_win.ogg
+  vo_defeat.mp3  ←  L:kenney_voiceoverfighter/Audio/you_lose.ogg
+  ui_click_1.mp3  ←  J:ui/click_01.mp3
+  ui_click_2.mp3  ←  J:ui/click_02.mp3
+  ui_back_1.mp3  ←  J:ui/back_01.mp3
+  ui_open_1.mp3  ←  J:ui/open_01.mp3
+  ui_tab_1.mp3  ←  J:ui/switch_01.mp3
+  ui_error_1.mp3  ←  J:ui/error_01.mp3
+  ui_buy_1.mp3  ←  J:rpg/coins_02.mp3
+  ui_play_1.mp3  ←  J:ui/confirm_01.mp3
+  ui_reward_1.mp3  ←  J:arcade/pep_05.mp3
+  ui_level_1.mp3  ←  J:arcade/power_up_10.mp3
+  chest_drop_1.mp3  ←  J:impacts/wood_heavy_02.mp3
+  chest_shake_1.mp3  ←  L:80-CC0-RPG-SFX/chain_02.ogg
+  chest_open_1.mp3  ←  J:rpg/creak_01.mp3
+  card_flip_1.mp3  ←  J:tabletop/card_slide_01.mp3
+  rare_reveal_1.mp3  ←  J:jingles/jingle_hit_03.mp3
+  epic_reveal_1.mp3  ←  J:jingles/jingle_hit_09.mp3
+  god_reveal_1.mp3  ←  J:jingles/jingle_sax_05.mp3
+  victory_1.mp3  ←  J:jingles/jingle_sax_01.mp3
+  defeat_1.mp3  ←  J:jingles/jingle_sax_14.mp3
+  skull_laugh_1.mp3  ←  L:BB_Retail Therapy Sample Pack/Laughing on Company Time.wav
+  music_menu.mp3  ←  L:warfork-cc0/music/fvi-HippetyHop.ogg
+  music_battle.mp3  ←  S:game-virtual-rush.mp3
+  music_boss.mp3  ←  S:game-pursuit.mp3
