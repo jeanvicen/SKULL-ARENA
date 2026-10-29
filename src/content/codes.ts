@@ -41,6 +41,7 @@ export const CODES: PromoCodeDef[] = [
     note: 'Código do criador',
   },
   { code: 'HALLOWEEN', rewards: [{ kind: 'chest', id: 'bau_evento_halloween' }], validFrom: '2026-10-24T00:00:00-03:00', validUntil: '2026-11-08T23:59:59-03:00' },
+  // <novo-codigo> (o script `npm run novo:codigo` adiciona códigos aqui)
 ];
 
 /**

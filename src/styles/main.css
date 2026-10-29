@@ -1412,9 +1412,12 @@ select.inp {
   display: grid;
   grid-template-columns: minmax(240px, 42%) 1fr;
   gap: 16px;
-  min-height: 100%;
+  align-items: start;
 }
 .cd-left {
+  position: sticky;
+  top: 0;
+  height: calc(100dvh - 96px - var(--safe-t) - var(--safe-b));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1424,11 +1427,15 @@ select.inp {
   position: relative;
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center;
   flex: 1;
+  min-height: 0;
+  width: 100%;
 }
 .cd-stage canvas {
   position: relative;
+  max-height: 100%;
+  width: auto !important;
 }
 .anim-row {
   display: flex;
@@ -2089,7 +2096,8 @@ select.inp {
   outline: 2px solid var(--yellow);
 }
 .pass-cell {
-  min-height: 112px;
+  height: 150px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2601,6 +2609,10 @@ select.inp {
   gap: 8px;
   position: sticky;
   top: 0;
+  align-self: start;
+}
+.studio-right select.inp {
+  min-width: 150px;
 }
 .studio-stage {
   position: relative;

@@ -72,6 +72,7 @@ export const EVENTS: EventDef[] = [
       { kind: 'title', id: 'natal', text: 'Papai Caveira' },
     ],
   },
+  // <novo-evento> (o script `npm run novo:evento` adiciona eventos aqui)
 ];
 
 /** Agora (dá pra "viajar no tempo" pra testar: localStorage skull.now = '2026-12-20') */

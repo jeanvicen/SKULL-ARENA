@@ -153,6 +153,7 @@ export const HANDMADE_PETS: PetDef[] = [
     handmade: true,
     unlock: { kind: 'chest' },
   },
+  // <novo-pet> (o script `npm run novo:pet` adiciona pets aqui)
 ];
 
 /** Quantos pets o gerador cria (aumente pra ter mais). */

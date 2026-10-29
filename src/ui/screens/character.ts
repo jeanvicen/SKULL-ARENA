@@ -18,7 +18,7 @@ import { CharView } from '../pixelView';
  */
 
 /** Resumo numérico de uma habilidade (dano total, alcance, recarga). */
-export function abilityNumbers(ab: AbilityDef): Array<[string, string]> {
+export function abilityNumbers(ab: AbilityDef, isAttack = false): Array<[string, string]> {
   const out: Array<[string, string]> = [];
   let dmg = 0;
   let heal = 0;
@@ -66,7 +66,7 @@ export function abilityNumbers(ab: AbilityDef): Array<[string, string]> {
   if (dps) out.push(['Dano/s', num(dps)]);
   if (heal) out.push(['Cura', num(heal)]);
   if (ab.range) out.push(['Alcance', `${(ab.range / 64).toFixed(1)} blocos`]);
-  if (ab.cooldown) out.push(['Recarga', `${ab.cooldown}s`]);
+  if (ab.cooldown) out.push([isAttack ? 'Intervalo' : 'Recarga', `${ab.cooldown}s`]);
   return out;
 }
 
@@ -164,7 +164,7 @@ export function characterScreen(app: App, id: string, onBack?: () => void): Scre
             h('small', null, kind),
             h('b', null, ab.name),
             h('p', null, ab.desc),
-            h('div.ab-nums', null, ...abilityNumbers(ab).map(([k, v]) => h('span', null, `${k}: `, h('b', null, v)))),
+            h('div.ab-nums', null, ...abilityNumbers(ab, cls === 'atk').map(([k, v]) => h('span', null, `${k}: `, h('b', null, v)))),
           ),
         );
       fill(
