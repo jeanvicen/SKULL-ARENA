@@ -17,7 +17,7 @@
  */
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { existsSync, readFileSync, statSync } from 'node:fs';
-import { extname, join, normalize } from 'node:path';
+import { extname, join, normalize, resolve } from 'node:path';
 import { WebSocketServer, type WebSocket } from 'ws';
 import { ADMIN_PIN as FILE_PIN } from '../src/content/codes';
 import { hasCharacter } from '../src/content/characters';
@@ -37,7 +37,7 @@ const DIST = join(ROOT, 'dist');
 const ADMIN_PIN = process.env.ADMIN_PIN ?? FILE_PIN;
 if (!process.env.ADMIN_PIN) console.warn('⚠ ADMIN_PIN não definido: usando o PIN do arquivo src/content/codes.ts. Defina ADMIN_PIN no ambiente!');
 
-const db = new Db(join(ROOT, process.env.DATA ?? 'server-data', 'db.json'));
+const db = new Db(resolve(ROOT, process.env.DATA ?? 'server-data', 'db.json'));
 const rng = new Rng((Math.random() * 2 ** 32) >>> 0);
 
 // ---------------------------------------------------------------------------
