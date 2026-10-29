@@ -160,6 +160,8 @@ export type EffectDef =
   | { kind: 'melee'; range: number; arc: number; damage: number; knockback?: number; status?: StatusApply; lifesteal?: number; delay?: number; wallDamage?: number }
   | { kind: 'dash'; distance: number; speed?: number; damage?: number; radius?: number; knockback?: number; invuln?: boolean; status?: StatusApply; delay?: number }
   | { kind: 'blink'; distance: number; delay?: number }
+  /** pula até o ponto mirado (por cima das paredes) */
+  | { kind: 'leap'; duration?: number; delay?: number }
   | { kind: 'aoe'; at: 'self' | 'target'; radius: number; damage?: number; heal?: number; knockback?: number; pull?: number; status?: StatusApply; delay?: number; fx?: string; wallDamage?: number }
   | ({ kind: 'zone'; at: 'self' | 'target'; delay?: number } & ZoneEffect)
   | { kind: 'heal'; amount: number; radius?: number; delay?: number }

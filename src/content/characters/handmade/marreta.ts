@@ -1,0 +1,48 @@
+import { atk, skill, sup, st } from '../../abilities';
+import { defineCharacter } from '../define';
+
+export default defineCharacter({
+  id: 'marreta',
+  name: 'Marreta',
+  rarity: 'comum',
+  role: 'tanque',
+  title: 'A Parede que Anda',
+  quote: 'Porta? Eu sou a porta.',
+  bio: {
+    origem: 'Porto Ferrugem, cais 7',
+    idade: '27 anos',
+    historia: [
+      'Marreta descarregava contêineres no Porto Ferrugem desde os 14. Ganhou o apelido no dia em que um guindaste travou com uma carga em cima de três colegas — e ele, sem pensar, quebrou o lacre de aço do gancho com a marreta da obra. Ninguém se feriu. A marreta nunca mais saiu do ombro dele.',
+      'Quando o porto foi engolido pelas gangues, Marreta virou segurança de quem não podia pagar segurança. Entrou na Skull Arena pra bancar a reforma do centro comunitário do cais, onde dá aula de boxe de graça pra molecada. Parece bravo. É a pessoa mais paciente de Necrópolis — até alguém mexer com os alunos dele.',
+    ],
+    sonho: 'Abrir uma academia com o nome da mãe na fachada.',
+    medo: 'Altura. Por isso nunca sobe na laje, só derruba ela.',
+    rival: 'Kaze',
+    curiosidade: 'Usa touca até no verão e faz crochê nos intervalos das partidas.',
+  },
+  stats: { hp: 6300, speed: 240, ammo: 3, reload: 1.55 },
+  attack: atk.melee({ name: 'Marretada', dmg: 1450, range: 170, arc: 120, knock: 220, heavy: true }),
+  skills: [skill.dash({ name: 'Ombrada', dist: 320, dmg: 700, cd: 8, knock: 420, status: st.stun(0.5) })],
+  super: sup.quake({ name: 'Terremoto do Cais', dmg: 2300, radius: 215, status: st.stun(1) }),
+  passive: { name: 'Couro Grosso', desc: 'Recebe 12% menos dano de tudo.', armor: 0.12 },
+  look: {
+    species: 'human',
+    skin: '#9c6644',
+    body: 'heavy',
+    hair: { style: 'buzz', color: '#1c140f' },
+    eyes: { style: 'sharp', color: '#2b1a10' },
+    brows: 'angry',
+    mouth: 'frown',
+    face: { scar: true },
+    top: { style: 'puffer', color: '#d9452b' },
+    pants: { style: 'cargo', color: '#2a2a30' },
+    shoes: { style: 'boots', color: '#2a2622' },
+    acc: { hat: 'beanie', hatColor: '#1d1b26' },
+    weapon: { kind: 'hammer', color: '#5d6678', color2: '#8a5a3c' },
+    scale: 1.06,
+  },
+  anim: { idle: 'heavy', run: 'stomp', attack: 'heavy_swing', victory: 'flex' },
+  voice: 'male',
+  unlock: { kind: 'starter' },
+  tags: ['inicial'],
+});

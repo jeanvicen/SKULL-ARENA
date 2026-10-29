@@ -1,0 +1,46 @@
+import { atk, skill, sup } from '../../abilities';
+import { defineCharacter } from '../define';
+
+export default defineCharacter({
+  id: 'djkiko',
+  name: 'DJ Kiko',
+  rarity: 'comum',
+  role: 'suporte',
+  title: 'O Grave que Cura',
+  quote: 'Abaixa o volume da treta e aumenta o do grave.',
+  bio: {
+    origem: 'Laje Alta, Morro do Osso',
+    idade: '21 anos',
+    historia: [
+      'Kiko montou a primeira caixa de som com peças de três rádios quebrados e um alto-falante achado no Shopping Abandonado. Descobriu por acidente que certas frequências fazem machucado fechar mais rápido — e que outras fazem gente ruim voar longe. Desde então, o baile da Laje Alta é o lugar mais seguro do Morro do Osso.',
+      'Foi chamado pra Skull Arena depois que um vídeo dele curando um time inteiro com um drop de funk viralizou. Kiko joga de óculos, fone num ouvido só e um sorriso torto: diz que a arena é só um baile maior, com mais gente precisando de cuidado. Mas ele anota cada nome de quem mira nos aliados dele.',
+    ],
+    sonho: 'Tocar no topo da Torre Neon pra cidade inteira ouvir de uma vez.',
+    medo: 'Silêncio total. Ele dorme com chiado de rádio.',
+    rival: 'Trovoada',
+    curiosidade: 'O relógio de pulso dele marca o BPM do ambiente, não as horas.',
+  },
+  stats: { hp: 3400, speed: 255, ammo: 3, reload: 1.4 },
+  attack: atk.wave({ name: 'Onda Grave', dmg: 680, range: 540, heal: 320, color: '#58ffd0', sfx: 'wave' }),
+  skills: [skill.shield({ name: 'Escudo de Subgrave', amount: 1300, dur: 4, radius: 230, cd: 11 })],
+  super: sup.healField({ name: 'Drop do Beat', hps: 720, radius: 235, dur: 5, dmg: 850 }),
+  passive: { name: 'Ritmo Constante', desc: 'Regenera 80 de vida por segundo mesmo em combate.', regen: 80 },
+  look: {
+    species: 'human',
+    skin: '#8a5a3c',
+    body: 'normal',
+    hair: { style: 'curly', color: '#16100c' },
+    eyes: { style: 'sleepy', color: '#2a1a12' },
+    brows: 'flat',
+    mouth: 'smirk',
+    top: { style: 'ribbed_tee', color: '#17161c' },
+    pants: { style: 'baggy', color: '#6e6e74' },
+    shoes: { style: 'chunky', color: '#f7f7f7', sole: '#f7f7f7', accent: '#e2e2e2' },
+    acc: { glasses: 'rect', earbuds: true, watch: true },
+    weapon: { kind: 'boombox', color: '#2b2a33', color2: '#58ffd0' },
+  },
+  anim: { idle: 'cocky', run: 'skip', attack: 'boombox', victory: 'peace' },
+  voice: 'male',
+  unlock: { kind: 'starter' },
+  tags: ['inicial'],
+});
