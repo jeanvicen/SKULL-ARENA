@@ -22,10 +22,6 @@
     "server:build": "esbuild server/index.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist-server/index.mjs --packages=external",
     "e2e": "node tools/e2e.mjs"
   },
-  "dependencies": {
-    "@fontsource/lilita-one": "^5.3.0",
-    "@fontsource/nunito": "^5.3.0"
-  },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "@types/ws": "^8.18.2",
@@ -35,5 +31,9 @@
     "vite": "^8.3.5",
     "vitest": "^5.0.5",
     "ws": "^8.22.0"
+  },
+  "dependencies": {
+    "@fontsource/pixelify-sans": "^5.3.0",
+    "@fontsource/press-start-2p": "^5.3.0"
   }
 }

@@ -386,6 +386,22 @@ export type UnlockRule =
   | { kind: 'shop'; price: number; currency: 'moedas' | 'isvoid' }
   | { kind: 'pass'; tier: number };
 
+/**
+ * Folha de sprite desenhada à mão (Piskel/Aseprite). Só o `src` é obrigatório se
+ * você usar o formato padrão (quadros 72×84, pés em 36,76, uma animação por linha —
+ * veja pixel/sprite.ts ou exporte um modelo no Estúdio do jogo).
+ */
+export interface SheetDef {
+  /** caminho dentro de public/, ex.: 'sprites/kaze.png' */
+  src: string;
+  frameW?: number;
+  frameH?: number;
+  originX?: number;
+  originY?: number;
+  /** quantos quadros cada linha tem (se for diferente do padrão) */
+  frames?: Partial<Record<'idle' | 'run' | 'attack' | 'cast' | 'hit' | 'victory' | 'defeat' | 'dash', number>>;
+}
+
 export interface CharacterDef {
   id: string;
   name: string;
@@ -402,6 +418,8 @@ export interface CharacterDef {
   super: AbilityDef;
   passive?: PassiveDef;
   look: Look;
+  /** (opcional) seu próprio desenho em pixel art — substitui o gerado */
+  sheet?: string | SheetDef;
   anim: AnimStyle;
   /** banco de voz (sons de ataque/dano/vitória) */
   voice?: 'male' | 'female' | 'robot' | 'monster' | 'skull' | 'cute';
@@ -467,6 +485,8 @@ export interface PetDef {
   bonus: PetBonus;
   handmade?: boolean;
   unlock: UnlockRule;
+  /** (opcional) desenho seu: PNG com quadros 32×32 lado a lado (4 quadros) */
+  sheet?: string;
 }
 
 // ---------------------------------------------------------------------------
